@@ -27,6 +27,8 @@ export default function App() {
   const [electionState, setElectionState] = useState('ap');
   const [bookmarks, setBookmarks] = useState([2]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState(null);
   
   // JWT AUTHENTICATION STATES
   const [cmsToken, setCmsToken] = useState(localStorage.getItem('cms_token') || '');
@@ -1115,7 +1117,33 @@ export default function App() {
     }
   };
 
-  const filteredArticles = articles.filter(art => {
+  // MongoDB Search Engine Integration
+  useEffect(() => {
+    if (!searchQuery || IS_PROD) {
+      setSearchResults(null);
+      return;
+    }
+    const timeout = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/search?q=${encodeURIComponent(searchQuery)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setSearchResults(data);
+        } else {
+          setSearchResults([]);
+        }
+      } catch (err) {
+        console.error('Search Engine Failed:', err);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 400); // 400ms debounce
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
+
+  const filteredArticles = searchResults || articles.filter(art => {
     const textToMatch = (language === 'telugu' ? art.title : art.titleEn).toLowerCase();
     return textToMatch.includes(searchQuery.toLowerCase());
   });
