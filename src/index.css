@@ -996,3 +996,178 @@ button, [role="button"], .cat-card, .nav-link-custom {
   .cms-dash-cards { grid-template-columns: repeat(2, 1fr) !important; }
   .grid-2-col-tablet { grid-template-columns: repeat(2, 1fr) !important; }
 }
+
+/* =============================================
+   MOBILE REFERENCE REDESIGN STYLES
+   ============================================= */
+
+.mobile-list-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  background-color: transparent;
+  border-bottom: 1px solid var(--border-color);
+  padding: 16px 0;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  box-shadow: none;
+}
+.mobile-list-card:hover {
+  transform: none;
+  box-shadow: none;
+  border-bottom-color: var(--border-color);
+}
+.mobile-list-card:last-child {
+  border-bottom: none;
+}
+.mobile-list-card .card-img-container {
+  width: 80px;
+  height: 80px;
+  min-width: 80px;
+  border-radius: 50%;
+  padding-bottom: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background-color: var(--border-color);
+}
+.mobile-list-card .card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: relative;
+}
+.mobile-list-card .card-content {
+  flex: 1;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.mobile-list-card .card-title {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin: 4px 0 0 0;
+  color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: var(--font-telugu);
+}
+.mobile-list-card .card-category {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--primary-red);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.mobile-list-card .bookmark-icon {
+  margin-left: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.mobile-section-header {
+  display: flex;
+  align-items: baseline;
+  margin-top: 36px;
+  margin-bottom: 16px;
+  font-family: var(--font-telugu);
+}
+.mobile-section-header h3 {
+  font-size: 1.35rem;
+  font-weight: 900;
+  margin: 0;
+  color: var(--text-primary);
+}
+.mobile-section-header .red-slashes {
+  color: var(--primary-red);
+  font-weight: 900;
+  margin-left: 8px;
+  font-size: 1.35rem;
+  font-style: italic;
+}
+
+.quick-links-scroll {
+  display: flex;
+  overflow-x: auto;
+  gap: 10px;
+  padding-bottom: 8px;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+.quick-links-scroll::-webkit-scrollbar {
+  display: none;
+}
+.quick-link-chip {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.reference-drawer-menu {
+  background-color: #0A0A0A !important;
+  color: white !important;
+  width: 85vw !important; /* Full height drawer, covers most of screen */
+  max-width: 360px;
+}
+.reference-drawer-menu .drawer-link {
+  border-bottom: 1px solid #1F1F1F;
+  padding: 16px 16px;
+  font-weight: 600;
+  font-size: 1.05rem;
+  display: block;
+  cursor: pointer;
+}
+.reference-drawer-menu .drawer-link:last-child {
+  border-bottom: none;
+}
+
+/* Show reference layout primarily on mobile, fallback to grid on desktop */
+@media (min-width: 769px) {
+  .mobile-list-card {
+    flex-direction: column;
+    align-items: flex-start;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 0;
+    gap: 0;
+    box-shadow: var(--shadow-sm);
+  }
+  .mobile-list-card .card-img-container {
+    width: 100%;
+    height: auto;
+    border-radius: 0;
+    padding-bottom: 56.25%;
+  }
+  .mobile-list-card .card-content {
+    padding: 16px;
+  }
+  .mobile-list-card .card-title {
+    -webkit-line-clamp: 2;
+  }
+  .mobile-list-card .bookmark-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: white;
+    padding: 4px;
+    border-radius: 50%;
+  }
+  .mobile-reference-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+}

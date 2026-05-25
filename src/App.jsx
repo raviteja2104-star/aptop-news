@@ -1210,22 +1210,37 @@ export default function App() {
           {/* Mobile Drawer Menu */}
           {isMobileMenuOpen && (
             <div className="mobile-drawer-overlay" onClick={() => setIsMobileMenuOpen(false)}>
-              <div className="mobile-drawer" onClick={e => e.stopPropagation()}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', borderBottom: '1px solid var(--border-color)' }}>
-                  <span style={{ fontWeight: 800, fontSize: '1.2rem', color: 'var(--primary-red)' }}>Aptop News</span>
-                  <button onClick={() => setIsMobileMenuOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-primary)' }}><X size={24} /></button>
+              <div className="mobile-drawer reference-drawer-menu" onClick={e => e.stopPropagation()}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', borderBottom: '1px solid #2D2D2D', alignItems: 'center' }}>
+                  <button onClick={() => setIsMobileMenuOpen(false)} style={{ background: 'none', border: 'none', color: 'white' }}><X size={24} /></button>
+                  <span style={{ fontWeight: 800, fontSize: '1.2rem', color: 'white' }}>Aptop News</span>
+                  <div style={{ display: 'flex', gap: '16px' }}>
+                    <Search size={20} style={{ color: 'white' }} onClick={() => setCurrentPage('search')} />
+                    <button onClick={toggleDarkMode} style={{ background: 'none', border: 'none', color: 'white' }}>
+                      {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+                    </button>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', padding: '16px', gap: '16px', fontSize: '1.1rem', fontWeight: 'bold' }}>
-                  <span onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>📍 Andhra Pradesh</span>
-                  <span onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>📍 Telangana</span>
-                  <span onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>🏛️ Politics</span>
-                  <span onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>🎬 Cine</span>
-                  <span onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>🔴 Live TV</span>
-                  <span onClick={() => { setCurrentPage('epaper'); setIsMobileMenuOpen(false); }}>📰 E-paper</span>
-                  <div style={{ height: '1px', backgroundColor: 'var(--border-color)', margin: '8px 0' }}></div>
-                  <span onClick={() => { setCurrentPage('elections'); setIsMobileMenuOpen(false); }}>🗳️ Elections</span>
-                  <span onClick={() => { setCurrentPage('advertise'); setShowAdvertiserDashboard(true); setIsMobileMenuOpen(false); }}>💼 Advertise</span>
-                  <span onClick={() => { setShowPremiumCheckout(true); setIsMobileMenuOpen(false); }} style={{ color: 'gold' }}>⭐ Premium</span>
+                <div style={{ display: 'flex', flexDirection: 'column', padding: '0', overflowY: 'auto', height: 'calc(100vh - 65px)' }}>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Home</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Andhra Pradesh</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Telangana</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Politics</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Business</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Entertainment</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>World</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>National</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Sports</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Technology</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Education</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Lifestyle</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('spiritual'); setIsMobileMenuOpen(false); }}>Spiritual</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Jobs</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('epaper'); setIsMobileMenuOpen(false); }}>E-paper</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Live TV</span>
+                  <span className="drawer-link" onClick={() => { setShowPremiumCheckout(true); setIsMobileMenuOpen(false); }} style={{ color: 'var(--accent-yellow)' }}>Premium</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('advertise'); setShowAdvertiserDashboard(true); setIsMobileMenuOpen(false); }}>Advertise</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Contact</span>
                 </div>
               </div>
             </div>
@@ -1766,24 +1781,26 @@ export default function App() {
                       <h2 className="hero-title">{language === 'telugu' ? articles[0].title : articles[0].titleEn}</h2>
                       <p className="hero-desc">{language === 'telugu' ? articles[0].desc : articles[0].descEn}</p>
                       
-                      <div className="hero-meta">
-                        <Calendar size={14} />
-                        <span>{articles[0].date}</span>
-                        <span>•</span>
-                        <span>{language === 'telugu' ? `రచన: ${articles[0].author}` : `Author: ${articles[0].authorEn}`}</span>
-                        <button 
-                          onClick={() => {
-                            setSelectedArticleId(articles[0].id);
-                            setCurrentPage('article');
-                          }}
-                          style={{ marginLeft: 'auto', backgroundColor: 'var(--primary-red)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontFamily: 'var(--font-telugu)' }}
-                        >
-                          {language === 'telugu' ? 'చదవండి →' : 'Read More →'}
-                        </button>
+                      <div className="hero-meta" style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <Calendar size={14} />
+                          <span>{articles[0].date}</span>
+                        </div>
+                        <Bookmark size={18} style={{ color: 'var(--text-secondary)' }} />
                       </div>
                     </div>
                   </section>
                 )}
+
+                {/* Reference Layout Quick Links */}
+                <div className="quick-links-scroll mobile-only">
+                  <span className="quick-link-chip" style={{ color: 'var(--primary-red)' }}>Latest updates</span>
+                  <span className="quick-link-chip" onClick={() => setCurrentPage('home')}>Andhra Pradesh</span>
+                  <span className="quick-link-chip" onClick={() => setCurrentPage('home')}>Telangana</span>
+                  <span className="quick-link-chip" onClick={() => setCurrentPage('home')}>Politics</span>
+                  <span className="quick-link-chip" onClick={() => setCurrentPage('home')}>Sports</span>
+                  <span className="quick-link-chip" onClick={() => setCurrentPage('home')}>Cinema</span>
+                </div>
 
                 {/* DOWNTOWN VERTICAL REELS SLIDER */}
                 <section style={{ marginBottom: '32px' }}>
@@ -1894,39 +1911,35 @@ export default function App() {
                       </form>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '3px solid var(--primary-red)', paddingBottom: '8px' }}>
-                      <h3 style={{ fontSize: '1.4rem', color: 'var(--primary-red)' }}>
-                        {language === 'telugu' ? 'ప్రధాన వార్తా స్రవంతి' : 'PRIME NEWS ARCHIVE'}
-                      </h3>
-                    </div>
-
-                    <div className="news-grid news-grid-2">
-                      {filteredArticles.map(art => (
-                        <article className="news-card" key={art.id}>
-                          <div className="card-img-container">
-                            <img src={art.image} className="card-img" alt="" />
-                            <span className="badge badge-red" style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 5 }}>
-                              {language === 'telugu' ? art.categoryTe : art.category}
-                            </span>
+                    {/* DYNAMIC REFERENCE STYLE CATEGORY SECTIONS */}
+                    {Array.from(new Set(filteredArticles.map(a => a.category))).map(cat => {
+                      const catArts = filteredArticles.filter(a => a.category === cat);
+                      if (catArts.length === 0) return null;
+                      return (
+                        <div key={cat} style={{ marginBottom: '16px' }}>
+                          <div className="mobile-section-header">
+                            <h3>{language === 'telugu' ? catArts[0].categoryTe : cat}</h3>
+                            <span className="red-slashes">//</span>
                           </div>
-                          <div className="card-content">
-                            <h4 className="card-title" onClick={() => {
-                              setSelectedArticleId(art.id);
-                              setCurrentPage('article');
-                            }} style={{ cursor: 'pointer' }}>
-                              {language === 'telugu' ? art.title : art.titleEn}
-                            </h4>
-                            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: '12px', fontFamily: 'var(--font-telugu)' }}>
-                              {language === 'telugu' ? art.desc : art.descEn}
-                            </p>
-                            <div className="card-meta">
-                              <span>{art.date}</span>
-                              <span>{language === 'telugu' ? `కర్త: ${art.author}` : `By: ${art.authorEn}`}</span>
-                            </div>
+                          <div className="mobile-reference-grid">
+                            {catArts.map(art => (
+                              <article className="mobile-list-card" key={art.id}>
+                                <div className="card-img-container" onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
+                                  <img src={art.image} className="card-img" alt="" />
+                                </div>
+                                <div className="card-content">
+                                  <span className="card-category">{language === 'telugu' ? art.categoryTe : art.category}</span>
+                                  <h4 className="card-title" onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
+                                    {language === 'telugu' ? art.title : art.titleEn}
+                                  </h4>
+                                </div>
+                                <Bookmark className="bookmark-icon" size={16} />
+                              </article>
+                            ))}
                           </div>
-                        </article>
-                      ))}
-                    </div>
+                        </div>
+                      );
+                    })}
 
                     {/* PUBLIC REPORTER BUREAU PROFILE MATRIX */}
                     <div style={{ marginTop: '48px' }}>
