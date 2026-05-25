@@ -1100,7 +1100,7 @@ export default function App() {
                   </button>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '32px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '32px' }} className="epaper-layout">
                   {/* Left Side: Edition selector */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <h4 style={{ fontSize: '1rem', fontWeight: 'bold', borderLeft: '3px solid var(--primary-red)', paddingLeft: '8px' }}>Select Edition</h4>
@@ -1151,7 +1151,7 @@ export default function App() {
                   <p style={{ color: 'var(--text-secondary)' }}>Real-Time Legislative Seat Count & Candidate Analysis</p>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginBottom: '32px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginBottom: '32px' }} className="election-results-grid">
                   {/* AP Results */}
                   <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px', marginBottom: '16px' }}>
@@ -1223,19 +1223,19 @@ export default function App() {
                   <p style={{ color: 'var(--text-secondary)' }}>Daily Temple Pooja Schedules & Virtual Seva Booking</p>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }} className="spiritual-page-grid">
                   {/* Temple video player & active schedules */}
                   <div>
                     <div style={{ border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden', marginBottom: '24px' }}>
-                      <iframe 
-                        width="100%" 
-                        height="400" 
-                        src="https://www.youtube.com/embed/S-Bw-BvJb8Q" 
-                        title="Tirumala Live Poojas" 
-                        frameBorder="0" 
-                        allowFullScreen
-                      ></iframe>
-                      <div style={{ backgroundColor: 'var(--primary-red)', color: 'white', padding: '12px', display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                      <div className="responsive-iframe-wrap">
+                        <iframe 
+                          src="https://www.youtube.com/embed/S-Bw-BvJb8Q" 
+                          title="Tirumala Live Poojas" 
+                          frameBorder="0" 
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                      <div style={{ backgroundColor: 'var(--primary-red)', color: 'white', padding: '12px', display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', flexWrap: 'wrap', gap: '4px' }}>
                         <span>📺 తిరుమల తిరుపతి దేవస్థానం ప్రత్యక్ష పూజా కార్యక్రమాలు</span>
                         <span style={{ fontWeight: 'bold' }}>🔴 TT LIVE STREAM ACTIVE</span>
                       </div>
@@ -1277,7 +1277,7 @@ export default function App() {
                   <p style={{ color: 'var(--text-secondary)' }}>Launch Target CPC Ads & Monitor Real-Time Impression Ledger Metrics</p>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '32px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '32px' }} className="advertiser-portal-grid">
                   {/* Advertiser creation form */}
                   <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)', textAlign: 'left' }}>
                     <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>Launch CPC Ad Campaign</h3>
@@ -2304,7 +2304,7 @@ export default function App() {
           ) : (
             <>
               {/* CMS SIDEBAR */}
-              <aside style={{ width: '260px', backgroundColor: '#1E1E1E', color: '#D1D5DB', display: 'flex', flexDirection: 'column', borderRight: '1px solid #2D2D2D' }}>
+              <aside style={{ width: '260px', backgroundColor: '#1E1E1E', color: '#D1D5DB', display: 'flex', flexDirection: 'column', borderRight: '1px solid #2D2D2D' }} className="cms-workspace">
                 <div style={{ padding: '24px 20px', borderBottom: '1px solid #2D2D2D', backgroundColor: '#1A1A1A' }}>
                   <h3 style={{ color: '#D61F26', fontSize: '1.25rem', fontWeight: 800 }}>ఆప్టాప్ CMS</h3>
                   <p style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: '2px' }}>Newsroom Dashboard</p>
@@ -2394,7 +2394,7 @@ export default function App() {
                     )}
 
                     {/* STATS CARDS */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }} className="cms-stats-grid">
                       <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderLeft: '4px solid #D61F26' }}>
                         <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#6B7280', fontWeight: 'bold' }}>Total Articles</span>
                         <h3 style={{ fontSize: '2rem', fontWeight: 800, marginTop: '8px' }}>{articles.length}</h3>

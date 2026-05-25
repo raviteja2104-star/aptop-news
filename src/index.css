@@ -92,6 +92,11 @@ a {
   padding: 0 16px;
 }
 
+/* =============================================
+   MOBILE-FIRST RESPONSIVE MEDIA QUERIES
+   Breakpoints: 480 | 768 | 992 | 1280
+   ============================================= */
+
 .badge {
   display: inline-block;
   padding: 4px 8px;
@@ -175,18 +180,51 @@ a {
 .news-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
+  gap: 16px;
+}
+
+/* news-grid-2: 1 col mobile → 2 col tablet+ */
+.news-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+/* news-grid-3: 1 col mobile → 3 col desktop */
+.news-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+/* news-grid-4: 2 col mobile → 4 col desktop */
+.news-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 600px) {
+  .news-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (min-width: 768px) {
+  .news-grid {
+    gap: 24px;
+  }
   .news-grid-2 {
     grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
   }
   .news-grid-3 {
     grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
   }
   .news-grid-4 {
     grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
   }
 }
 
@@ -591,3 +629,234 @@ a {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* =============================================
+   RESPONSIVE OVERRIDES — MOBILE (≤ 767px)
+   ============================================= */
+
+/* Device toggle bar — wrap on small screens */
+@media (max-width: 767px) {
+  .device-toggle-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+
+  .device-toggle-bar > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Main site header — stack logo + controls */
+  header .container {
+    flex-direction: column !important;
+    gap: 10px !important;
+    padding: 12px 16px !important;
+  }
+
+  /* Secondary nav — horizontal scroll */
+  nav .container {
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    gap: 16px !important;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  nav .container::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hero title smaller on mobile */
+  .hero-title {
+    font-size: 1.35rem;
+  }
+
+  .hero-text-wrap {
+    padding: 20px 16px;
+  }
+
+  .hero-desc {
+    font-size: 0.9rem;
+  }
+
+  /* Force single column on all grids on mobile */
+  .news-grid-2,
+  .news-grid-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Ticker font size */
+  .ticker-item {
+    font-size: 0.82rem;
+  }
+
+  /* Category cards — 2 per row on mobile */
+  .cat-grid-mobile {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  /* CMS Sidebar hidden by default on mobile */
+  .cms-sidebar-mobile-hidden {
+    display: none;
+  }
+
+  /* Full-width on mobile container */
+  .container {
+    padding: 0 12px;
+  }
+
+  /* Button text size */
+  .btn {
+    font-size: 0.85rem;
+    padding: 8px 14px;
+  }
+
+  /* Photo gallery cards narrower */
+  .gallery-item {
+    flex: 0 0 220px;
+  }
+
+  /* Phone frame on small screens */
+  .phone-frame {
+    width: 340px;
+    height: 720px;
+  }
+
+  /* Special pages (E-paper, Elections) — force single col */
+  .special-page-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  /* Election seat bars labels shorten */
+  .party-name {
+    width: 60px;
+    font-size: 0.8rem;
+  }
+
+  /* Hero image height on mobile */
+  .hero-img-wrap {
+    min-height: 200px;
+  }
+
+  /* CMS dashboard stats cards — 2 col on mobile */
+  .cms-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  /* Advertiser portal — stack form + table */
+  .advertiser-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Shorts Studio — stack editor + preview */
+  .shorts-studio-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Epaper layout — stack edition list + viewer */
+  .epaper-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Spiritual page — stack video + schedule */
+  .spiritual-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* =============================================
+   RESPONSIVE OVERRIDES — TABLET (768px–991px)
+   ============================================= */
+@media (min-width: 768px) and (max-width: 991px) {
+  .hero-title {
+    font-size: 1.6rem;
+  }
+
+  .news-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .news-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .phone-frame {
+    width: 360px;
+    height: 760px;
+  }
+
+  /* CMS — sidebar collapses to icon-only width */
+  aside {
+    width: 200px !important;
+  }
+
+  aside nav button span {
+    font-size: 0.75rem !important;
+  }
+}
+
+/* =============================================
+   RESPONSIVE OVERRIDES — DESKTOP (≥ 992px)
+   ============================================= */
+@media (min-width: 992px) {
+  .hero-img-wrap {
+    min-height: 360px;
+  }
+
+  .hero-title {
+    font-size: 2.2rem;
+  }
+}
+
+/* =============================================
+   TOUCH-FRIENDLY UTILITY ENHANCEMENTS
+   ============================================= */
+
+/* Minimum 44px touch target for all interactive elements */
+button, [role="button"], .cat-card, .nav-link-custom {
+  min-height: 40px;
+}
+
+/* Prevent text overflow on small viewports */
+* {
+  word-break: break-word;
+}
+
+/* Smooth horizontal scroll for mobile carousels */
+.photo-gallery-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+}
+
+.gallery-item {
+  scroll-snap-align: start;
+}
+
+/* Responsive iframe (YouTube live embeds) */
+.responsive-iframe-wrap {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: var(--border-radius);
+}
+
+.responsive-iframe-wrap iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+

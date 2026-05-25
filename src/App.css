@@ -12,9 +12,20 @@
   margin-bottom: 32px;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 768px) {
   .hero-featured-story {
     grid-template-columns: 1.2fr 1fr;
+  }
+}
+
+/* Mobile hero adjustments */
+@media (max-width: 767px) {
+  .hero-featured-story {
+    margin-bottom: 20px;
+  }
+
+  .hero-text-wrap {
+    padding: 16px;
   }
 }
 
@@ -259,4 +270,121 @@
 .news-card:hover .video-card-overlay {
   transform: translate(-50%, -50%) scale(1.1);
   background-color: var(--primary-red-hover);
+}
+
+/* =============================================
+   APP COMPONENT MOBILE RESPONSIVE OVERRIDES
+   ============================================= */
+
+/* Special page grids — responsive helpers for inline styles */
+@media (max-width: 767px) {
+
+  /* E-paper grid: edition selector + viewer */
+  .epaper-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px;
+  }
+
+  /* Newspaper front-page mockup — smaller headline */
+  .epaper-headline {
+    font-size: 1.2rem !important;
+  }
+
+  /* Elections two-column party grids stack */
+  .election-results-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Spiritual page — iframe full width */
+  .spiritual-page-grid {
+    grid-template-columns: 1fr !important;
+    flex-direction: column;
+  }
+
+  /* Advertiser page — form + table stack */
+  .advertiser-portal-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* CMS Newsroom — sidebar off */
+  .cms-workspace {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* CMS aside hidden on narrow viewport */
+  .cms-workspace aside {
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid #2D2D2D;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 8px;
+    overflow-x: auto;
+  }
+
+  /* CMS sidebar nav buttons inline row */
+  .cms-workspace aside nav {
+    flex-direction: row !important;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 8px 4px !important;
+    gap: 4px !important;
+  }
+
+  .cms-workspace aside nav button {
+    flex-shrink: 0;
+    padding: 8px 10px !important;
+    font-size: 0.7rem !important;
+    border-radius: 20px !important;
+  }
+
+  .cms-workspace aside nav button span {
+    display: none;
+  }
+
+  /* Shorts studio — single column */
+  .shorts-studio-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Phone frame should not show in mobile viewport */
+  .emulator-wrapper {
+    padding: 16px 8px;
+  }
+
+  /* Hero meta info wraps on narrow screens */
+  .hero-meta {
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 0.78rem;
+  }
+
+  /* Breaking banner smaller text */
+  .breaking-banner h2 {
+    font-size: 1.1rem;
+  }
+
+  /* Device toggle buttons label hide on very small */
+  .device-btn span.device-label {
+    display: none;
+  }
+}
+
+/* Tablet responsive additions for App components */
+@media (min-width: 768px) and (max-width: 991px) {
+
+  .advertiser-portal-grid {
+    grid-template-columns: 1fr 1.4fr !important;
+  }
+
+  .election-results-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .spiritual-page-grid {
+    grid-template-columns: 1.5fr 1fr !important;
+  }
 }
