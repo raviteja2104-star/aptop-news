@@ -345,6 +345,92 @@ export default function App() {
   const [cmsChatInput, setCmsChatInput] = useState('');
   const [cmsChatChannel, setCmsChatChannel] = useState('Breaking News');
 
+  const [activeCategoryTab, setActiveCategoryTab] = useState('Breaking');
+
+  // CATEGORY NAVIGATION LOGIC
+  const handleCategoryClick = (tab) => {
+    const sectionIdMap = {
+      'Breaking': 'breaking-news',
+      'Andhra Pradesh': 'andhra-pradesh',
+      'Telangana': 'telangana',
+      'Politics': 'politics',
+      'Sports': 'sports',
+      'Business': 'business',
+      'Cinema': 'cinema',
+      'Technology': 'technology',
+      'Jobs': 'jobs',
+      'Spiritual': 'spiritual',
+      'Live': 'live-tv',
+      'Reels': 'reels'
+    };
+    const sectionId = sectionIdMap[tab];
+    
+    if (currentPage !== 'home') {
+      setCurrentPage('home');
+      setTimeout(() => scrollToSection(sectionId, tab), 100);
+    } else {
+      scrollToSection(sectionId, tab);
+    }
+  };
+
+  const scrollToSection = (sectionId, tab) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const headerOffset = 60; // offset for sticky header
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - headerOffset;
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+      setActiveCategoryTab(tab);
+    } else {
+      // Fallback
+      if (tab === 'Live') setCurrentPage('live');
+      else navigate(`/category/${sectionId}`);
+    }
+  };
+
+  useEffect(() => {
+    if (currentPage !== 'home') return;
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.filter(e => e.isIntersecting);
+      if (visible.length > 0) {
+        const mostVisible = visible.reduce((prev, current) => 
+          (prev.intersectionRatio > current.intersectionRatio) ? prev : current
+        );
+        const idToTab = {
+          'breaking-news': 'Breaking',
+          'andhra-pradesh': 'Andhra Pradesh',
+          'telangana': 'Telangana',
+          'politics': 'Politics',
+          'sports': 'Sports',
+          'business': 'Business',
+          'cinema': 'Cinema',
+          'technology': 'Technology',
+          'jobs': 'Jobs',
+          'spiritual': 'Spiritual',
+          'live-tv': 'Live',
+          'reels': 'Reels'
+        };
+        const activeTab = idToTab[mostVisible.target.id];
+        if (activeTab && activeCategoryTab !== activeTab) {
+          setActiveCategoryTab(activeTab);
+          const tabEl = document.getElementById(`tab-${mostVisible.target.id}`);
+          if (tabEl) tabEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+      }
+    }, { threshold: 0.1, rootMargin: '-80px 0px -40% 0px' });
+    
+    const ids = ['breaking-news', 'andhra-pradesh', 'telangana', 'politics', 'sports', 'business', 'cinema', 'technology', 'jobs', 'spiritual', 'live-tv', 'reels'];
+    setTimeout(() => {
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) observer.observe(el);
+      });
+    }, 500);
+    
+    return () => observer.disconnect();
+  }, [currentPage, articles, activeCategoryTab]);
+
+
   // 1. BACKEND INITIALIZATION & WEBSOCKET SYNC
   useEffect(() => {
     fetchData();
@@ -460,7 +546,20 @@ export default function App() {
 
     try {
       const articlesData = await safeFetch(`${BACKEND_URL}/api/articles`, []);
-      setArticles(articlesData);
+      
+      const dummyArticles = [
+        { id: 901, title: 'వైజాగ్ తీరంలో తుఫాను హెచ్చరిక: అప్రమత్తమైన యంత్రాంగం', titleEn: 'Cyclone Alert on Vizag Coast: Administration on High Alert', category: 'Breaking', categoryTe: 'బ్రేకింగ్', image: 'https://images.unsplash.com/photo-1527482797697-8795b05a13fe?auto=format&fit=crop&q=80&w=800', date: 'Oct 24, 2026', desc: 'Visakhapatnam is bracing for a severe cyclonic storm. The local administration has initiated evacuation procedures in low-lying coastal areas. Fishermen have been advised not to venture into the sea.', district: 'Visakhapatnam' },
+        { id: 902, title: 'అమరావతికి కొత్త పారిశ్రామిక ప్రాజెక్టులు', titleEn: 'New Industrial Projects Approved for Amaravati', category: 'Andhra Pradesh', categoryTe: 'ఆంధ్ర ప్రదేశ్', image: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&q=80&w=800', date: 'Oct 24, 2026', desc: 'The central government has approved several new industrial corridors connecting Amaravati, aimed at boosting local employment and infrastructure.', district: 'Vijayawada' },
+        { id: 903, title: 'హైదరాబాద్‌లో ఐటీ రంగం పరుగులు: కొత్త పెట్టుబడులు', titleEn: 'IT Sector Booms in Hyderabad with New Investments', category: 'Telangana', categoryTe: 'తెలంగాణ', image: 'https://images.unsplash.com/photo-1596422846543-74c6fc0e3681?auto=format&fit=crop&q=80&w=800', date: 'Oct 24, 2026', desc: 'Hyderabad sees a massive surge in IT exports as multinational companies announce new tech hubs across the HITEC city area.', district: 'Hyderabad' },
+        { id: 904, title: 'ఎన్నికల ప్రచారంలో జోరు పెంచిన ప్రధాన పార్టీలు', titleEn: 'Major Parties Ramp Up Election Campaigns', category: 'Politics', categoryTe: 'రాజకీయాలు', image: 'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&q=80&w=800', date: 'Oct 24, 2026', desc: 'Political leaders are accelerating their campaigns across the state, organizing massive rallies and town halls ahead of the upcoming legislative elections.', district: 'All' },
+        { id: 905, title: 'క్రీడా ప్రపంచం: అదరగొట్టిన భారత క్రీడాకారులు', titleEn: 'Sports World: Indian Athletes Dominate', category: 'Sports', categoryTe: 'క్రీడలు', image: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?auto=format&fit=crop&q=80&w=800', date: 'Oct 24, 2026', desc: 'Team India put up a stellar performance in today\'s championship match, securing multiple gold medals and setting new regional records.', district: 'All' },
+        { id: 906, title: 'భారీగా పెరిగిన సెన్సెక్స్: మదుపరులకు లాభాలు', titleEn: 'Sensex Hits Record High: Investors Rejoice', category: 'Business', categoryTe: 'వ్యాపారం', image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&q=80&w=800', date: 'Oct 24, 2026', desc: 'Stock markets rallied today as Sensex hit an all-time high, driven by strong quarterly earnings from tech and banking sectors.', district: 'All' },
+        { id: 907, title: 'టాలీవుడ్ పాన్-ఇండియా మూవీ టీజర్ రిలీజ్', titleEn: 'Tollywood Pan-India Movie Teaser Released', category: 'Cinema', categoryTe: 'సినిమా', image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3a5?auto=format&fit=crop&q=80&w=800', date: 'Oct 24, 2026', desc: 'The much-awaited teaser of the upcoming blockbuster pan-India movie is out, breaking internet view records within hours of release.', district: 'Hyderabad' },
+        { id: 908, title: 'కొత్త ఏఐ మోడల్ ఆవిష్కరణ: టెక్ ప్రపంచంలో సంచలనం', titleEn: 'New AI Model Unveiled: A Tech Sensation', category: 'Technology', categoryTe: 'సాంకేతికం', image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800', date: 'Oct 24, 2026', desc: 'Tech giants announced a breakthrough AI model today, promising to revolutionize content creation and natural language processing applications globally.', district: 'Global' },
+        { id: 909, title: 'టాప్ కంపెనీలలో మెగా రిక్రూట్‌మెంట్ డ్రైవ్', titleEn: 'Mega Recruitment Drive in Top Tech Companies', category: 'Jobs', categoryTe: 'ఉద్యోగాలు', image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=800', date: 'Oct 24, 2026', desc: 'Top IT companies have announced thousands of open positions for freshers and experienced professionals across software engineering and data science roles.', district: 'All' },
+        { id: 910, title: 'తిరుమలలో భక్తుల రద్దీ: ప్రత్యేక దర్శనాలు', titleEn: 'Heavy Rush of Devotees at Tirumala for Special Darshan', category: 'Spiritual', categoryTe: 'ఆధ్యాత్మికం', image: 'https://images.unsplash.com/photo-1623910271505-8798e228ce78?auto=format&fit=crop&q=80&w=800', date: 'Oct 24, 2026', desc: 'Tirumala sees an unprecedented rush of devotees this weekend. The TTD board has made extensive arrangements for quick and hassle-free darshan.', district: 'Tirupati' }
+      ];
+      setArticles([...articlesData, ...dummyArticles]);
 
       const tickerData = await safeFetch(`${BACKEND_URL}/api/ticker`, []);
       setTickerItems(tickerData);
@@ -487,10 +586,20 @@ export default function App() {
       setLivePoll(pollData);
 
       const streamData = await safeFetch(`${BACKEND_URL}/api/live-streams`, []);
-      setLiveTelecasts(streamData);
+      const dummyStreams = [
+        { id: 901, active: true, embedUrl: 'https://www.youtube.com/embed/jfKfPfyJRdk', viewers: '14.2K', titleTe: 'ఏపీఎక్స్ న్యూస్ లైవ్ కవరేజ్', titleEn: 'Aptop News Live 24/7' },
+        { id: 902, active: true, embedUrl: 'https://www.youtube.com/embed/5qap5aO4i9A', viewers: '8.4K', titleTe: 'అసెంబ్లీ సమావేశాలు లైవ్', titleEn: 'Assembly Sessions Live' }
+      ];
+      setLiveTelecasts([...streamData, ...dummyStreams]);
 
       const mediaData = await safeFetch(`${BACKEND_URL}/api/media-library`, []);
-      setMediaLibrary(mediaData);
+      const dummyMedia = [
+        { id: 901, type: 'reels', url: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&q=80&w=400', caption: 'Viral: New Telugu Song' },
+        { id: 902, type: 'reels', url: 'https://images.unsplash.com/photo-1516280440502-613ec1e65449?auto=format&fit=crop&q=80&w=400', caption: 'Political Rally Highlights' },
+        { id: 903, type: 'reels', url: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&q=80&w=400', caption: 'Tirupati Vaikunta Ekadasi' },
+        { id: 904, type: 'reels', url: 'https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&q=80&w=400', caption: 'Tech Gadget Review' },
+      ];
+      setMediaLibrary([...mediaData, ...dummyMedia]);
 
       const emergencyData = await safeFetch(`${BACKEND_URL}/api/emergency`, { active: false });
       setEmergencyMode(emergencyData ? emergencyData.active : false);
@@ -1260,16 +1369,22 @@ export default function App() {
           </nav>
 
           {/* Mobile UX: Sticky Category Tabs */}
-          <div className="sticky-tabs-container mobile-only">
-            {['Breaking', 'Andhra Pradesh', 'Telangana', 'Politics', 'Sports', 'Business', 'Cinema', 'Technology', 'Jobs', 'Spiritual', 'Live', 'Reels'].map((tab, idx) => (
-              <div 
-                key={tab} 
-                className={`sticky-tab ${idx === 0 ? 'active' : ''}`}
-                onClick={() => setCurrentPage(tab === 'Live' ? 'live' : 'home')}
-              >
-                {tab}
-              </div>
-            ))}
+          <div className="sticky-tabs-container">
+            {['Breaking', 'Andhra Pradesh', 'Telangana', 'Politics', 'Sports', 'Business', 'Cinema', 'Technology', 'Jobs', 'Spiritual', 'Live', 'Reels'].map((tab, idx) => {
+              const tabId = tab.toLowerCase().replace(/\s+/g, '-');
+              return (
+                <div 
+                  key={tab} 
+                  id={`tab-${tabId}`}
+                  className={`sticky-tab ${activeCategoryTab === tab ? 'active' : ''}`}
+                  onClick={() => handleCategoryClick(tab)}
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleCategoryClick(tab); }}
+                >
+                  {tab}
+                </div>
+              );
+            })}
           </div>
 
           {/* Mobile UX: Sticky Breaking News Ticker */}
@@ -1789,7 +1904,7 @@ export default function App() {
             {currentPage === 'home' && (
               <>
                 {/* Mobile UX: Hero Story Carousel */}
-                <div className="hero-carousel-container">
+                <div className="hero-carousel-container" id="breaking-news">
                   {articles.slice(0, 3).map((art, idx) => (
                     <div className="hero-carousel-slide" key={art.id}>
                       <section className="hero-featured-story" style={{ marginBottom: 0 }}>
@@ -1862,7 +1977,7 @@ export default function App() {
                 </div>
 
                 {/* DOWNTOWN VERTICAL REELS SLIDER */}
-                <section style={{ marginBottom: '32px' }}>
+                <section id="reels" style={{ marginBottom: '32px' }}>
                   <h3 style={{ fontSize: '1.25rem', color: 'var(--primary-red)', borderBottom: '2px solid var(--primary-red)', paddingBottom: '6px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}><Film size={20} /> {language === 'telugu' ? 'ఆప్టాప్ క్లిప్స్ & రీల్స్' : 'Aptop Media Reels'}</h3>
                   <div style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '12px' }}>
                     {mediaLibrary.filter(m => m.type === 'reels' || m.type === 'image').map(media => (
@@ -1975,7 +2090,7 @@ export default function App() {
                       const catArts = filteredArticles.filter(a => a.category === cat);
                       if (catArts.length === 0) return null;
                       return (
-                        <div key={cat} style={{ marginBottom: '16px' }}>
+                        <section id={cat.toLowerCase().replace(/\s+/g, '-')} key={cat} style={{ marginBottom: '16px' }}>
                           <div className="mobile-section-header">
                             <h3>{language === 'telugu' ? catArts[0].categoryTe : cat}</h3>
                             <span className="red-slashes">//</span>
@@ -2015,7 +2130,7 @@ export default function App() {
                               ))}
                             </div>
                           )}
-                        </div>
+                        </section>
                       );
                     })}
 
@@ -2041,7 +2156,7 @@ export default function App() {
                   {/* Right Side Timelines */}
                   <div>
                     {/* Live telecast schedule */}
-                    <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px', marginBottom: '32px' }}>
+                    <section id="live-tv" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px', marginBottom: '32px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px', marginBottom: '16px' }}>
                         <Radio size={20} className="live-dot" style={{ color: 'var(--primary-red)' }} />
                         <h3 style={{ fontSize: '1.15rem' }}>{language === 'telugu' ? 'ప్రత్యక్ష టెలికాస్ట్ స్టూడియో' : 'Aptop Live TV Center'}</h3>
@@ -2066,7 +2181,7 @@ export default function App() {
                           <h4 style={{ fontSize: '0.85rem', marginTop: '6px', fontFamily: 'var(--font-telugu)', fontWeight: 'bold' }}>{language === 'telugu' ? stream.titleTe : stream.titleEn}</h4>
                         </div>
                       ))}
-                    </div>
+                    </section>
 
                     {/* District Filter News */}
                     <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px', marginBottom: '32px' }}>
