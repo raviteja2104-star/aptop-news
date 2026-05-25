@@ -1,0 +1,236 @@
+{
+  "articles": [
+    {
+      "id": 1779714585377,
+      "category": "Politics",
+      "categoryTe": "రాజకీయాలు",
+      "title": "ఆప్టాప్ ఎక్స్క్లూసివ్: తిరుపతి స్మార్ట్ సిటీ ప్రాజెక్టుకు సుమారు 3,000 కోట్ల నిధులు విడుదల!",
+      "titleEn": "Aptop Exclusive: TTD and State Release 3000 Crores for Tirupati Smart City!",
+      "desc": "తిరుపతి నగరంలో తాగునీటి సరఫరా మరియు రోడ్ల ఆధునీకరణ పనులకు ఈ నిధులు కేటాయించారు.",
+      "descEn": "తిరుపతి నగరంలో తాగునీటి సరఫరా మరియు రోడ్ల ఆధునీకరణ పనులకు ఈ నిధులు కేటాయించారు.",
+      "image": "/logo.png",
+      "author": "Srinivas Rao",
+      "authorEn": "Srinivas Rao",
+      "date": "ఇప్పుడే",
+      "views": 0,
+      "district": "Tirupati",
+      "districtTe": "తిరుపతి",
+      "status": "Published",
+      "priority": "Emergency",
+      "pinTop": true,
+      "slug": "aptop-exclusive-ttd-and-state-release-3000-crores-for-tirupati-smart-city",
+      "seoTitle": "Aptop Exclusive: TTD and State Release 3000 Crores for Tirupati Smart City!",
+      "metaDescription": "తిరుపతి నగరంలో తాగునీటి సరఫరా మరియు రోడ్ల ఆధునీకరణ పనులకు ఈ నిధులు కేటాయించారు.",
+      "comments": []
+    },
+    {
+      "id": 1779713999601,
+      "category": "Citizen Reporter",
+      "categoryTe": "సిటిజెన్ రిపోర్టర్",
+      "title": "ఫీల్డ్ రిపోర్ట్: new",
+      "titleEn": "Field Report: new",
+      "desc": "india (రిపోర్టర్: ravi, Location: Simulated Zone)",
+      "descEn": "india (Reported by: ravi, GPS: Verified)",
+      "image": "/logo.png",
+      "author": "ravi",
+      "authorEn": "ravi",
+      "date": "ఇప్పుడే",
+      "views": 0,
+      "district": "Visakhapatnam",
+      "districtTe": "విశాఖపట్నం",
+      "status": "Published",
+      "seoTitle": "Reporter Flash: new",
+      "metaDescription": "india",
+      "comments": [
+        {
+          "name": "ravi",
+          "text": "nice",
+          "date": "ఇప్పుడే"
+        }
+      ]
+    },
+    {
+      "id": 1779713769477,
+      "category": "Politics",
+      "categoryTe": "రాజకీయాలు",
+      "title": "ఆప్టాప్ వార్త: విజయవాడలో అత్యాధునిక రవాణా కారిడార్ నిర్మాణానికి ఆమోదం!",
+      "titleEn": "Aptop Breaking: High-Speed Metro Transit Corridor Approved in Vijayawada!",
+      "desc": "విజయవాడ ప్రజలకు రవాణా సదుపాయాలు మెరుగుపరిచేందుకు సుమారు 8,000 కోట్ల బడ్జెట్ తో నూతన మెట్రో కారిడార్ నిర్మాణ పనులకు ప్రభుత్వం శ్రీకారం చుట్టింది.",
+      "descEn": "విజయవాడ ప్రజలకు రవాణా సదుపాయాలు మెరుగుపరిచేందుకు సుమారు 8,000 కోట్ల బడ్జెట్ తో నూతన మెట్రో కారిడార్ నిర్మాణ పనులకు ప్రభుత్వం శ్రీకారం చుట్టింది.",
+      "image": "/logo.png",
+      "author": "Aptop Reporter",
+      "authorEn": "Aptop Reporter",
+      "date": "ఇప్పుడే",
+      "views": 0,
+      "district": "Vijayawada",
+      "districtTe": "విజయవాడ",
+      "status": "Published",
+      "seoTitle": "Vijayawada Transit Corridor Approved 2026",
+      "metaDescription": "High-Speed Metro Transit Corridor Approved in Vijayawada!",
+      "comments": []
+    },
+    {
+      "id": 1,
+      "category": "Politics",
+      "categoryTe": "రాజకీయాలు",
+      "title": "ఆంధ్రప్రదేశ్‌లో భారీగా పెరగనున్న ఐటీ పెట్టుబడులు.. 5 ప్రముఖ సంస్థలతో కీలక ఒప్పందాలు!",
+      "titleEn": "IT Investments to Surge in Andhra Pradesh: Key Agreements Signed with 5 Global Firms!",
+      "desc": "ఏపీ ఐటీ శాఖ మంత్రి సమక్షంలో జరిగిన ఈ సదస్సులో రాష్ట్రంలో సుమారు 5,000 కోట్ల పెట్టుబడులు పెట్టేందుకు పలు బహుళజాతి ఐటీ కంపెనీలు ముందుకు వచ్చాయి. దీని ద్వారా సుమారు 20,000 మంది స్థానిక యువతకు ఉపాధి అవకాశాలు లభిస్తాయి.",
+      "descEn": "Multinational firms signed MoUs worth ₹5,000 crores to establish operations in AP, providing around 20,000 jobs for local youth in the IT sector.",
+      "image": "/hero.png",
+      "author": "శ్రీనివాస్ రావు",
+      "authorEn": "Srinivas Rao",
+      "date": "25 మే 2026",
+      "views": 8400,
+      "district": "Visakhapatnam",
+      "districtTe": "విశాఖపట్నం",
+      "status": "Published",
+      "seoTitle": "Surging IT Investments in Andhra Pradesh 2026",
+      "metaDescription": "Read about the major tech revolution and massive employment opportunities coming to AP via global IT tie-ups.",
+      "comments": [
+        {
+          "name": "నరేష్ కుమార్",
+          "text": "నిజంగా ఏపీకి చాలా మంచి పరిణామం. ఐటీ పెట్టుబడుల వల్ల స్థానికులకు ఎక్కువ ఉద్యోగాలు లభిస్తాయి.",
+          "date": "10 నిమిషాల క్రితం"
+        },
+        {
+          "name": "శ్రీవిద్య",
+          "text": "Good move. Hope these agreements convert to real projects on ground quickly.",
+          "date": "2 గంటల క్రితం"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "category": "Spiritual",
+      "categoryTe": "భక్తి",
+      "title": "తిరుమల శ్రీవారి దర్శనానికి పోటెత్తిన భక్తులు.. వైకుంఠం క్యూ కాంప్లెక్స్ లలో రద్దీ!",
+      "titleEn": "Tirumala Balaji Temple Witnessing Heavy Devotee Inflow: Long Waiting Hours in Queue Complexes!",
+      "desc": "వేసవి సెలవుల దృష్ట్యా తిరుమలలో భక్తుల తాకిడి విపరీతంగా పెరిగింది. సర్వదర్శనం కోసం వేచి ఉండే గదులన్నీ నిండిపోయాయి. శ్రీవారి దర్శనానికి సుమారు 24 గంటల సమయం పడుతోందని టీటీడీ అధికారులు వెల్లడించారు.",
+      "descEn": "Due to summer holidays, Tirumala is crowded with devotees. Waiting rooms are fully packed, with Sarvadarshanam taking up to 24 hours.",
+      "image": "/temple.png",
+      "author": "ఆచార్య కృష్ణ",
+      "authorEn": "Acharya Krishna",
+      "date": "25 మే 2026",
+      "views": 12000,
+      "district": "Tirupati",
+      "districtTe": "తిరుపతి",
+      "status": "Published",
+      "seoTitle": "Tirumala Summer Queue Status Updates",
+      "metaDescription": "Latest updates on Balaji Darshan queues and waiting complexes details in Tirumala hills.",
+      "comments": [
+        {
+          "name": "వెంకటేశ్వర్లు",
+          "text": "గోవిందా గోవిందా! శ్రీవారి దర్శనం కోసం నిరీక్షణ సమయం తగ్గించేందుకు అదనపు సదుపాయాలు కల్పించాలి.",
+          "date": "1 గంట క్రితం"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "category": "Business",
+      "categoryTe": "వ్యాపారం",
+      "title": "భారతీయ స్టాక్ మార్కెట్లో కొత్త రికార్డులు.. సరికొత్త గరిష్ట స్థాయిలకు చేరిన నిఫ్టీ, సెన్సెక్స్!",
+      "titleEn": "Indian Stock Markets Reach New Record Highs: Nifty and Sensex Touch All-Time Peaks!",
+      "desc": "దేశీయ స్టాక్ మార్కెట్లు సరికొత్త శిఖరాలను తాకాయి. ఐటీ, బ్యాంకింగ్ మరియు ఫైనాన్స్ రంగాల షేర్లకు భారీ డిమాండ్ రావడంతో సెన్సెక్స్ 85,000 పాయింట్ల మార్కును దాటి దూసుకుపోతోంది.",
+      "descEn": "The domestic stock market index Sensex hit a historic milestone crossing the 85,000 mark powered by robust IT and banking sector buying.",
+      "image": "/business.png",
+      "author": "రవి వర్మ",
+      "authorEn": "Ravi Varma",
+      "date": "24 మే 2026",
+      "views": 5200,
+      "district": "Vijayawada",
+      "districtTe": "విజయవాడ",
+      "status": "Published",
+      "seoTitle": "Sensex Nifty Record Milestones 2026",
+      "metaDescription": "Indian market benchmark indices hit massive highs. Financial sector indices lead gains.",
+      "comments": []
+    },
+    {
+      "id": 4,
+      "category": "Technology",
+      "categoryTe": "సాంకేతికత",
+      "title": "హైదరాబాద్‌లో సరికొత్త డెవలపర్ హబ్‌ ప్రారంభించిన ప్రముఖ గ్లోబల్ టెక్ దిగ్గజం!",
+      "titleEn": "Global Tech Giant Establishes Massive AI Developer Hub in Hyderabad Center!",
+      "desc": "హైదరాబాద్ ఐటీ కారిడార్‌లో ప్రపంచ స్థాయి ఆర్టిఫిషియల్ ఇంటెలిజెన్స్ (AI) మరియు క్లౌడ్ కంప్యూటింగ్ ఇన్నోవేషన్ సెంటర్‌ను ప్రారంభించారు. ఈ సెంటర్ వల్ల స్థానిక సాఫ్ట్‌వేర్ ఇంజనీర్లకు అంతర్జాతీయ పరిశోధనా అవకాశాలు అందుబాటులోకి వస్తాయి.",
+      "descEn": "A state-of-the-art AI & Cloud innovation center has opened in Hyderabad, offering global research exposure for local software developers.",
+      "image": "/tech.png",
+      "author": "దివ్య శర్మ",
+      "authorEn": "Divya Sharma",
+      "date": "24 మే 2026",
+      "views": 6900,
+      "district": "Hyderabad",
+      "districtTe": "హైదరాబాద్",
+      "status": "Published",
+      "seoTitle": "AI Cloud Tech Innovation Hub Hyderabad",
+      "metaDescription": "Global tech companies set up massive software and AI laboratories in Gachibowli, Hyderabad.",
+      "comments": []
+    }
+  ],
+  "tickerItems": [
+    "బ్రేకింగ్: తెలంగాణ గ్రూప్ వన్ పరీక్షల తేదీలు విడుదల!",
+    "ఆంధ్రప్రదేశ్‌లో భారీగా పెరగనున్న ఐటీ పెట్టుబడులు.. 5 ప్రముఖ సంస్థలతో కీలక ఒప్పందాలు!",
+    "తిరుమల శ్రీవారి దర్శనానికి పోటెత్తిన భక్తులు.. వైకుంఠం క్యూ కాంప్లెక్స్ లలో రద్దీ పెరిగింది!",
+    "తెలంగాణ అసెంబ్లీలో కొత్త బిల్లుల ఆమోదం.. విపక్షాల వాకౌట్!",
+    "ఐపీఎల్ క్రికెట్ మ్యాచ్‌లో హైదరాబాద్ సంచలన విజయం.. ఉత్కంఠభరిత పోరులో కోల్‌కతాపై గెలుపు!"
+  ],
+  "videos": [
+    {
+      "id": "v1",
+      "titleTe": "ప్రత్యక్ష ప్రసారం: తెలుగు రాష్ట్రాల్లో జోరందుకున్న ముందస్తు ఎన్నికల హీట్.. ప్రత్యక్ష చర్చా కార్యక్రమం!",
+      "titleEn": "Live Debate: State Assembly Election Heat Rising in AP & Telangana - Watch Special Live Panel!",
+      "views": "45K views",
+      "duration": "12:45",
+      "thumbnail": "/video_thumb.png"
+    },
+    {
+      "id": "v2",
+      "titleTe": "తిరుమల ప్రత్యక్ష దృశ్యాలు: శ్రీవారి ఆలయంలో కొనసాగుతున్న ప్రత్యేక అలంకరణలు, వేసవి ప్రత్యేక రద్దీ!",
+      "titleEn": "Tirumala Live Visuals: Special Ritual Decorations and Devotee Queue Status Today!",
+      "views": "89K views",
+      "duration": "08:30",
+      "thumbnail": "/temple.png"
+    }
+  ],
+  "ads": [
+    {
+      "id": "ad-header",
+      "placement": "Header banner",
+      "active": true,
+      "impressions": 1250,
+      "clicks": 89,
+      "imageUrl": "/logo.png",
+      "revenue": 129.05
+    },
+    {
+      "id": "ad-inline",
+      "placement": "Homepage inline",
+      "active": true,
+      "impressions": 940,
+      "clicks": 42,
+      "imageUrl": "/business.png"
+    },
+    {
+      "id": "ad-sidebar",
+      "placement": "Sidebar sticky",
+      "active": true,
+      "impressions": 2100,
+      "clicks": 110,
+      "imageUrl": "/tech.png"
+    }
+  ],
+  "analytics": {
+    "liveVisitors": 8240,
+    "notificationCTR": 8.5,
+    "estimatedEarnings": 129.05
+  },
+  "auditLogs": [
+    {
+      "id": 1779714585377,
+      "user": "Srinivas Rao",
+      "role": "Editor/Admin",
+      "action": "Published Story: Aptop Exclusive: TTD and State...",
+      "timestamp": "2026-05-25 13:09:45"
+    }
+  ]
+}
