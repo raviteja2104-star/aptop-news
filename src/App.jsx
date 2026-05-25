@@ -8,7 +8,7 @@ import {
   TrendingUp, Award, Newspaper, Smartphone, Laptop, Check, X, BellOff, MessageSquare,
   Settings, Users, BarChart3, Image, Video, Megaphone, RefreshCw, Layers, Globe,
   Lock, KeyRound, LogOut, FileText, UploadCloud, Copy, HelpCircle, DollarSign, DownloadCloud,
-  Play, ThumbsUp, Smile, AlertOctagon, HelpCircle as QuestionIcon, Menu
+  Play, ThumbsUp, Smile, AlertOctagon, HelpCircle as QuestionIcon, Menu, Eye
 } from 'lucide-react';
 
 const BACKEND_URL = 'http://localhost:5000';
