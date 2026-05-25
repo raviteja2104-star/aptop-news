@@ -860,3 +860,139 @@ button, [role="button"], .cat-card, .nav-link-custom {
   border: none;
 }
 
+/* Responsive Overrides (Appended for Full Mobile Support) */
+.desktop-only { display: block; }
+.mobile-only { display: none; }
+.mobile-drawer-overlay { display: none; }
+
+@media (max-width: 768px) {
+  .desktop-only { display: none !important; }
+  .mobile-only { display: block !important; }
+  .secondary-nav { display: none !important; } /* Hide secondary nav links, use drawer */
+
+  .main-header { padding: 12px 16px !important; }
+  .main-header > div { flex-wrap: wrap; }
+  .search-bar { min-width: 100% !important; order: 3; margin-top: 10px; }
+
+  /* Mobile Drawer Overlay */
+  .mobile-drawer-overlay {
+    display: block;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+  }
+  .mobile-drawer {
+    width: 280px;
+    height: 100%;
+    background: var(--card-bg);
+    transform: translateX(0);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+  }
+
+  /* CMS Sidebar */
+  .cms-layout { flex-direction: column !important; }
+
+  
+  /* CMS Dash Cards */
+  .cms-dash-cards {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Tables to Cards */
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  tr { border: 1px solid var(--border-color); margin-bottom: 10px; border-radius: 8px; padding: 8px; }
+  td {
+    border: none;
+    position: relative;
+    padding-left: 50% !important;
+    text-align: right !important;
+  }
+  td:before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    font-weight: bold;
+    text-align: left;
+  }
+
+  /* Hero Section Stacking */
+  .hero-featured-story { flex-direction: column !important; }
+  .hero-img-wrap { min-height: 250px; }
+
+  /* Grids and general flex */
+  .news-grid { grid-template-columns: 1fr !important; }
+  .grid-2-col-tablet { grid-template-columns: 1fr !important; }
+  
+  /* Epaper & Elections grids */
+  .epaper-layout { grid-template-columns: 1fr !important; gap: 16px !important; }
+  .election-results-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+
+  /* Ticker */
+  .ticker-wrap { padding: 4px 0 !important; }
+  .ticker-header { position: relative; width: 100%; box-shadow: none; text-align: center; justify-content: center; }
+  .ticker-content { padding-left: 0; animation-duration: 20s; }
+  
+  /* Media Queue Grid */
+  .media-queue-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important; }
+
+  /* Footer */
+  footer .container > div {
+    flex-direction: column !important;
+    text-align: center;
+    gap: 20px !important;
+  }
+  
+  /* Mobile Bottom App Nav - Sticky */
+  .app-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+    z-index: 1000;
+  }
+  .app-bottom-nav button {
+    background: none; border: none; color: var(--text-secondary);
+    display: flex; flex-direction: column; align-items: center;
+    font-size: 0.7rem; font-weight: bold; padding: 4px; gap: 4px;
+  }
+  .app-bottom-nav button.active { color: var(--primary-red); }
+  
+  /* Ensure padding for bottom nav */
+  .portal-container, main { padding-bottom: 70px !important; }
+
+  /* Article Details page */
+  .article-body-text { font-size: 1rem !important; line-height: 1.6 !important; }
+  
+  /* Forms */
+  form input, form textarea, form select { width: 100% !important; box-sizing: border-box; }
+  
+  /* Chat Interface */
+  .cms-chat-layout { flex-direction: column !important; height: auto !important; }
+  .cms-chat-sidebar { width: 100% !important; border-right: none !important; border-bottom: 1px solid var(--border-color); padding-right: 0 !important; flex-direction: row !important; overflow-x: auto; margin-bottom: 10px; }
+  .cms-chat-sidebar button { white-space: nowrap; }
+  
+  /* Remove horizontal scroll issues */
+  body { overflow-x: hidden; width: 100vw; }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Tablet Styles */
+  .cms-dash-cards { grid-template-columns: repeat(2, 1fr) !important; }
+  .grid-2-col-tablet { grid-template-columns: repeat(2, 1fr) !important; }
+}

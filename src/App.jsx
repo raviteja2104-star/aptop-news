@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { 
   Search, Sun, Moon, Share2, Bookmark, Heart, Send, CheckCircle2, 
@@ -7,7 +8,7 @@ import {
   TrendingUp, Award, Newspaper, Smartphone, Laptop, Check, X, BellOff, MessageSquare,
   Settings, Users, BarChart3, Image, Video, Megaphone, RefreshCw, Layers, Globe,
   Lock, KeyRound, LogOut, FileText, UploadCloud, Copy, HelpCircle, DollarSign, DownloadCloud,
-  Play, ThumbsUp, Smile, AlertOctagon, HelpCircle as QuestionIcon
+  Play, ThumbsUp, Smile, AlertOctagon, HelpCircle as QuestionIcon, Menu
 } from 'lucide-react';
 
 const BACKEND_URL = 'http://localhost:5000';
@@ -166,6 +167,183 @@ export default function App() {
   const [newCommentText, setNewCommentText] = useState('');
   const [isPwaInstalled, setIsPwaInstalled] = useState(false);
   const [showPwaPrompt, setShowPwaPrompt] = useState(true);
+
+  // ── FEATURE 1: AI NEWSROOM AUTOMATION ──────────────────────────────
+  const [trendingTopics] = useState([
+    { topic: 'AP రాజకీయాలు (AP Politics)', district: 'Vijayawada', urgency: 92, category: 'Politics', icon: '🗳️' },
+    { topic: 'సైక్లోన్ హెచ్చరిక (Cyclone Alert)', district: 'Visakhapatnam', urgency: 98, category: 'Weather', icon: '🌀' },
+    { topic: 'తోల్లీవుడ్ విడుదల (Tollywood Release)', district: 'Hyderabad', urgency: 75, category: 'Cinema', icon: '🎬' },
+    { topic: 'తిరుమల అప్డేట్ (Tirumala Update)', district: 'Tirupati', urgency: 84, category: 'Spiritual', icon: '🕉️' },
+    { topic: 'బంగారం ధరలు (Gold Rates)', district: 'All AP/TS', urgency: 60, category: 'Business', icon: '💰' },
+  ]);
+  const [aiDraftTopic, setAiDraftTopic] = useState('');
+  const [aiDraftResult, setAiDraftResult] = useState(null);
+  const [aiDraftLoading, setAiDraftLoading] = useState(false);
+  const [duplicateWarning, setDuplicateWarning] = useState('');
+  const [factCheckFlags, setFactCheckFlags] = useState([]);
+
+  // ── FEATURE 2: BREAKING NEWS WAR ROOM ──────────────────────────────
+  const [warRoomActive, setWarRoomActive] = useState(false);
+  const [warRoomIncident, setWarRoomIncident] = useState('');
+  const [warRoomSeverity, setWarRoomSeverity] = useState('High');
+  const [warRoomDistrict, setWarRoomDistrict] = useState('Visakhapatnam');
+  const [warRoomAlerts, setWarRoomAlerts] = useState([
+    { id: 1, title: 'వైజాగ్ తీరంలో సైక్లోన్ హెచ్చరిక (Cyclone Alert Visakhapatnam Coast)', severity: 'Critical', district: 'Visakhapatnam', time: '08:42 AM', pinned: true },
+    { id: 2, title: 'AP అసెంబ్లీ సమావేశం ప్రారంభం (AP Assembly Session Opens)', severity: 'High', district: 'Amaravati', time: '10:15 AM', pinned: false },
+  ]);
+
+  // ── FEATURE 3: TRUST & VERIFICATION ────────────────────────────────
+  const [showCorrectionModal, setShowCorrectionModal] = useState(false);
+  const [correctionArticleId, setCorrectionArticleId] = useState(null);
+  const [correctionText, setCorrectionText] = useState('');
+
+  // ── FEATURE 4: REVENUE INTELLIGENCE ────────────────────────────────
+  const [revenueMetrics] = useState({
+    totalCPM: 1.84, totalCPC: 0.42, totalConversions: 248,
+    districtRevenue: [
+      { district: 'Visakhapatnam', revenue: 4820, ctr: 5.2 },
+      { district: 'Hyderabad', revenue: 6450, ctr: 4.8 },
+      { district: 'Vijayawada', revenue: 3200, ctr: 6.1 },
+      { district: 'Tirupati', revenue: 2100, ctr: 4.2 },
+    ],
+    topAds: [
+      { name: 'Vizag Realty Ads', impressions: 84200, clicks: 4380, ctr: 5.2 },
+      { name: 'APSRTC Campaign', impressions: 62100, clicks: 2984, ctr: 4.8 },
+      { name: 'Tirumala Pvt Tours', impressions: 45800, clicks: 2800, ctr: 6.1 },
+    ]
+  });
+
+  // ── FEATURE 5: BUSINESS DIRECTORY ──────────────────────────────────
+  const [bizCategory, setBizCategory] = useState('All');
+  const [bizDistrict, setBizDistrict] = useState('All');
+  const [bizSearchQuery, setBizSearchQuery] = useState('');
+  const [businesses] = useState([
+    { id: 1, name: 'King George Hospital', category: 'hospitals', district: 'Visakhapatnam', phone: '0891-2564891', sponsored: true, rating: 4.5, desc: 'Govt multi-speciality hospital, AP' },
+    { id: 2, name: 'Andhra University', category: 'colleges', district: 'Visakhapatnam', phone: '0891-2844000', sponsored: false, rating: 4.2, desc: 'Premier public university, Est. 1926' },
+    { id: 3, name: 'Sri Chaitanya College', category: 'coaching', district: 'Hyderabad', phone: '040-44554455', sponsored: true, rating: 4.6, desc: 'IIT/NEET coaching, 30+ centres AP/TS' },
+    { id: 4, name: 'Tirumala Tirupati Devasthanams', category: 'temples', district: 'Tirupati', phone: '0877-2233333', sponsored: false, rating: 5.0, desc: 'Richest Hindu temple, Tirumala Hills' },
+    { id: 5, name: 'Vijayawada Properties', category: 'real_estate', district: 'Vijayawada', phone: '0866-2472222', sponsored: true, rating: 4.0, desc: 'Residential & commercial plots, AP' },
+    { id: 6, name: 'KIMS Hospitals', category: 'hospitals', district: 'Hyderabad', phone: '040-44885000', sponsored: true, rating: 4.7, desc: 'NABL accredited multi-speciality chain' },
+    { id: 7, name: 'NIT Warangal', category: 'colleges', district: 'Hyderabad', phone: '0870-2459191', sponsored: false, rating: 4.4, desc: 'National Institute of Technology' },
+    { id: 8, name: 'Kanaka Durga Temple', category: 'temples', district: 'Vijayawada', phone: '0866-2439751', sponsored: false, rating: 4.9, desc: 'Famous Shakti Peetha, Indrakeeladri' },
+  ]);
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCmsSidebarOpen, setIsCmsSidebarOpen] = useState(false);
+
+  // ── ROUTER SYNC LOGIC ──────────────────────────────────────────────
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Sync State -> URL
+  useEffect(() => {
+    if (location.pathname.startsWith('/admin')) {
+      const target = `/admin${activeCmsTab === 'dashboard' ? '' : `/${activeCmsTab}`}`;
+      if (location.pathname !== target) navigate(target, { replace: true });
+    } else if (location.pathname.startsWith('/app')) {
+      const target = `/app${activeMobileTab === 'home' ? '' : `/${activeMobileTab}`}`;
+      if (location.pathname !== target) navigate(target, { replace: true });
+    } else {
+      let target = '/';
+      if (currentPage === 'article') target = `/article/${selectedArticleId}`;
+      else if (currentPage !== 'home') target = `/${currentPage}`;
+      
+      if (location.pathname !== target) navigate(target, { replace: true });
+    }
+  }, [currentPage, activeMobileTab, activeCmsTab, selectedArticleId]);
+
+  // Sync URL -> State (Initial load & Back/Forward buttons)
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.startsWith('/admin')) {
+      const tab = path.replace('/admin', '').replace('/', '') || 'dashboard';
+      if (activeCmsTab !== tab) setActiveCmsTab(tab);
+    } else if (path.startsWith('/app')) {
+      const tab = path.replace('/app', '').replace('/', '') || 'home';
+      if (activeMobileTab !== tab) setActiveMobileTab(tab);
+    } else {
+      let page = 'home';
+      if (path.startsWith('/article/')) {
+        page = 'article';
+        const id = parseInt(path.split('/').pop());
+        if (!isNaN(id) && selectedArticleId !== id) setSelectedArticleId(id);
+      } else if (path !== '/') {
+        page = path.replace('/', '');
+      }
+      if (currentPage !== page) setCurrentPage(page);
+    }
+  }, [location.pathname]);
+
+  // ── FEATURE 6: CITIZEN REPORTER ────────────────────────────────────
+  const [citizenName, setCitizenName] = useState('');
+  const [citizenPhone, setCitizenPhone] = useState('');
+  const [citizenDistrict, setCitizenDistrict] = useState('Visakhapatnam');
+  const [citizenTitle, setCitizenTitle] = useState('');
+  const [citizenDesc, setCitizenDesc] = useState('');
+  const [citizenSubmitted, setCitizenSubmitted] = useState(false);
+  const [citizenReports, setCitizenReports] = useState([
+    { id: 1, name: 'Ramaiah G', district: 'Visakhapatnam', title: 'రోడ్డు కుంటలు ప్రమాదకరంగా (Dangerous potholes on NH-16)', status: 'Pending Review', time: '2h ago' },
+    { id: 2, name: 'Lakshmi D', district: 'Tirupati', title: 'బస్సు ఆలస్యం సమస్య (APSRTC bus delay issue)', status: 'Published', time: '5h ago' },
+  ]);
+
+  // ── FEATURE 7: VOICE BULLETIN STUDIO ──────────────────────────────
+  const [bulletinType, setBulletinType] = useState('morning');
+  const [bulletinPlaying, setBulletinPlaying] = useState(false);
+  const [bulletinText, setBulletinText] = useState('');
+  const morningBulletins = [
+    'నమస్కారం! ఇది ఆప్టాప్ న్యూస్ ఉదయ వార్తా బులెటిన్.',
+    'ఆంధ్రప్రదేశ్‌లో ఈరోజు ముఖ్యమైన వార్తలు:',
+    'వైజాగ్ తీరంలో సైక్లోన్ హెచ్చరిక జారీ అయింది.',
+    'తిరుమల దేవస్థానంలో నేటి పూజాకార్యక్రమాలు నేర్పుగా జరుగుతున్నాయి.',
+    'ఆప్టాప్ న్యూస్ చదువుతూ ఉండండి. ధన్యవాదాలు!'
+  ];
+
+  // ── FEATURE 8: WHATSAPP GROWTH ENGINE ─────────────────────────────
+  const whatsappChannels = [
+    { district: 'Visakhapatnam', link: 'https://wa.me/+910000000001', members: '12.4K', color: '#25D366' },
+    { district: 'Tirupati', link: 'https://wa.me/+910000000002', members: '8.2K', color: '#128C7E' },
+    { district: 'Vijayawada', link: 'https://wa.me/+910000000003', members: '15.1K', color: '#25D366' },
+    { district: 'Hyderabad', link: 'https://wa.me/+910000000004', members: '22.8K', color: '#075E54' },
+  ];
+
+  // ── FEATURE 9: SEARCH ARCHIVE ──────────────────────────────────────
+  const [archiveQuery, setArchiveQuery] = useState('');
+  const [archiveDistrict, setArchiveDistrict] = useState('All');
+  const [archiveCategory, setArchiveCategory] = useState('All');
+  const [archiveDate, setArchiveDate] = useState('');
+  const [archiveResults, setArchiveResults] = useState([]);
+  const [archiveSearched, setArchiveSearched] = useState(false);
+
+  // ── PHASE 11: NEWSROOM WORKFLOW & PRODUCTION OPS ──────────────────
+  const [assignments, setAssignments] = useState([
+    { id: 1, title: 'YS Jagan Rally Coverage', district: 'Vijayawada', deadline: 'Today 5:00 PM', reporter: 'Ravi Kumar', urgency: 'High', status: 'active' },
+    { id: 2, title: 'Rain Damage Report', district: 'Tirupati', deadline: 'Tomorrow 10:00 AM', reporter: 'Lakshmi N', urgency: 'Medium', status: 'pending' }
+  ]);
+  const [scheduledPosts, setScheduledPosts] = useState([
+    { id: 1, title: 'CM Morning Speech Review', date: '2026-05-26', time: '08:00 AM', category: 'Politics', district: 'Amaravati' }
+  ]);
+  const [cmsChatMessages, setCmsChatMessages] = useState([
+    { id: 1, user: 'Chief Editor', channel: 'Breaking News', msg: 'Need immediate coverage on Vizag cyclone warning!', time: '10:05 AM' },
+    { id: 2, user: 'Ravi Kumar', channel: 'Breaking News', msg: 'On it. Reaching the coast in 10 mins.', time: '10:08 AM' }
+  ]);
+  const [mediaQueue, setMediaQueue] = useState([
+    { id: 1, reporter: 'Srinu V', type: 'image', preview: '/placeholder.jpg', status: 'pending' },
+    { id: 2, reporter: 'Akhil K', type: 'video', preview: '/placeholder-vid.jpg', status: 'approved' }
+  ]);
+  const [reporterAnalytics, setReporterAnalytics] = useState([
+    { name: 'Ravi Kumar', district: 'Vijayawada', published: 45, views: 125000 },
+    { name: 'Lakshmi N', district: 'Tirupati', published: 38, views: 98000 }
+  ]);
+  const [audienceCRM, setAudienceCRM] = useState({
+    subscribers: 145000, premiumUsers: 2450, pushUsers: 85000,
+    topDistricts: ['Visakhapatnam', 'Hyderabad', 'Vijayawada']
+  });
+  const [commentQueue, setCommentQueue] = useState([
+    { id: 1, user: 'TeluguBidda', comment: 'Great coverage on the elections!', status: 'pending', article: 'AP Elections 2026' },
+    { id: 2, user: 'SpamBot99', comment: 'Win free money click here', status: 'flagged', article: 'Gold Prices Drop' }
+  ]);
+  const [cmsChatInput, setCmsChatInput] = useState('');
+  const [cmsChatChannel, setCmsChatChannel] = useState('Breaking News');
 
   // 1. BACKEND INITIALIZATION & WEBSOCKET SYNC
   useEffect(() => {
@@ -895,21 +1073,7 @@ export default function App() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }} className={emergencyMode ? 'emergency-active' : ''}>
       
-      {/* ========================================== */}
-      {/* WORKSPACE VIEWPORT SELECTOR */}
-      {/* ========================================== */}
-      <div className="device-toggle-bar">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Layers size={18} />
-          <span>Aptop News Workspace:</span>
-        </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button className={`device-btn ${activeView === 'desktop' ? 'active' : ''}`} onClick={() => setActiveView('desktop')}><Laptop size={14} /> Desktop Web Portal</button>
-          <button className={`device-btn ${activeView === 'mobile' ? 'active' : ''}`} onClick={() => { setActiveView('mobile'); setActiveMobileTab('home'); }}><Smartphone size={14} /> Mobile App Screens</button>
-          <button className={`device-btn ${activeView === 'cms' ? 'active' : ''}`} onClick={() => setActiveView('cms')} style={{ border: '2px solid var(--accent-yellow)' }}><Settings size={14} /> CMS Newsroom Dashboard</button>
-        </div>
-      </div>
-
+      {/* WORKSPACE VIEWPORT SELECTOR REMOVED */}
       {/* DYNAMIC FLOATING NOTIFICATIONS TOAST */}
       {showNotificationToast && (
         <div style={{
@@ -958,24 +1122,31 @@ export default function App() {
       {/* ========================================== */}
       {/* VIEWPORT 1: PORTAL DESKTOP WEB PAGE */}
       {/* ========================================== */}
-      {activeView === 'desktop' && (
+      <Routes>
+        <Route path="/*" element={
+          <>
         <div className="portal-container" style={{ flexGrow: 1 }}>
           
           {/* Header */}
           <header style={{ backgroundColor: 'var(--card-bg)', borderBottom: '1px solid var(--border-color)', padding: '16px 0', transition: 'var(--transition)' }}>
-            <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+            <div className="container main-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setCurrentPage('home')}>
-                <div style={{ backgroundColor: 'var(--primary-red)', color: 'white', padding: '8px 16px', borderRadius: '6px', fontWeight: 800, fontSize: '1.6rem' }}>
-                  <span>Aptop News</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--primary-red)', letterSpacing: '2px', textTransform: 'uppercase' }}>
-                    {language === 'telugu' ? 'ప్రజల వార్త • ప్రజల స్వరం' : 'Fast • Trusted • Telugu First'}
-                  </span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-                    <span style={{ backgroundColor: '#065F46', color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>VERIFIED NEWSROOM</span>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Reporters Online: 48</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <button className="mobile-only" onClick={() => setIsMobileMenuOpen(true)} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', padding: '4px' }}>
+                  <Menu size={24} />
+                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setCurrentPage('home')}>
+                  <div style={{ backgroundColor: 'var(--primary-red)', color: 'white', padding: '8px 16px', borderRadius: '6px', fontWeight: 800, fontSize: '1.6rem' }}>
+                    <span>Aptop News</span>
+                  </div>
+                  <div className="desktop-only" style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--primary-red)', letterSpacing: '2px', textTransform: 'uppercase' }}>
+                      {language === 'telugu' ? 'ప్రజల వార్త • ప్రజల స్వరం' : 'Fast • Trusted • Telugu First'}
+                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                      <span style={{ backgroundColor: '#065F46', color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>VERIFIED NEWSROOM</span>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Reporters Online: 48</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -983,6 +1154,7 @@ export default function App() {
               {/* PWA INSTALL TRIGGER */}
               {showPwaPrompt && (
                 <button 
+                  className="desktop-only"
                   onClick={() => {
                     setIsPwaInstalled(true);
                     setShowPwaPrompt(false);
@@ -994,7 +1166,7 @@ export default function App() {
                 </button>
               )}
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexGrow: 1, maxWidth: '240px', position: 'relative' }}>
+              <div className="search-bar" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexGrow: 1, maxWidth: '240px', position: 'relative' }}>
                 <Search size={18} style={{ position: 'absolute', left: '12px', color: 'var(--text-secondary)' }} />
                 <input 
                   type="text"
@@ -1005,13 +1177,14 @@ export default function App() {
                 />
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', padding: '6px 12px', backgroundColor: 'rgba(214, 31, 38, 0.05)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
+              <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', padding: '6px 12px', backgroundColor: 'rgba(214, 31, 38, 0.05)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
                   <Sun size={16} style={{ color: 'var(--accent-yellow)' }} />
                   <span>AP 34°C • {language === 'telugu' ? 'ఎండ తీవ్రత' : 'Sunny'}</span>
                 </div>
 
                 <button 
+                  className="desktop-only"
                   onClick={() => {
                     if (articles.length > 0) setSelectedArticleId(articles[0].id);
                     setCurrentPage('article');
@@ -1023,7 +1196,7 @@ export default function App() {
                 </button>
 
                 <button onClick={() => setLanguage(language === 'telugu' ? 'english' : 'telugu')} style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '8px 12px', borderRadius: '8px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
-                  {language === 'telugu' ? 'English' : 'తెలుగు'}
+                  {language === 'telugu' ? 'EN' : 'తెలుగు'}
                 </button>
 
                 <button onClick={toggleDarkMode} style={{ background: 'none', border: '1px solid var(--border-color)', padding: '8px', borderRadius: '8px', cursor: 'pointer', color: 'var(--text-primary)' }}>
@@ -1034,9 +1207,33 @@ export default function App() {
             </div>
           </header>
 
+          {/* Mobile Drawer Menu */}
+          {isMobileMenuOpen && (
+            <div className="mobile-drawer-overlay" onClick={() => setIsMobileMenuOpen(false)}>
+              <div className="mobile-drawer" onClick={e => e.stopPropagation()}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', borderBottom: '1px solid var(--border-color)' }}>
+                  <span style={{ fontWeight: 800, fontSize: '1.2rem', color: 'var(--primary-red)' }}>Aptop News</span>
+                  <button onClick={() => setIsMobileMenuOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-primary)' }}><X size={24} /></button>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', padding: '16px', gap: '16px', fontSize: '1.1rem', fontWeight: 'bold' }}>
+                  <span onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>📍 Andhra Pradesh</span>
+                  <span onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>📍 Telangana</span>
+                  <span onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>🏛️ Politics</span>
+                  <span onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>🎬 Cine</span>
+                  <span onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>🔴 Live TV</span>
+                  <span onClick={() => { setCurrentPage('epaper'); setIsMobileMenuOpen(false); }}>📰 E-paper</span>
+                  <div style={{ height: '1px', backgroundColor: 'var(--border-color)', margin: '8px 0' }}></div>
+                  <span onClick={() => { setCurrentPage('elections'); setIsMobileMenuOpen(false); }}>🗳️ Elections</span>
+                  <span onClick={() => { setCurrentPage('advertise'); setShowAdvertiserDashboard(true); setIsMobileMenuOpen(false); }}>💼 Advertise</span>
+                  <span onClick={() => { setShowPremiumCheckout(true); setIsMobileMenuOpen(false); }} style={{ color: 'gold' }}>⭐ Premium</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Secondary Navigation bar for Special Features */}
-          <nav style={{ backgroundColor: 'var(--card-bg)', borderBottom: '1px solid var(--border-color)', padding: '12px 0', transition: 'var(--transition)' }}>
-            <div className="container" style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.9rem' }}>
+          <nav className="secondary-nav" style={{ backgroundColor: 'var(--card-bg)', borderBottom: '1px solid var(--border-color)', padding: '12px 0', transition: 'var(--transition)' }}>
+            <div className="container nav-container" style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.9rem' }}>
               <span onClick={() => { setCurrentPage('home'); setShowAdvertiserDashboard(false); }} style={{ color: currentPage === 'home' && !showAdvertiserDashboard ? 'var(--primary-red)' : 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>🚨 {language === 'telugu' ? 'ప్రధాన వార్తలు' : 'Headlines'}</span>
               <span onClick={() => { setCurrentPage('elections'); setShowAdvertiserDashboard(false); }} style={{ color: currentPage === 'elections' ? 'var(--primary-red)' : 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>🗳️ {language === 'telugu' ? 'ఎన్నికల కేంద్రం' : 'Election Mega Center'}</span>
               <span onClick={() => { setCurrentPage('spiritual'); setShowAdvertiserDashboard(false); }} style={{ color: currentPage === 'spiritual' ? 'var(--primary-red)' : 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>🕉️ {language === 'telugu' ? 'తిరుమల లైవ్' : 'Spiritual Specials'}</span>
@@ -1359,6 +1556,194 @@ export default function App() {
                         </tbody>
                       </table>
                     </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ─── PAGE: BUSINESS DIRECTORY ─── */}
+            {currentPage === 'business' && (
+              <div style={{ animation: 'fadeIn 0.4s' }}>
+                <div style={{ borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                  <div>
+                    <h2 style={{ fontSize: '1.8rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>🏢 AP/TS Business Directory</h2>
+                    <p style={{ color: 'var(--text-secondary)' }}>District-wise listings — Hospitals, Colleges, Temples & more</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <input type="text" placeholder="Search business..." value={bizSearchQuery} onChange={e => setBizSearchQuery(e.target.value)} style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }} />
+                    <select value={bizCategory} onChange={e => setBizCategory(e.target.value)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}>
+                      {['All','hospitals','colleges','coaching','temples','real_estate'].map(c => <option key={c} value={c}>{c === 'All' ? '🏢 All Categories' : { hospitals: '🏥 Hospitals', colleges: '🎓 Colleges', coaching: '📚 Coaching', temples: '🕉️ Temples', real_estate: '🏘️ Real Estate' }[c]}</option>)}
+                    </select>
+                    <select value={bizDistrict} onChange={e => setBizDistrict(e.target.value)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}>
+                      {['All','Visakhapatnam','Hyderabad','Vijayawada','Tirupati'].map(d => <option key={d}>{d}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                  {businesses.filter(b =>
+                    (bizCategory === 'All' || b.category === bizCategory) &&
+                    (bizDistrict === 'All' || b.district === bizDistrict) &&
+                    (bizSearchQuery === '' || b.name.toLowerCase().includes(bizSearchQuery.toLowerCase()))
+                  ).map(biz => (
+                    <div key={biz.id} style={{ backgroundColor: 'var(--card-bg)', border: `1px solid ${biz.sponsored ? 'var(--accent-yellow)' : 'var(--border-color)'}`, borderRadius: '12px', padding: '20px', boxShadow: 'var(--shadow-sm)', position: 'relative' }}>
+                      {biz.sponsored && <span style={{ position: 'absolute', top: '12px', right: '12px', backgroundColor: 'var(--accent-yellow)', color: '#111', fontSize: '0.65rem', fontWeight: 'bold', padding: '2px 8px', borderRadius: '10px' }}>⭐ SPONSORED</span>}
+                      <div style={{ marginBottom: '8px' }}>
+                        <span style={{ fontSize: '1.5rem' }}>{{ hospitals: '🏥', colleges: '🎓', coaching: '📚', temples: '🕉️', real_estate: '🏘️' }[biz.category]}</span>
+                      </div>
+                      <h3 style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '4px' }}>{biz.name}</h3>
+                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>{biz.desc}</p>
+                      <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>📍 {biz.district} • 📞 {biz.phone}</p>
+                      <div style={{ display: 'flex', gap: '4px' }}>{[1,2,3,4,5].map(s => <span key={s} style={{ color: s <= Math.floor(biz.rating) ? '#F59E0B' : '#D1D5DB', fontSize: '0.9rem' }}>★</span>)} <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginLeft: '4px' }}>{biz.rating}/5</span></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ─── PAGE: CITIZEN REPORTER ─── */}
+            {currentPage === 'citizen_report' && (
+              <div style={{ animation: 'fadeIn 0.4s', maxWidth: '700px', margin: '0 auto' }}>
+                <div style={{ borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px' }}>
+                  <h2 style={{ fontSize: '1.8rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>📸 సిటిజన్ రిపోర్టర్ — మీ వార్త పంపండి</h2>
+                  <p style={{ color: 'var(--text-secondary)' }}>Send your local incident photo, video or report. Admin review required before publishing.</p>
+                </div>
+                {citizenSubmitted ? (
+                  <div style={{ backgroundColor: '#D1FAE5', border: '2px solid #86EFAC', borderRadius: '12px', padding: '32px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '3rem', marginBottom: '12px' }}>✅</div>
+                    <h3 style={{ color: '#065F46', fontWeight: 'bold', marginBottom: '8px' }}>మీ నివేదిక విజయవంతంగా నమోదైంది!</h3>
+                    <p style={{ color: '#065F46', fontSize: '0.9rem', marginBottom: '16px' }}>Your report is under review. We'll publish after verification. (24–48 hours)</p>
+                    <button onClick={() => setCitizenSubmitted(false)} style={{ backgroundColor: '#D61F26', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>Submit Another Report</button>
+                  </div>
+                ) : (
+                  <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '32px', boxShadow: 'var(--shadow-md)' }}>
+                    <form onSubmit={e => { e.preventDefault(); if (!citizenName || !citizenTitle) return; setCitizenReports(prev => [{ id: Date.now(), name: citizenName, district: citizenDistrict, title: citizenTitle, status: 'Pending Review', time: 'Just now' }, ...prev]); setCitizenSubmitted(true); setCitizenName(''); setCitizenTitle(''); setCitizenDesc(''); }} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }} className="news-grid-2">
+                        <div><label style={{ fontSize: '0.8rem', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>మీ పేరు (Your Name):</label><input type="text" required value={citizenName} onChange={e => setCitizenName(e.target.value)} placeholder="Ramaiah Goud" style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }} /></div>
+                        <div><label style={{ fontSize: '0.8rem', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>జిల్లా (District):</label><select value={citizenDistrict} onChange={e => setCitizenDistrict(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}>{['Visakhapatnam','Vijayawada','Tirupati','Hyderabad','Guntur','Kurnool','Nellore'].map(d => <option key={d}>{d}</option>)}</select></div>
+                      </div>
+                      <div><label style={{ fontSize: '0.8rem', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>సంఘటన శీర్షిక (Incident Title):</label><input type="text" required value={citizenTitle} onChange={e => setCitizenTitle(e.target.value)} placeholder="What happened? Be specific..." style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }} /></div>
+                      <div><label style={{ fontSize: '0.8rem', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>వివరాలు (Details):</label><textarea rows={4} value={citizenDesc} onChange={e => setCitizenDesc(e.target.value)} placeholder="Describe what you saw, when, where..." style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)', resize: 'vertical' }}></textarea></div>
+                      <div style={{ backgroundColor: 'rgba(214,31,38,0.05)', border: '1px dashed var(--primary-red)', borderRadius: '8px', padding: '20px', textAlign: 'center', cursor: 'pointer' }}>
+                        <p style={{ fontWeight: 'bold', margin: '0 0 4px' }}>📷 Upload Photo / Video (optional)</p>
+                        <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: 0 }}>JPG, PNG, MP4 • Max 10MB</p>
+                      </div>
+                      <button type="submit" style={{ backgroundColor: 'var(--primary-red)', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>📤 Submit for Review</button>
+                    </form>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ─── PAGE: SEARCH ARCHIVE ─── */}
+            {currentPage === 'search_archive' && (
+              <div style={{ animation: 'fadeIn 0.4s' }}>
+                <div style={{ borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px' }}>
+                  <h2 style={{ fontSize: '1.8rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>🔎 వార్తా ఆర్కైవ్ (News Search Archive)</h2>
+                  <p style={{ color: 'var(--text-secondary)' }}>Filter by district, date, category, or keyword</p>
+                </div>
+                <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)', marginBottom: '24px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '16px' }}>
+                    <input type="text" value={archiveQuery} onChange={e => setArchiveQuery(e.target.value)} placeholder="Search keyword..." style={{ padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }} />
+                    <select value={archiveDistrict} onChange={e => setArchiveDistrict(e.target.value)} style={{ padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}>
+                      {['All','Visakhapatnam','Vijayawada','Tirupati','Hyderabad'].map(d => <option key={d}>{d}</option>)}
+                    </select>
+                    <select value={archiveCategory} onChange={e => setArchiveCategory(e.target.value)} style={{ padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}>
+                      {['All','Politics','Crime','Business','Cinema','Sports','Spiritual'].map(c => <option key={c}>{c}</option>)}
+                    </select>
+                    <input type="date" value={archiveDate} onChange={e => setArchiveDate(e.target.value)} style={{ padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }} />
+                  </div>
+                  <button onClick={() => { const results = articles.filter(a => (archiveQuery === '' || (a.title || '').toLowerCase().includes(archiveQuery.toLowerCase())) && (archiveDistrict === 'All' || (a.district || '') === archiveDistrict) && (archiveCategory === 'All' || (a.category || '') === archiveCategory)); setArchiveResults(results); setArchiveSearched(true); }} style={{ backgroundColor: 'var(--primary-red)', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>🔍 Search Archive</button>
+                </div>
+                {archiveSearched && (
+                  <div>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>{archiveResults.length} results found</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {archiveResults.length === 0 ? <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '40px' }}>No articles found matching your filters.</p> : archiveResults.map(art => (
+                        <div key={art.id} onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }} style={{ display: 'flex', gap: '16px', backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '16px', cursor: 'pointer', transition: 'var(--transition)' }}>
+                          <img src={art.image} alt="" style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0 }} loading="lazy" />
+                          <div>
+                            <span style={{ backgroundColor: 'var(--primary-red)', color: 'white', fontSize: '0.65rem', fontWeight: 'bold', padding: '2px 6px', borderRadius: '3px', marginBottom: '4px', display: 'inline-block' }}>{art.category}</span>
+                            <p style={{ fontWeight: 'bold', margin: '4px 0 2px', fontFamily: 'var(--font-telugu)', fontSize: '0.9rem' }}>{language === 'telugu' ? art.title : art.titleEn}</p>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>📍 {art.district} • {art.date}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ─── PAGE: VOICE BULLETIN STUDIO (Public) ─── */}
+            {currentPage === 'voice_bulletin' && (
+              <div style={{ animation: 'fadeIn 0.4s', maxWidth: '800px', margin: '0 auto' }}>
+                <div style={{ borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px' }}>
+                  <h2 style={{ fontSize: '1.8rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>🎙️ ఆప్టాప్ వాయిస్ బులెటిన్ స్టూడియో</h2>
+                  <p style={{ color: 'var(--text-secondary)' }}>AI-generated Telugu news bulletins — Morning, Evening & Election Flash</p>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                  {[{ type: 'morning', label: '🌅 Morning Headlines', desc: 'ఉదయం 6:00 AM బులెటిన్' }, { type: 'evening', label: '🌆 Evening Headlines', desc: 'సాయంత్రం 6:00 PM బులెటిన్' }, { type: 'election', label: '🗳️ Election Flash', desc: 'ఎన్నికల ఫ్లాష్ అప్డేట్' }].map(b => (
+                    <div key={b.type} onClick={() => setBulletinType(b.type)} style={{ backgroundColor: 'var(--card-bg)', border: `2px solid ${bulletinType === b.type ? 'var(--primary-red)' : 'var(--border-color)'}`, borderRadius: '10px', padding: '20px', cursor: 'pointer', textAlign: 'center', transition: 'var(--transition)' }}>
+                      <p style={{ fontWeight: 'bold', fontSize: '1.1rem', margin: '0 0 4px' }}>{b.label}</p>
+                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0, fontFamily: 'var(--font-telugu)' }}>{b.desc}</p>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '32px', boxShadow: 'var(--shadow-md)', textAlign: 'center' }}>
+                  <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: bulletinPlaying ? 'var(--primary-red)' : 'rgba(214,31,38,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', cursor: 'pointer', animation: bulletinPlaying ? 'pulse 0.8s infinite alternate' : 'none' }} onClick={() => {
+                    if (bulletinPlaying) { window.speechSynthesis.cancel(); setBulletinPlaying(false); return; }
+                    const text = morningBulletins.join(' ');
+                    setBulletinText(text);
+                    setBulletinPlaying(true);
+                    const utt = new SpeechSynthesisUtterance(text);
+                    utt.lang = 'te-IN';
+                    utt.rate = 0.85;
+                    utt.onend = () => setBulletinPlaying(false);
+                    window.speechSynthesis.cancel();
+                    window.speechSynthesis.speak(utt);
+                  }}>
+                    {bulletinPlaying ? <span style={{ fontSize: '2rem', color: 'white' }}>⏹</span> : <span style={{ fontSize: '2rem', color: 'var(--primary-red)' }}>▶</span>}
+                  </div>
+                  <h3 style={{ fontWeight: 'bold', marginBottom: '4px' }}>{bulletinPlaying ? '🔊 AI Telugu Voice Bulletin Playing...' : `▶ Play ${bulletinType === 'morning' ? 'Morning' : bulletinType === 'evening' ? 'Evening' : 'Election Flash'} Bulletin`}</h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '16px' }}>Powered by AI Telugu Speech Synthesis (Browser Native TTS)</p>
+                  {bulletinPlaying && <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', alignItems: 'center', height: '30px' }}>{[8,14,10,16,6,12,18,8,10,14].map((h,i) => <div key={i} style={{ width: '4px', height: `${h}px`, backgroundColor: 'var(--primary-red)', borderRadius: '2px', animation: `pulse ${0.3 + i*0.05}s infinite alternate` }}></div>)}</div>}
+                  <div style={{ marginTop: '20px', padding: '16px', backgroundColor: 'var(--bg-color)', borderRadius: '8px', textAlign: 'left', fontFamily: 'var(--font-telugu)', lineHeight: '1.8', fontSize: '0.9rem' }}>
+                    {morningBulletins.map((line, i) => <p key={i} style={{ margin: '4px 0' }}>{line}</p>)}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ─── PAGE: WHATSAPP GROWTH ENGINE ─── */}
+            {currentPage === 'whatsapp' && (
+              <div style={{ animation: 'fadeIn 0.4s' }}>
+                <div style={{ borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px' }}>
+                  <h2 style={{ fontSize: '1.8rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>📲 ఆప్టాప్ WhatsApp గ్రోత్ ఇంజిన్</h2>
+                  <p style={{ color: 'var(--text-secondary)' }}>District channels — auto-share latest breaking news & election updates</p>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+                  {whatsappChannels.map((ch, i) => (
+                    <a key={i} href={ch.link} target="_blank" rel="noopener noreferrer" style={{ backgroundColor: ch.color, color: 'white', borderRadius: '12px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '8px', textDecoration: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', transition: 'var(--transition)', transform: 'translateY(0)' }}>
+                      <span style={{ fontSize: '1.8rem' }}>💬</span>
+                      <h3 style={{ fontWeight: 'bold', margin: 0, fontFamily: 'var(--font-telugu)' }}>{ch.district} వార్తలు</h3>
+                      <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.9 }}>{ch.members} subscribers</p>
+                      <span style={{ backgroundColor: 'rgba(255,255,255,0.2)', padding: '6px 14px', borderRadius: '20px', fontWeight: 'bold', fontSize: '0.85rem', display: 'inline-block', marginTop: '4px', textAlign: 'center' }}>Join Channel →</span>
+                    </a>
+                  ))}
+                </div>
+                <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px' }}>
+                  <h3 style={{ fontWeight: 'bold', marginBottom: '12px' }}>📤 Auto-Share Latest Headlines</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {articles.slice(0, 3).map((art, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', border: '1px solid var(--border-color)', borderRadius: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                        <div style={{ flex: 1, minWidth: '200px' }}>
+                          <p style={{ fontWeight: 'bold', fontFamily: 'var(--font-telugu)', margin: 0, fontSize: '0.85rem' }}>{art.title}</p>
+                          <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', margin: 0 }}>📍 {art.district}</p>
+                        </div>
+                        <a href={`https://wa.me/?text=${encodeURIComponent(`📰 ఆప్టాప్ న్యూస్ | ${art.title}\n\nచదవండి: https://aptop-news.vercel.app`)}`} target="_blank" rel="noopener noreferrer" style={{ backgroundColor: '#25D366', color: 'white', border: 'none', padding: '6px 14px', borderRadius: '6px', fontWeight: 'bold', fontSize: '0.78rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>💬 Share</a>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -1727,24 +2112,15 @@ export default function App() {
           </footer>
 
         </div>
-      )}
+          </>
+        } />
 
       {/* ========================================== */}
-      {/* VIEWPORT 2: MOBILE APP EMULATOR MOCKUP */}
+      {/* VIEWPORT 2: MOBILE APP */}
       {/* ========================================== */}
-      {activeView === 'mobile' && (
-        <div className="emulator-wrapper" style={{ flexGrow: 1, padding: '24px 0', display: 'flex', justifyContent: 'center', backgroundColor: 'var(--bg-color)' }}>
-          <div className="phone-frame" style={{ width: '375px', height: '780px', borderRadius: '40px', border: '12px solid #222', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', position: 'relative', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-color)', overflow: 'hidden' }}>
-            
-            {/* Status bar mock */}
-            <div style={{ height: '36px', backgroundColor: 'var(--primary-red)', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px 0', fontSize: '0.75rem', fontWeight: 'bold', zIndex: 1000 }}>
-              <span>19:26</span>
-              <div style={{ width: '60px', height: '18px', backgroundColor: '#000', borderRadius: '10px', position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: '4px' }}></div>
-              <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                <span>AP/TS 5G</span>
-                <span style={{ fontSize: '0.6rem' }}>🔋 100%</span>
-              </div>
-            </div>
+      <Route path="/app/*" element={
+        <>
+        <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-color)', minHeight: '100vh' }}>
 
             {/* SPLASH SCREEN MOCKUP */}
             {showSplash ? (
@@ -2247,14 +2623,15 @@ export default function App() {
             )}
 
           </div>
-        </div>
-      )}
+          </>
+        } />
 
       {/* ========================================== */}
       {/* VIEWPORT 3: CMS NEWSROOM DASHBOARD */}
       {/* ========================================== */}
-      {activeView === 'cms' && (
-        <div style={{ flexGrow: 1, display: 'flex', backgroundColor: '#F3F4F6', color: '#111827' }}>
+      <Route path="/admin/*" element={
+        <>
+        <div className="cms-layout" style={{ flexGrow: 1, display: 'flex', backgroundColor: '#F3F4F6', color: '#111827' }}>
           
           {/* CMS SECURE ACCESS CHECK WALL */}
           {!cmsToken ? (
@@ -2303,11 +2680,23 @@ export default function App() {
             </div>
           ) : (
             <>
+              {/* MOBILE CMS HAMBURGER BTN */}
+              <button 
+                className="mobile-only"
+                onClick={() => setIsCmsSidebarOpen(true)}
+                style={{ position: 'fixed', top: '16px', left: '16px', zIndex: 1000, background: '#1E1E1E', color: 'white', border: '1px solid #374151', padding: '8px', borderRadius: '6px' }}
+              >
+                <Menu size={20} />
+              </button>
+
               {/* CMS SIDEBAR */}
-              <aside style={{ width: '260px', backgroundColor: '#1E1E1E', color: '#D1D5DB', display: 'flex', flexDirection: 'column', borderRight: '1px solid #2D2D2D' }} className="cms-workspace">
-                <div style={{ padding: '24px 20px', borderBottom: '1px solid #2D2D2D', backgroundColor: '#1A1A1A' }}>
-                  <h3 style={{ color: '#D61F26', fontSize: '1.25rem', fontWeight: 800 }}>ఆప్టాప్ CMS</h3>
-                  <p style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: '2px' }}>Newsroom Dashboard</p>
+              <aside style={{ width: '260px', backgroundColor: '#1E1E1E', color: '#D1D5DB', display: 'flex', flexDirection: 'column', borderRight: '1px solid #2D2D2D', ...(window.innerWidth <= 768 ? { position: 'fixed', left: isCmsSidebarOpen ? '0' : '-100%', top: 0, bottom: 0, zIndex: 1001, transition: '0.3s' } : {}) }} className="cms-sidebar">
+                <div style={{ padding: '24px 20px', borderBottom: '1px solid #2D2D2D', backgroundColor: '#1A1A1A', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h3 style={{ color: '#D61F26', fontSize: '1.25rem', fontWeight: 800 }}>ఆప్టాప్ CMS</h3>
+                    <p style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: '2px' }}>Newsroom Dashboard</p>
+                  </div>
+                  <button className="mobile-only" onClick={() => setIsCmsSidebarOpen(false)} style={{ background: 'none', border: 'none', color: '#D1D5DB' }}><X size={20} /></button>
                 </div>
 
                 <div style={{ padding: '12px 20px', borderBottom: '1px solid #2D2D2D', display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -2343,14 +2732,26 @@ export default function App() {
                   </div>
                 </div>
 
-                <nav style={{ padding: '16px 8px', display: 'flex', flexDirection: 'column', gap: '4px', flexGrow: 1 }}>
+                <nav style={{ flexGrow: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '4px', overflowY: 'auto' }}>
                   <button onClick={() => setActiveCmsTab('dashboard')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'dashboard' ? '#D61F26' : 'transparent', color: activeCmsTab === 'dashboard' ? 'white' : '#D1D5DB' }}><BarChart3 size={16} /> <span>Dashboard Home</span></button>
+                  <button onClick={() => setActiveCmsTab('war_room')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'war_room' ? '#DC2626' : 'rgba(220,38,38,0.1)', color: activeCmsTab === 'war_room' ? 'white' : '#FCA5A5' }}><AlertOctagon size={16} /> <span>🔴 Breaking War Room</span></button>
+                  <button onClick={() => setActiveCmsTab('ai_automation')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'ai_automation' ? '#D61F26' : 'transparent', color: activeCmsTab === 'ai_automation' ? 'white' : '#D1D5DB' }}><Cpu size={16} /> <span>AI Newsroom Automation</span></button>
                   <button onClick={() => setActiveCmsTab('articles')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'articles' ? '#D61F26' : 'transparent', color: activeCmsTab === 'articles' ? 'white' : '#D1D5DB' }}><Newspaper size={16} /> <span>Articles Manager ({articles.length})</span></button>
                   <button onClick={() => setActiveCmsTab('shorts')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'shorts' ? '#D61F26' : 'transparent', color: activeCmsTab === 'shorts' ? 'white' : '#D1D5DB' }}><Film size={16} /> <span>Shorts Studio ({shortsList.length})</span></button>
                   <button onClick={() => setActiveCmsTab('live_telecast')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'live_telecast' ? '#D61F26' : 'transparent', color: activeCmsTab === 'live_telecast' ? 'white' : '#D1D5DB' }}><Radio size={16} /> <span>Live Telecast Studio</span></button>
-                  <button onClick={() => setActiveCmsTab('ai_assistant')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'ai_assistant' ? '#D61F26' : 'transparent', color: activeCmsTab === 'ai_assistant' ? 'white' : '#D1D5DB' }}><Cpu size={16} /> <span>AI Newsroom Assistant</span></button>
+                  <button onClick={() => setActiveCmsTab('revenue')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'revenue' ? '#D61F26' : 'transparent', color: activeCmsTab === 'revenue' ? 'white' : '#D1D5DB' }}><DollarSign size={16} /> <span>Revenue Intelligence</span></button>
+                  <button onClick={() => setActiveCmsTab('citizen')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'citizen' ? '#D61F26' : 'transparent', color: activeCmsTab === 'citizen' ? 'white' : '#D1D5DB' }}><Users size={16} /> <span>Citizen Reporter ({citizenReports.length})</span></button>
+                  <button onClick={() => setActiveCmsTab('ai_assistant')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'ai_assistant' ? '#D61F26' : 'transparent', color: activeCmsTab === 'ai_assistant' ? 'white' : '#D1D5DB' }}><Megaphone size={16} /> <span>AI Writer Assistant</span></button>
                   <button onClick={() => setActiveCmsTab('ticker')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'ticker' ? '#D61F26' : 'transparent', color: activeCmsTab === 'ticker' ? 'white' : '#D1D5DB' }}><Flame size={16} /> <span>Breaking Tickers</span></button>
                   <button onClick={() => setActiveCmsTab('audit_logs')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'audit_logs' ? '#D61F26' : 'transparent', color: activeCmsTab === 'audit_logs' ? 'white' : '#D1D5DB' }}><FileText size={16} /> <span>Security Audit Logs</span></button>
+                  <button onClick={() => setActiveCmsTab('editorial')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'editorial' ? '#D61F26' : 'transparent', color: activeCmsTab === 'editorial' ? 'white' : '#D1D5DB' }}><Check size={16} /> <span>Editorial Workflow</span></button>
+                  <button onClick={() => setActiveCmsTab('assignments')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'assignments' ? '#D61F26' : 'transparent', color: activeCmsTab === 'assignments' ? 'white' : '#D1D5DB' }}><MapPin size={16} /> <span>Assignment Desk</span></button>
+                  <button onClick={() => setActiveCmsTab('media_queue')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'media_queue' ? '#D61F26' : 'transparent', color: activeCmsTab === 'media_queue' ? 'white' : '#D1D5DB' }}><Image size={16} /> <span>Media Approval Queue</span></button>
+                  <button onClick={() => setActiveCmsTab('chat')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'chat' ? '#D61F26' : 'transparent', color: activeCmsTab === 'chat' ? 'white' : '#D1D5DB' }}><MessageSquare size={16} /> <span>Newsroom Chat</span></button>
+                  <button onClick={() => setActiveCmsTab('crm')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'crm' ? '#D61F26' : 'transparent', color: activeCmsTab === 'crm' ? 'white' : '#D1D5DB' }}><Users size={16} /> <span>Audience CRM</span></button>
+                  <button onClick={() => setActiveCmsTab('comments')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'comments' ? '#D61F26' : 'transparent', color: activeCmsTab === 'comments' ? 'white' : '#D1D5DB' }}><Smile size={16} /> <span>Comment Moderation</span></button>
+                  <button onClick={() => setActiveCmsTab('backups')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'backups' ? '#D61F26' : 'transparent', color: activeCmsTab === 'backups' ? 'white' : '#D1D5DB' }}><UploadCloud size={16} /> <span>Backup & Recovery</span></button>
+                  <button onClick={() => setActiveCmsTab('integrations')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'integrations' ? '#D61F26' : 'transparent', color: activeCmsTab === 'integrations' ? 'white' : '#D1D5DB' }}><Globe size={16} /> <span>API Integrations</span></button>
                 </nav>
 
                 <div style={{ padding: '16px', borderTop: '1px solid #2D2D2D', fontSize: '0.75rem', textAlign: 'center' }}>
@@ -2394,7 +2795,7 @@ export default function App() {
                     )}
 
                     {/* STATS CARDS */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }} className="cms-stats-grid">
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }} className="cms-dash-cards cms-stats-grid">
                       <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderLeft: '4px solid #D61F26' }}>
                         <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#6B7280', fontWeight: 'bold' }}>Total Articles</span>
                         <h3 style={{ fontSize: '2rem', fontWeight: 800, marginTop: '8px' }}>{articles.length}</h3>
@@ -2893,6 +3294,255 @@ export default function App() {
                   </div>
                 )}
 
+                {/* ─── TAB: BREAKING NEWS WAR ROOM ─── */}
+                {activeCmsTab === 'war_room' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.3s' }}>
+                    {/* Command Header */}
+                    <div style={{ background: 'linear-gradient(135deg, #7F1D1D 0%, #DC2626 100%)', color: 'white', borderRadius: '12px', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                      <div>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0 }}>🔴 BREAKING NEWS WAR ROOM</h2>
+                        <p style={{ fontSize: '0.85rem', color: '#FCA5A5', margin: '4px 0 0' }}>Emergency Command Center — Cyclone, Elections, Disasters</p>
+                      </div>
+                      <button onClick={() => setWarRoomActive(!warRoomActive)} style={{ backgroundColor: warRoomActive ? '#FCA5A5' : '#FFD54A', color: '#7F1D1D', border: 'none', padding: '10px 24px', borderRadius: '8px', fontWeight: 900, cursor: 'pointer', fontSize: '0.9rem' }}>
+                        {warRoomActive ? '🔴 WAR ROOM ACTIVE' : '⚫ ACTIVATE WAR ROOM'}
+                      </button>
+                    </div>
+
+                    {/* Add Incident Form */}
+                    <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: warRoomActive ? '2px solid #DC2626' : '1px solid #E5E7EB' }}>
+                      <h3 style={{ fontWeight: 'bold', marginBottom: '16px', color: '#DC2626' }}>⚡ Dispatch Emergency Alert</h3>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '12px', alignItems: 'end' }} className="news-grid-2">
+                        <div>
+                          <label style={{ fontSize: '0.8rem', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Incident Headline (Telugu/English):</label>
+                          <input type="text" value={warRoomIncident} onChange={e => setWarRoomIncident(e.target.value)} placeholder="సైక్లోన్ హెచ్చరిక — Cyclone Alert issued..." style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '2px solid #DC2626', fontSize: '0.9rem' }} />
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <div style={{ flex: 1 }}>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Severity:</label>
+                            <select value={warRoomSeverity} onChange={e => setWarRoomSeverity(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #E5E7EB' }}>
+                              <option value="Critical">🔴 CRITICAL</option>
+                              <option value="High">🟠 HIGH</option>
+                              <option value="Medium">🟡 MEDIUM</option>
+                            </select>
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>District:</label>
+                            <select value={warRoomDistrict} onChange={e => setWarRoomDistrict(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #E5E7EB' }}>
+                              {['Visakhapatnam','Vijayawada','Tirupati','Hyderabad','Guntur','Kurnool'].map(d => <option key={d}>{d}</option>)}
+                            </select>
+                          </div>
+                        </div>
+                        <button onClick={() => {
+                          if (!warRoomIncident) return;
+                          setWarRoomAlerts(prev => [{ id: Date.now(), title: warRoomIncident, severity: warRoomSeverity, district: warRoomDistrict, time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }), pinned: false }, ...prev]);
+                          setWarRoomIncident('');
+                        }} style={{ backgroundColor: '#DC2626', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap', height: '42px' }}>
+                          🚨 DISPATCH
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Live Alert Board */}
+                    <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                      <h3 style={{ fontWeight: 'bold', marginBottom: '16px' }}>📡 Active Alert Board</h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {warRoomAlerts.map(alert => (
+                          <div key={alert.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', borderRadius: '8px', border: `2px solid ${alert.severity === 'Critical' ? '#DC2626' : alert.severity === 'High' ? '#F59E0B' : '#6B7280'}`, backgroundColor: alert.pinned ? '#FEF2F2' : 'white', flexWrap: 'wrap', gap: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
+                              <span style={{ fontSize: '1.2rem' }}>{alert.severity === 'Critical' ? '🔴' : alert.severity === 'High' ? '🟠' : '🟡'}</span>
+                              <div>
+                                <p style={{ fontWeight: 'bold', fontFamily: 'var(--font-telugu)', margin: 0, fontSize: '0.9rem' }}>{alert.title}</p>
+                                <p style={{ fontSize: '0.75rem', color: '#6B7280', margin: 0 }}>📍 {alert.district} • {alert.time} {alert.pinned ? '📌 PINNED' : ''}</p>
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                              <button onClick={() => setWarRoomAlerts(prev => prev.map(a => a.id === alert.id ? { ...a, pinned: !a.pinned } : a))} style={{ backgroundColor: alert.pinned ? '#F59E0B' : '#E5E7EB', color: '#111', border: 'none', padding: '4px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold' }}>{alert.pinned ? '📌 Unpin' : '📌 Pin'}</button>
+                              <button onClick={() => alert('✅ Bulk push alert sent to all 4 district WhatsApp channels!')} style={{ backgroundColor: '#25D366', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold' }}>📲 Push</button>
+                              <button onClick={() => setWarRoomAlerts(prev => prev.filter(a => a.id !== alert.id))} style={{ backgroundColor: '#FEE2E2', color: '#DC2626', border: 'none', padding: '4px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' }}>✕</button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ─── TAB: AI NEWSROOM AUTOMATION ─── */}
+                {activeCmsTab === 'ai_automation' && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', animation: 'fadeIn 0.3s' }} className="news-grid-2">
+                    {/* Panel 1: Trending Topic Detector */}
+                    <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                      <h3 style={{ fontWeight: 'bold', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}><TrendingUp size={18} style={{ color: '#DC2626' }} /> Trending Topic Detector</h3>
+                      <p style={{ fontSize: '0.8rem', color: '#6B7280', marginBottom: '16px' }}>Live AP/TS trending topics with urgency scores</p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {trendingTopics.map((t, i) => (
+                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: t.urgency >= 90 ? '#FFF5F5' : '#FAFAFA' }}>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                              <span style={{ fontSize: '1.2rem' }}>{t.icon}</span>
+                              <div>
+                                <p style={{ fontWeight: 'bold', margin: 0, fontSize: '0.85rem' }}>{t.topic}</p>
+                                <p style={{ color: '#6B7280', fontSize: '0.72rem', margin: 0 }}>📍 {t.district} • {t.category}</p>
+                              </div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{ fontWeight: 900, fontSize: '1.1rem', color: t.urgency >= 90 ? '#DC2626' : t.urgency >= 75 ? '#F59E0B' : '#10B981' }}>{t.urgency}</div>
+                              <div style={{ fontSize: '0.65rem', color: '#9CA3AF' }}>URGENCY</div>
+                              <button onClick={() => { setAiDraftTopic(t.topic); setActiveCmsTab('ai_automation'); }} style={{ marginTop: '4px', backgroundColor: '#D61F26', color: 'white', border: 'none', padding: '3px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.65rem', fontWeight: 'bold' }}>Draft Story</button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Panel 2: Auto Story Draft + Duplicate Check + Fact Check */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      {/* Story Draft Generator */}
+                      <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                        <h3 style={{ fontWeight: 'bold', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}><Cpu size={18} style={{ color: '#7C3AED' }} /> Auto Story Draft</h3>
+                        <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                          <input type="text" value={aiDraftTopic} onChange={e => { setAiDraftTopic(e.target.value); setDuplicateWarning(''); setFactCheckFlags([]); }} placeholder="Topic: Cyclone in Vizag..." style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #E5E7EB', fontSize: '0.85rem' }} />
+                          <button onClick={() => {
+                            if (!aiDraftTopic) return;
+                            setAiDraftLoading(true);
+                            setTimeout(() => {
+                              // Duplicate detection
+                              const similar = articles.find(a => a.title && a.title.toLowerCase().includes(aiDraftTopic.toLowerCase().slice(0, 5)));
+                              setDuplicateWarning(similar ? `⚠️ Similar story found: "${similar.title}" — check before publishing.` : '');
+                              // Fact-check flags
+                              setFactCheckFlags(['✅ District included', '⚠️ Missing expert quote', '⚠️ Headline may be too vague — add specifics']);
+                              setAiDraftResult({
+                                headline: `${aiDraftTopic}: తాజా సమాచారం — వివరాలు, ముఖ్య అంశాలు`,
+                                headlineEn: `${aiDraftTopic}: Latest Update — Key Details & Analysis`,
+                                intro: `${aiDraftTopic} సంబంధించి తాజా సమాచారం అందుతోంది. సంబంధిత అధికారులు స్పందించారు. ప్రజలు అప్రమత్తంగా ఉండాలని హెచ్చరించారు.`,
+                                tags: [aiDraftTopic.split(' ')[0], 'AP News', 'Breaking', 'ఆప్టాప్ ఎక్స్‌క్లూసివ్']
+                              });
+                              setAiDraftLoading(false);
+                            }, 1400);
+                          }} disabled={aiDraftLoading} style={{ backgroundColor: '#7C3AED', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.8rem' }}>
+                            {aiDraftLoading ? '⏳ Drafting...' : '🪄 Generate Draft'}
+                          </button>
+                        </div>
+
+                        {duplicateWarning && <div style={{ backgroundColor: '#FEF3C7', color: '#92400E', padding: '10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '8px' }}>{duplicateWarning}</div>}
+
+                        {aiDraftResult && (
+                          <div style={{ backgroundColor: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '8px', padding: '14px' }}>
+                            <p style={{ fontSize: '0.75rem', color: '#166534', fontWeight: 'bold', marginBottom: '6px' }}>✅ AI DRAFT READY:</p>
+                            <p style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '4px' }}>{aiDraftResult.headline}</p>
+                            <p style={{ fontSize: '0.8rem', color: '#374151', marginBottom: '8px' }}>{aiDraftResult.intro}</p>
+                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                              {aiDraftResult.tags.map((tag, i) => <span key={i} style={{ backgroundColor: '#DBEAFE', color: '#1E40AF', padding: '2px 8px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 'bold' }}>#{tag}</span>)}
+                            </div>
+                            <button onClick={() => { setArtTitleTe(aiDraftResult.headline); setArtTitleEn(aiDraftResult.headlineEn); setArtDescTe(aiDraftResult.intro); setActiveCmsTab('articles'); }} style={{ backgroundColor: '#D61F26', color: 'white', border: 'none', padding: '6px 14px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.8rem' }}>📝 Create Article Draft</button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Fact-check Panel */}
+                      {factCheckFlags.length > 0 && (
+                        <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                          <h4 style={{ fontWeight: 'bold', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}><CheckCircle2 size={16} style={{ color: '#10B981' }} /> AI Fact-Check Flags</h4>
+                          {factCheckFlags.map((f, i) => <p key={i} style={{ fontSize: '0.82rem', margin: '4px 0', fontWeight: f.startsWith('✅') ? 'normal' : 'bold', color: f.startsWith('✅') ? '#065F46' : '#92400E' }}>{f}</p>)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* ─── TAB: REVENUE INTELLIGENCE ─── */}
+                {activeCmsTab === 'revenue' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', animation: 'fadeIn 0.3s' }}>
+                    {/* KPI Row */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+                      {[
+                        { label: 'Total CPM', value: `$${revenueMetrics.totalCPM}`, color: '#3B82F6', icon: '📈' },
+                        { label: 'Avg CPC', value: `$${revenueMetrics.totalCPC}`, color: '#10B981', icon: '💰' },
+                        { label: 'Conversions', value: revenueMetrics.totalConversions, color: '#7C3AED', icon: '🎯' },
+                        { label: 'Top District', value: 'Hyderabad', color: '#F59E0B', icon: '🏆' },
+                      ].map((kpi, i) => (
+                        <div key={i} style={{ backgroundColor: 'white', borderRadius: '10px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderLeft: `4px solid ${kpi.color}` }}>
+                          <p style={{ fontSize: '0.75rem', color: '#6B7280', fontWeight: 'bold', textTransform: 'uppercase', margin: '0 0 4px' }}>{kpi.icon} {kpi.label}</p>
+                          <h3 style={{ fontSize: '1.8rem', fontWeight: 900, margin: 0, color: kpi.color }}>{kpi.value}</h3>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }} className="news-grid-2">
+                      {/* District Revenue Heatmap */}
+                      <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                        <h3 style={{ fontWeight: 'bold', marginBottom: '16px' }}>🗺️ District Revenue Heatmap</h3>
+                        {revenueMetrics.districtRevenue.map((d, i) => {
+                          const max = Math.max(...revenueMetrics.districtRevenue.map(x => x.revenue));
+                          const pct = (d.revenue / max * 100).toFixed(0);
+                          return (
+                            <div key={i} style={{ marginBottom: '14px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '4px', fontWeight: 'bold' }}>
+                                <span>📍 {d.district}</span>
+                                <span>₹{d.revenue.toLocaleString()} • CTR {d.ctr}%</span>
+                              </div>
+                              <div style={{ height: '10px', backgroundColor: '#F3F4F6', borderRadius: '5px', overflow: 'hidden' }}>
+                                <div style={{ width: `${pct}%`, height: '100%', background: `linear-gradient(90deg, #D61F26 0%, #F59E0B ${pct}%)`, borderRadius: '5px', transition: 'width 1s' }}></div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Ad Performance Ranking */}
+                      <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                        <h3 style={{ fontWeight: 'bold', marginBottom: '16px' }}>🏆 Top Ad Performance Ranking</h3>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '2px solid #E5E7EB', color: '#6B7280' }}>
+                              <th style={{ padding: '8px 4px', textAlign: 'left' }}>Ad Campaign</th>
+                              <th style={{ padding: '8px 4px', textAlign: 'right' }}>Impressions</th>
+                              <th style={{ padding: '8px 4px', textAlign: 'right' }}>Clicks</th>
+                              <th style={{ padding: '8px 4px', textAlign: 'right' }}>CTR</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {revenueMetrics.topAds.map((ad, i) => (
+                              <tr key={i} style={{ borderBottom: '1px solid #F3F4F6' }}>
+                                <td style={{ padding: '10px 4px', fontWeight: 'bold' }}>{['🥇','🥈','🥉'][i]} {ad.name}</td>
+                                <td style={{ padding: '10px 4px', textAlign: 'right', color: '#6B7280' }}>{(ad.impressions/1000).toFixed(1)}K</td>
+                                <td style={{ padding: '10px 4px', textAlign: 'right' }}>{ad.clicks.toLocaleString()}</td>
+                                <td style={{ padding: '10px 4px', textAlign: 'right', color: '#10B981', fontWeight: 'bold' }}>{ad.ctr}%</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ─── TAB: CITIZEN REPORTER ADMIN ─── */}
+                {activeCmsTab === 'citizen' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.3s' }}>
+                    <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                      <h2 style={{ fontWeight: 'bold', marginBottom: '4px' }}>👥 Citizen Reporter Submissions</h2>
+                      <p style={{ color: '#6B7280', fontSize: '0.82rem', marginBottom: '20px' }}>Review and publish user-submitted local incident reports</p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {citizenReports.map(rep => (
+                          <div key={rep.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#FAFAFA', flexWrap: 'wrap', gap: '8px' }}>
+                            <div>
+                              <p style={{ fontWeight: 'bold', fontFamily: 'var(--font-telugu)', margin: 0, fontSize: '0.9rem' }}>{rep.title}</p>
+                              <p style={{ fontSize: '0.75rem', color: '#6B7280', margin: '2px 0 0' }}>👤 {rep.name} • 📍 {rep.district} • 🕒 {rep.time}</p>
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                              <span style={{ padding: '3px 10px', borderRadius: '10px', fontSize: '0.72rem', fontWeight: 'bold', backgroundColor: rep.status === 'Published' ? '#D1FAE5' : '#FEF3C7', color: rep.status === 'Published' ? '#065F46' : '#92400E' }}>{rep.status}</span>
+                              {rep.status !== 'Published' && (
+                                <button onClick={() => setCitizenReports(prev => prev.map(r => r.id === rep.id ? { ...r, status: 'Published' } : r))} style={{ backgroundColor: '#D61F26', color: 'white', border: 'none', padding: '5px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold' }}>✅ Approve</button>
+                              )}
+                              <button onClick={() => setCitizenReports(prev => prev.filter(r => r.id !== rep.id))} style={{ backgroundColor: '#FEE2E2', color: '#DC2626', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' }}>✕ Reject</button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* TAB: SECURE AUDIT LOGS */}
                 {activeCmsTab === 'audit_logs' && (
                   <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
@@ -2913,11 +3563,270 @@ export default function App() {
                   </div>
                 )}
 
+                {/* TAB: EDITORIAL WORKFLOW & SCHEDULER */}
+                {activeCmsTab === 'editorial' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                      <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '4px' }}>Editorial Workflow System</h2>
+                      <p style={{ color: '#6B7280', marginBottom: '20px' }}>Review and approve articles submitted by reporters.</p>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+                        <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '16px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <span style={{ fontWeight: 'bold' }}>AP Assembly Special Coverage</span>
+                            <span style={{ backgroundColor: '#FEF3C7', color: '#92400E', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold' }}>In Review</span>
+                          </div>
+                          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: '0 0 12px' }}>Reporter: Ravi Kumar • Submitted: 10 mins ago</p>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button style={{ flex: 1, backgroundColor: '#D1FAE5', color: '#065F46', border: 'none', padding: '6px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>Approve</button>
+                            <button style={{ flex: 1, backgroundColor: '#FEE2E2', color: '#991B1B', border: 'none', padding: '6px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>Needs Edit</button>
+                          </div>
+                        </div>
+                        <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '16px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <span style={{ fontWeight: 'bold' }}>Tirumala Crowd Updates</span>
+                            <span style={{ backgroundColor: '#DBEAFE', color: '#1E40AF', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold' }}>Draft</span>
+                          </div>
+                          <p style={{ fontSize: '0.8rem', color: '#6B7280', margin: '0 0 12px' }}>Reporter: Lakshmi N • Last Edited: 1 hr ago</p>
+                          <button style={{ width: '100%', backgroundColor: '#F3F4F6', color: '#374151', border: '1px solid #D1D5DB', padding: '6px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>Open Editor</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                      <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '4px' }}>Article Scheduler</h2>
+                      <p style={{ color: '#6B7280', marginBottom: '20px' }}>Auto-publish stories at exact times.</p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {scheduledPosts.map(post => (
+                          <div key={post.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #E5E7EB', padding: '12px 16px', borderRadius: '6px' }}>
+                            <div>
+                              <p style={{ margin: 0, fontWeight: 'bold' }}>{post.title}</p>
+                              <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: '#6B7280' }}>{post.category} • {post.district}</p>
+                            </div>
+                            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                              <div style={{ textAlign: 'right' }}>
+                                <p style={{ margin: 0, fontWeight: 'bold', color: '#D61F26' }}>{post.date}</p>
+                                <p style={{ margin: 0, fontSize: '0.75rem', color: '#6B7280' }}>{post.time}</p>
+                              </div>
+                              <button style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', fontSize: '1.2rem' }}>×</button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB: ASSIGNMENT DESK */}
+                {activeCmsTab === 'assignments' && (
+                  <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                      <div>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '4px' }}>Story Assignment Board</h2>
+                        <p style={{ color: '#6B7280', margin: 0 }}>Dispatch breaking news and daily coverage tasks to reporters.</p>
+                      </div>
+                      <button style={{ backgroundColor: '#10B981', color: 'white', padding: '8px 16px', borderRadius: '6px', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>+ New Assignment</button>
+                    </div>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {assignments.map(ass => (
+                        <div key={ass.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderLeft: `4px solid ${ass.urgency === 'High' ? '#EF4444' : '#F59E0B'}`, padding: '16px', backgroundColor: '#F9FAFB', borderRadius: '0 8px 8px 0' }}>
+                          <div>
+                            <h4 style={{ margin: '0 0 4px', fontSize: '1.1rem' }}>{ass.title}</h4>
+                            <p style={{ margin: 0, fontSize: '0.8rem', color: '#6B7280' }}>📍 {ass.district} • ⏰ Deadline: {ass.deadline}</p>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <span style={{ display: 'inline-block', backgroundColor: '#E5E7EB', padding: '4px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold', marginBottom: '4px' }}>👤 {ass.reporter}</span>
+                            <br/>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: ass.status === 'active' ? '#059669' : '#D97706' }}>{ass.status.toUpperCase()}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB: MEDIA APPROVAL QUEUE */}
+                {activeCmsTab === 'media_queue' && (
+                  <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '4px' }}>Media Approval Queue</h2>
+                    <p style={{ color: '#6B7280', marginBottom: '20px' }}>Review reporter uploads before public library inclusion.</p>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+                      {mediaQueue.map(media => (
+                        <div key={media.id} style={{ border: '1px solid #E5E7EB', borderRadius: '8px', overflow: 'hidden' }}>
+                          <div style={{ height: '120px', backgroundColor: '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <span style={{ fontSize: '2rem', color: '#9CA3AF' }}>{media.type === 'video' ? '🎥' : '📷'}</span>
+                          </div>
+                          <div style={{ padding: '12px' }}>
+                            <p style={{ margin: '0 0 4px', fontSize: '0.8rem', fontWeight: 'bold' }}>By: {media.reporter}</p>
+                            <span style={{ backgroundColor: media.status === 'approved' ? '#D1FAE5' : '#FEF3C7', color: media.status === 'approved' ? '#065F46' : '#92400E', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold' }}>{media.status}</span>
+                            {media.status === 'pending' && (
+                              <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                                <button style={{ flex: 1, backgroundColor: '#10B981', color: 'white', border: 'none', padding: '4px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' }}>Approve</button>
+                                <button style={{ flex: 1, backgroundColor: '#EF4444', color: 'white', border: 'none', padding: '4px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem' }}>Reject</button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB: NEWSROOM CHAT */}
+                {activeCmsTab === 'chat' && (
+                  <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', height: '600px' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '4px' }}>Internal CMS Chat</h2>
+                    <p style={{ color: '#6B7280', marginBottom: '20px' }}>Secure communication for editorial and reporting teams.</p>
+                    
+                    <div style={{ display: 'flex', gap: '16px', flexGrow: 1, overflow: 'hidden' }}>
+                      <div style={{ width: '200px', borderRight: '1px solid #E5E7EB', paddingRight: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {['General', 'Breaking News', 'Politics', 'District Bureau', 'Live TV'].map(ch => (
+                          <button key={ch} onClick={() => setCmsChatChannel(ch)} style={{ padding: '8px 12px', textAlign: 'left', backgroundColor: cmsChatChannel === ch ? '#FEF2F2' : 'transparent', color: cmsChatChannel === ch ? '#D61F26' : '#4B5563', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}># {ch}</button>
+                        ))}
+                      </div>
+                      <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', paddingLeft: '8px' }}>
+                        <div style={{ flexGrow: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '16px' }}>
+                          {cmsChatMessages.filter(m => m.channel === cmsChatChannel).map(msg => (
+                            <div key={msg.id} style={{ display: 'flex', flexDirection: 'column' }}>
+                              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '4px' }}>
+                                <span style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>{msg.user}</span>
+                                <span style={{ fontSize: '0.7rem', color: '#9CA3AF' }}>{msg.time}</span>
+                              </div>
+                              <div style={{ backgroundColor: '#F3F4F6', padding: '10px 14px', borderRadius: '0 12px 12px 12px', display: 'inline-block', maxWidth: '80%' }}>
+                                <p style={{ margin: 0, fontSize: '0.85rem', color: '#1F2937' }}>{msg.msg}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <form onSubmit={e => { e.preventDefault(); if(!cmsChatInput) return; setCmsChatMessages([...cmsChatMessages, { id: Date.now(), user: 'Super Admin', channel: cmsChatChannel, msg: cmsChatInput, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]); setCmsChatInput(''); }} style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
+                          <input type="text" value={cmsChatInput} onChange={e => setCmsChatInput(e.target.value)} placeholder={`Message #${cmsChatChannel}...`} style={{ flexGrow: 1, padding: '10px 16px', borderRadius: '20px', border: '1px solid #D1D5DB' }} />
+                          <button type="submit" style={{ backgroundColor: '#D61F26', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer' }}>Send</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB: AUDIENCE CRM */}
+                {activeCmsTab === 'crm' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                      <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '20px' }}>Audience CRM & Analytics</h2>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                        <div style={{ backgroundColor: '#F9FAFB', padding: '20px', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
+                          <p style={{ color: '#6B7280', margin: '0 0 8px', fontSize: '0.85rem', fontWeight: 'bold' }}>Total Subscribers</p>
+                          <h3 style={{ margin: 0, fontSize: '2rem', color: '#111827' }}>{audienceCRM.subscribers.toLocaleString()}</h3>
+                        </div>
+                        <div style={{ backgroundColor: '#FFFBEB', padding: '20px', borderRadius: '8px', border: '1px solid #FEF3C7' }}>
+                          <p style={{ color: '#92400E', margin: '0 0 8px', fontSize: '0.85rem', fontWeight: 'bold' }}>Premium Gold Users</p>
+                          <h3 style={{ margin: 0, fontSize: '2rem', color: '#B45309' }}>{audienceCRM.premiumUsers.toLocaleString()}</h3>
+                        </div>
+                        <div style={{ backgroundColor: '#EFF6FF', padding: '20px', borderRadius: '8px', border: '1px solid #DBEAFE' }}>
+                          <p style={{ color: '#1E40AF', margin: '0 0 8px', fontSize: '0.85rem', fontWeight: 'bold' }}>Push Notification Opt-ins</p>
+                          <h3 style={{ margin: 0, fontSize: '2rem', color: '#1D4ED8' }}>{audienceCRM.pushUsers.toLocaleString()}</h3>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                      <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '16px' }}>Reporter Leaderboard (This Week)</h3>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '2px solid #E5E7EB', color: '#6B7280', fontSize: '0.85rem' }}>
+                            <th style={{ padding: '12px' }}>Reporter</th>
+                            <th style={{ padding: '12px' }}>Bureau</th>
+                            <th style={{ padding: '12px' }}>Articles Published</th>
+                            <th style={{ padding: '12px' }}>Total Views</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {reporterAnalytics.map((rep, idx) => (
+                            <tr key={idx} style={{ borderBottom: '1px solid #F3F4F6' }}>
+                              <td style={{ padding: '12px', fontWeight: 'bold' }}>{rep.name}</td>
+                              <td style={{ padding: '12px', color: '#4B5563' }}>{rep.district}</td>
+                              <td style={{ padding: '12px', color: '#059669', fontWeight: 'bold' }}>{rep.published}</td>
+                              <td style={{ padding: '12px' }}>{rep.views.toLocaleString()}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB: COMMENT MODERATION */}
+                {activeCmsTab === 'comments' && (
+                  <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '4px' }}>Comment Moderation</h2>
+                    <p style={{ color: '#6B7280', marginBottom: '20px' }}>Review and filter reader comments before public display.</p>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {commentQueue.map(c => (
+                        <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '16px', border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: c.status === 'flagged' ? '#FEF2F2' : '#F9FAFB' }}>
+                          <div>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px' }}>
+                              <span style={{ fontWeight: 'bold' }}>{c.user}</span>
+                              <span style={{ fontSize: '0.7rem', backgroundColor: '#E5E7EB', padding: '2px 6px', borderRadius: '4px' }}>On: {c.article}</span>
+                              {c.status === 'flagged' && <span style={{ fontSize: '0.7rem', backgroundColor: '#FEE2E2', color: '#DC2626', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>SPAM FLAGGED</span>}
+                            </div>
+                            <p style={{ margin: 0, fontSize: '0.9rem', color: '#374151' }}>"{c.comment}"</p>
+                          </div>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button style={{ backgroundColor: '#10B981', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold' }}>Approve</button>
+                            <button style={{ backgroundColor: '#EF4444', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold' }}>Delete</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB: BACKUPS & INTEGRATIONS */}
+                {activeCmsTab === 'backups' && (
+                  <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '20px' }}>Backup & Disaster Recovery</h2>
+                    <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                      <div style={{ flex: 1, minWidth: '250px', padding: '24px', border: '1px solid #E5E7EB', borderRadius: '8px', textAlign: 'center' }}>
+                        <h3 style={{ marginBottom: '12px' }}>Database Backup</h3>
+                        <p style={{ fontSize: '0.8rem', color: '#6B7280', marginBottom: '16px' }}>Last backup: Today at 03:00 AM</p>
+                        <button style={{ backgroundColor: '#1E3A8A', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>Trigger Manual Backup</button>
+                      </div>
+                      <div style={{ flex: 1, minWidth: '250px', padding: '24px', border: '1px solid #E5E7EB', borderRadius: '8px', textAlign: 'center' }}>
+                        <h3 style={{ marginBottom: '12px' }}>System Restore</h3>
+                        <p style={{ fontSize: '0.8rem', color: '#6B7280', marginBottom: '16px' }}>Restore from AWS S3 Snapshot</p>
+                        <button style={{ backgroundColor: '#EF4444', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>Open Restore Panel</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeCmsTab === 'integrations' && (
+                  <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '20px' }}>API Integrations</h2>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      {['Google Analytics', 'Firebase Push Notifications', 'YouTube Live API', 'Cloudinary Media'].map((api, idx) => (
+                        <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+                          <div>
+                            <h4 style={{ margin: '0 0 4px', fontSize: '1rem' }}>{api}</h4>
+                            <p style={{ margin: 0, fontSize: '0.8rem', color: '#059669', fontWeight: 'bold' }}>● Connected & Active</p>
+                          </div>
+                          <button style={{ backgroundColor: '#F3F4F6', border: '1px solid #D1D5DB', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}>Configure</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
               </main>
             </>
           )}
         </div>
-      )}
+        </>
+      } />
+      </Routes>
 
     </div>
   );
