@@ -228,6 +228,68 @@ function saveLocalDb() {
 
 loadLocalDb();
 
+// ==========================================
+// MONGODB FULL-TEXT SEARCH ENGINE INTEGRATION
+// ==========================================
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/aptop_news';
+
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('✅ Connected to MongoDB Search Engine Database'))
+  .catch(err => console.error('❌ MongoDB Connection Error:', err));
+
+const articleSchema = new mongoose.Schema({
+  id: Number,
+  category: String,
+  categoryTe: String,
+  title: String,
+  titleEn: String,
+  desc: String,
+  descEn: String,
+  image: String,
+  author: String,
+  authorEn: String,
+  date: String,
+  views: Number,
+  district: String,
+  districtTe: String,
+  status: String,
+  priority: String,
+  pinTop: Boolean,
+  slug: String,
+  seoTitle: String,
+  metaDescription: String,
+  reactions: Object,
+  comments: Array
+}, { timestamps: true });
+
+// 🚀 CREATE FULL-TEXT SEARCH INDEX
+articleSchema.index({ 
+  title: 'text', 
+  titleEn: 'text', 
+  desc: 'text', 
+  descEn: 'text', 
+  category: 'text' 
+}, {
+  weights: { title: 10, titleEn: 10, desc: 5, descEn: 5, category: 2 },
+  name: 'ArticleTextIndex'
+});
+
+const Article = mongoose.model('Article', articleSchema);
+
+mongoose.connection.once('open', async () => {
+  try {
+    const count = await Article.countDocuments();
+    if (count === 0 && localDb.articles && localDb.articles.length > 0) {
+      console.log('Migrating initial articles from db.json to MongoDB Search Engine...');
+      await Article.insertMany(localDb.articles);
+      console.log('✅ Database Migration complete!');
+    }
+  } catch (err) {
+    console.error('Migration error:', err);
+  }
+});
+
+
 // JWT LOGIN GATEWAY
 app.post('/api/auth/login', (req, res) => {
   const { email, password } = req.body;
@@ -308,6 +370,33 @@ Sitemap: http://localhost:5000/sitemap-images.xml`);
 });
 
 // REST APIS FOR ARTICLES, TICKERS, REPORTERS
+
+// NEW: MONGODB FULL-TEXT SEARCH ENGINE API
+app.get('/api/search', async (req, res) => {
+  try {
+    const { q, category, district } = req.query;
+    
+    let queryObj = {};
+    if (q) queryObj.$text = { $search: q };
+    if (category && category !== 'All') queryObj.category = category;
+    if (district && district !== 'All') queryObj.district = district;
+
+    let results;
+    if (q) {
+      results = await Article.find(queryObj, { score: { $meta: 'textScore' } })
+                             .sort({ score: { $meta: 'textScore' } })
+                             .limit(50);
+    } else {
+      results = await Article.find(queryObj).sort({ _id: -1 }).limit(50);
+    }
+    
+    res.json(results);
+  } catch (err) {
+    console.error('Search Engine Error:', err);
+    res.status(500).json({ error: 'Search Engine failed to process query' });
+  }
+});
+
 app.get('/api/articles', (req, res) => {
   res.json(localDb.articles);
 });
@@ -341,6 +430,10 @@ app.post('/api/articles', (req, res) => {
   };
 
   localDb.articles.unshift(newArticle);
+  
+  // Save new article to MongoDB Search Engine as well
+  new Article(newArticle).save().catch(err => console.error('MongoDB Save Error:', err));
+
   
   const logEntry = {
     id: Date.now(),
