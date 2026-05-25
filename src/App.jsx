@@ -1223,6 +1223,7 @@ export default function App() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', padding: '0', overflowY: 'auto', height: 'calc(100vh - 65px)' }}>
                   <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Home</span>
+                  <span className="drawer-link" onClick={() => { setCurrentPage('bookmarks'); setIsMobileMenuOpen(false); }} style={{ color: 'var(--primary-red)' }}>⭐ Saved Stories</span>
                   <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Andhra Pradesh</span>
                   <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Telangana</span>
                   <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Politics</span>
@@ -1246,8 +1247,8 @@ export default function App() {
             </div>
           )}
 
-          {/* Secondary Navigation bar for Special Features */}
-          <nav className="secondary-nav" style={{ backgroundColor: 'var(--card-bg)', borderBottom: '1px solid var(--border-color)', padding: '12px 0', transition: 'var(--transition)' }}>
+          {/* Secondary Navigation bar for Special Features (Desktop only) */}
+          <nav className="secondary-nav desktop-only" style={{ backgroundColor: 'var(--card-bg)', borderBottom: '1px solid var(--border-color)', padding: '12px 0', transition: 'var(--transition)' }}>
             <div className="container nav-container" style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.9rem' }}>
               <span onClick={() => { setCurrentPage('home'); setShowAdvertiserDashboard(false); }} style={{ color: currentPage === 'home' && !showAdvertiserDashboard ? 'var(--primary-red)' : 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>🚨 {language === 'telugu' ? 'ప్రధాన వార్తలు' : 'Headlines'}</span>
               <span onClick={() => { setCurrentPage('elections'); setShowAdvertiserDashboard(false); }} style={{ color: currentPage === 'elections' ? 'var(--primary-red)' : 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>🗳️ {language === 'telugu' ? 'ఎన్నికల కేంద్రం' : 'Election Mega Center'}</span>
@@ -1258,8 +1259,29 @@ export default function App() {
             </div>
           </nav>
 
-          {/* Scrolling ticker */}
-          <div className="ticker-wrap">
+          {/* Mobile UX: Sticky Category Tabs */}
+          <div className="sticky-tabs-container mobile-only">
+            {['Breaking', 'Andhra Pradesh', 'Telangana', 'Politics', 'Sports', 'Business', 'Cinema', 'Technology', 'Jobs', 'Spiritual', 'Live', 'Reels'].map((tab, idx) => (
+              <div 
+                key={tab} 
+                className={`sticky-tab ${idx === 0 ? 'active' : ''}`}
+                onClick={() => setCurrentPage(tab === 'Live' ? 'live' : 'home')}
+              >
+                {tab}
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile UX: Sticky Breaking News Ticker */}
+          <div className="sticky-ticker-bar mobile-only" onClick={() => setCurrentPage('home')}>
+            <div className="dot"></div>
+            <div className="sticky-ticker-scroll">
+              {tickerItems.join(' • ')}
+            </div>
+          </div>
+
+          {/* Desktop Scrolling ticker */}
+          <div className="ticker-wrap desktop-only">
             <div className="ticker-header">
               <Flame size={16} />
               <span>{language === 'telugu' ? 'ఆప్టాప్ ఫ్లాష్' : 'FLASH NEWS'}</span>
@@ -1766,40 +1788,77 @@ export default function App() {
 
             {currentPage === 'home' && (
               <>
-                {/* Hero section */}
-                {articles.length > 0 && (
-                  <section className="hero-featured-story">
-                    <div className="hero-img-wrap">
-                      <img src={articles[0].image} alt="" />
-                      <div style={{ position: 'absolute', top: '16px', left: '16px' }} className="badge badge-red">
-                        <Flame size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                        {language === 'telugu' ? 'బ్రేకింగ్ వార్త' : 'BREAKING NEWS'}
-                      </div>
-                    </div>
-                    <div className="hero-text-wrap">
-                      <span className="category-badge">{language === 'telugu' ? articles[0].categoryTe : articles[0].category}</span>
-                      <h2 className="hero-title">{language === 'telugu' ? articles[0].title : articles[0].titleEn}</h2>
-                      <p className="hero-desc">{language === 'telugu' ? articles[0].desc : articles[0].descEn}</p>
-                      
-                      <div className="hero-meta" style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Calendar size={14} />
-                          <span>{articles[0].date}</span>
+                {/* Mobile UX: Hero Story Carousel */}
+                <div className="hero-carousel-container">
+                  {articles.slice(0, 3).map((art, idx) => (
+                    <div className="hero-carousel-slide" key={art.id}>
+                      <section className="hero-featured-story" style={{ marginBottom: 0 }}>
+                        <div className="hero-img-wrap" onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
+                          <img src={art.image} loading="lazy" alt="" />
+                          <div style={{ position: 'absolute', top: '16px', left: '16px' }} className="badge badge-red">
+                            <Flame size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                            {language === 'telugu' ? 'బ్రేకింగ్ వార్త' : 'BREAKING NEWS'}
+                          </div>
                         </div>
-                        <Bookmark size={18} style={{ color: 'var(--text-secondary)' }} />
+                        <div className="hero-text-wrap">
+                          <span className="category-badge">{language === 'telugu' ? art.categoryTe : art.category}</span>
+                          <h2 className="hero-title" onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>{language === 'telugu' ? art.title : art.titleEn}</h2>
+                          
+                          <div className="hero-meta" style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between', marginTop: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <Calendar size={14} />
+                              <span>{art.date}</span>
+                            </div>
+                            <Bookmark size={18} style={{ color: 'var(--text-secondary)' }} onClick={(e) => {
+                              e.stopPropagation();
+                              if (!bookmarks.includes(art.id)) setBookmarks([...bookmarks, art.id]);
+                            }} />
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginBottom: '24px' }}>
+                  {[0,1,2].map(dot => (
+                    <div key={dot} style={{ width: dot === 0 ? '16px' : '6px', height: '6px', borderRadius: '3px', backgroundColor: dot === 0 ? 'var(--primary-red)' : 'var(--border-color)' }}></div>
+                  ))}
+                </div>
+
+                {/* Mobile UX: Latest Updates Live Feed */}
+                <h3 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px', padding: '0 16px' }}>
+                  <Radio size={20} style={{ color: 'var(--primary-red)' }} />
+                  {language === 'telugu' ? 'తాజా అప్డేట్స్' : 'Latest Updates'}
+                </h3>
+                <div className="live-updates-timeline">
+                  {articles.slice(3, 7).map((art, idx) => (
+                    <div className="timeline-item" key={art.id} onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
+                      <div className="timeline-time">
+                        {idx === 0 ? 'Just now' : idx === 1 ? '10 mins ago' : idx === 2 ? '30 mins ago' : '1 hour ago'}
+                      </div>
+                      <div className="timeline-headline" style={{ color: 'var(--text-primary)' }}>
+                        {language === 'telugu' ? art.title : art.titleEn}
                       </div>
                     </div>
-                  </section>
-                )}
+                  ))}
+                </div>
 
-                {/* Reference Layout Quick Links */}
-                <div className="quick-links-scroll mobile-only">
-                  <span className="quick-link-chip" style={{ color: 'var(--primary-red)' }}>Latest updates</span>
-                  <span className="quick-link-chip" onClick={() => setCurrentPage('home')}>Andhra Pradesh</span>
-                  <span className="quick-link-chip" onClick={() => setCurrentPage('home')}>Telangana</span>
-                  <span className="quick-link-chip" onClick={() => setCurrentPage('home')}>Politics</span>
-                  <span className="quick-link-chip" onClick={() => setCurrentPage('home')}>Sports</span>
-                  <span className="quick-link-chip" onClick={() => setCurrentPage('home')}>Cinema</span>
+                {/* Mobile UX: Trending Stories */}
+                <h3 style={{ fontSize: '1.25rem', padding: '0 16px', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                  <TrendingUp size={20} style={{ color: 'var(--primary-red)' }} />
+                  {language === 'telugu' ? 'ట్రెండింగ్ 🔥' : 'Trending 🔥'}
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 16px', marginBottom: '32px' }}>
+                  {articles.slice(0, 5).sort((a,b) => b.id - a.id).map((art, idx) => (
+                    <div key={art.id} style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: 'var(--card-bg)', padding: '12px', borderRadius: '12px', border: '1px solid var(--border-color)', cursor: 'pointer' }} onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--border-color)', minWidth: '24px', textAlign: 'center' }}>{idx + 1}</div>
+                      <div style={{ flex: 1 }}>
+                        <h4 style={{ fontSize: '0.9rem', margin: '0 0 4px 0', fontFamily: 'var(--font-telugu)', color: 'var(--text-primary)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{language === 'telugu' ? art.title : art.titleEn}</h4>
+                        <div className="trending-views"><Eye size={12} /> {Math.floor(Math.random() * 50 + 10)}K Views • {language === 'telugu' ? art.categoryTe : art.category}</div>
+                      </div>
+                      <img src={art.image} loading="lazy" style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} alt="" />
+                    </div>
+                  ))}
                 </div>
 
                 {/* DOWNTOWN VERTICAL REELS SLIDER */}
@@ -1921,22 +1980,41 @@ export default function App() {
                             <h3>{language === 'telugu' ? catArts[0].categoryTe : cat}</h3>
                             <span className="red-slashes">//</span>
                           </div>
-                          <div className="mobile-reference-grid">
-                            {catArts.map(art => (
-                              <article className="mobile-list-card" key={art.id}>
-                                <div className="card-img-container" onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
-                                  <img src={art.image} className="card-img" alt="" />
-                                </div>
-                                <div className="card-content">
-                                  <span className="card-category">{language === 'telugu' ? art.categoryTe : art.category}</span>
-                                  <h4 className="card-title" onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
-                                    {language === 'telugu' ? art.title : art.titleEn}
-                                  </h4>
-                                </div>
-                                <Bookmark className="bookmark-icon" size={16} />
-                              </article>
-                            ))}
-                          </div>
+                          {['Sports', 'Business', 'Cinema', 'Technology', 'క్రీడలు', 'వ్యాపారం', 'సినిమా', 'సాంకేతికం', 'Lifestyle'].includes(cat) || (catArts[0] && ['Sports', 'Business', 'Cinema', 'Technology'].includes(catArts[0].category)) ? (
+                            <div className="swipeable-cards-row">
+                              {catArts.map(art => (
+                                <article className="swipeable-card" key={art.id} onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
+                                  <img src={art.image} loading="lazy" style={{ width: '100%', height: '140px', objectFit: 'cover' }} alt="" />
+                                  <div style={{ padding: '12px' }}>
+                                    <span className="card-category" style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--primary-red)', textTransform: 'uppercase' }}>{language === 'telugu' ? art.categoryTe : art.category}</span>
+                                    <h4 className="card-title" style={{ fontSize: '0.9rem', margin: '4px 0 0 0', fontFamily: 'var(--font-telugu)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                      {language === 'telugu' ? art.title : art.titleEn}
+                                    </h4>
+                                  </div>
+                                </article>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="mobile-reference-grid">
+                              {catArts.map(art => (
+                                <article className="mobile-list-card" key={art.id}>
+                                  <div className="card-img-container" onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
+                                    <img src={art.image} loading="lazy" className="card-img" alt="" />
+                                  </div>
+                                  <div className="card-content">
+                                    <span className="card-category">{language === 'telugu' ? art.categoryTe : art.category}</span>
+                                    <h4 className="card-title" onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
+                                      {language === 'telugu' ? art.title : art.titleEn}
+                                    </h4>
+                                  </div>
+                                  <Bookmark className="bookmark-icon" size={16} onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (!bookmarks.includes(art.id)) setBookmarks([...bookmarks, art.id]);
+                                  }} />
+                                </article>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -2094,34 +2172,66 @@ export default function App() {
               </div>
             )}
 
+            {/* BOOKMARKS PAGE */}
+            {currentPage === 'bookmarks' && (
+              <div style={{ minHeight: '60vh', marginTop: '20px' }}>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '24px', fontFamily: 'var(--font-telugu)' }}>
+                  <Bookmark size={24} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px' }} />
+                  {language === 'telugu' ? 'సేవ్ చేసిన వార్తలు' : 'Saved Stories'}
+                </h2>
+                <div className="mobile-reference-grid">
+                  {articles.filter(a => bookmarks.includes(a.id)).map(art => (
+                    <article className="mobile-list-card" key={art.id}>
+                      <div className="card-img-container" onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
+                        <img src={art.image} loading="lazy" className="card-img" alt="" />
+                      </div>
+                      <div className="card-content">
+                        <span className="card-category">{language === 'telugu' ? art.categoryTe : art.category}</span>
+                        <h4 className="card-title" onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
+                          {language === 'telugu' ? art.title : art.titleEn}
+                        </h4>
+                      </div>
+                      <Bookmark className="bookmark-icon" size={16} style={{ color: 'var(--primary-red)', fill: 'var(--primary-red)' }} onClick={(e) => {
+                        e.stopPropagation();
+                        setBookmarks(bookmarks.filter(b => b !== art.id));
+                      }} />
+                    </article>
+                  ))}
+                  {articles.filter(a => bookmarks.includes(a.id)).length === 0 && (
+                    <p style={{ color: 'var(--text-secondary)' }}>No saved stories found.</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Floating Live TV Button */}
+            {currentPage !== 'live' && (
+              <div className="floating-live-btn mobile-only" onClick={() => setCurrentPage('live')}>
+                <Radio size={16} /> LIVE
+              </div>
+            )}
+
           </main>
 
-          {/* Premium Footer */}
-          <footer style={{ backgroundColor: 'var(--footer-bg)', color: '#9CA3AF', padding: '48px 16px 24px', borderTop: '4px solid var(--primary-red)', transition: 'var(--transition)', marginTop: '64px' }}>
-            <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px' }}>
-              <div>
-                <h4 style={{ color: 'white', fontWeight: 800, fontSize: '1.2rem', marginBottom: '16px' }}>Aptop News</h4>
-                <p style={{ fontSize: '0.8rem', lineHeight: '1.6' }}>
-                  {language === 'telugu' ? 'ఆంధ్రప్రదేశ్ మరియు తెలంగాణ ప్రజలకు అత్యంత వేగవంతమైన, విశ్వసనీయమైన మరియు నిష్పక్షపాత వార్తా సేవలందిస్తున్న ఏకైక డిజిటల్ ఛానెల్.' : 'Fast • Trusted • Telugu First. Providing authentic and unbiased media services.'}
-                </p>
-              </div>
-              <div>
-                <h4 style={{ color: 'white', fontWeight: 800, fontSize: '0.95rem', marginBottom: '16px' }}>Useful Links</h4>
-                <ul style={{ listStyle: 'none', padding: '0', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.8rem' }}>
-                  <li><span style={{ cursor: 'pointer' }} onClick={() => setCurrentPage('home')}>Andhra Pradesh</span></li>
-                  <li><span style={{ cursor: 'pointer' }} onClick={() => setCurrentPage('home')}>Telangana</span></li>
-                  <li><span style={{ cursor: 'pointer' }} onClick={() => setCurrentPage('home')}>Politics</span></li>
-                </ul>
-              </div>
-              <div>
-                <h4 style={{ color: 'white', fontWeight: 800, fontSize: '0.95rem', marginBottom: '16px' }}>Policy Documents</h4>
-                <ul style={{ listStyle: 'none', padding: '0', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.8rem' }}>
-                  <li>Privacy Policy</li>
-                  <li>Terms & Conditions</li>
-                  <li>Ad Specifications</li>
-                </ul>
-              </div>
+          {/* Polished Footer */}
+          <footer className="polished-footer">
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0 0 16px 0' }}>Aptop News</h2>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '400px', margin: '0 auto' }}>
+              {language === 'telugu' ? 'ఆంధ్రప్రదేశ్ మరియు తెలంగాణ ప్రజలకు అత్యంత వేగవంతమైన వార్తా డిజిటల్ ఛానెల్.' : 'Fast • Trusted • Telugu First. Providing authentic and unbiased media services.'}
+            </p>
+            <div className="footer-links">
+              <span onClick={() => setCurrentPage('home')} style={{ cursor: 'pointer' }}>About Us</span>
+              <span onClick={() => setCurrentPage('home')} style={{ cursor: 'pointer' }}>Contact</span>
+              <span onClick={() => { setCurrentPage('advertise'); setShowAdvertiserDashboard(true); }} style={{ cursor: 'pointer' }}>Advertise</span>
+              <span onClick={() => setCurrentPage('home')} style={{ cursor: 'pointer' }}>Privacy Policy</span>
+              <span onClick={() => setCurrentPage('home')} style={{ cursor: 'pointer' }}>Terms</span>
             </div>
+            <div className="footer-socials">
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'var(--primary-red)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer' }}><Globe size={18} /></div>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer' }}><Share2 size={18} /></div>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#1877F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer' }}><ThumbsUp size={18} /></div>
+            </div>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '32px' }}>© 2026 Aptop News Media Network. All rights reserved.</p>
           </footer>
 
         </div>
