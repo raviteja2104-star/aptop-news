@@ -562,10 +562,20 @@ export default function App() {
       setArticles([...articlesData, ...dummyArticles]);
 
       const tickerData = await safeFetch(`${BACKEND_URL}/api/ticker`, []);
-      setTickerItems(tickerData);
+      const dummyTicker = [
+        "వచ్చే వారం అమరావతిలో భారీ పెట్టుబడుల సదస్సు",
+        "Gold Prices: వరుసగా మూడో రోజు తగ్గిన బంగారం ధరలు",
+        "Team India: వచ్చే సిరీస్ కు జట్టు ప్రకటన",
+        "AP Weather: కోస్తా ఆంధ్రాలో నేడు, రేపు భారీ వర్షాలు"
+      ];
+      setTickerItems([...tickerData, ...dummyTicker]);
 
       const adsData = await safeFetch(`${BACKEND_URL}/api/ads`, []);
-      setAds(adsData);
+      const dummyAds = [
+        { id: 901, active: true, image: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&q=80&w=800', url: '#', title: 'Top Coaching Center' },
+        { id: 902, active: true, image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800', url: '#', title: 'Healthcare Package' }
+      ];
+      setAds([...adsData, ...dummyAds]);
 
       const analyticData = await safeFetch(`${BACKEND_URL}/api/analytics`, {
         totalArticles: 0,
@@ -580,10 +590,24 @@ export default function App() {
       setAuditLogs(auditData);
 
       const repData = await safeFetch(`${BACKEND_URL}/api/reporters`, []);
-      setReporters(repData);
+      const dummyReporters = [
+        { id: 901, name: 'కె. శ్రీనివాస్ (K. Srinivas)', nameEn: 'Srinivas', district: 'Visakhapatnam', stories: 120 },
+        { id: 902, name: 'లక్ష్మి (Lakshmi)', nameEn: 'Lakshmi', district: 'Vijayawada', stories: 85 },
+        { id: 903, name: 'మహేష్ (Mahesh)', nameEn: 'Mahesh', district: 'Hyderabad', stories: 150 },
+      ];
+      setReporters([...repData, ...dummyReporters]);
 
       const pollData = await safeFetch(`${BACKEND_URL}/api/poll`, null);
-      setLivePoll(pollData);
+      const dummyPoll = {
+        id: 901,
+        question: "ఎవరు గెలుస్తారని మీరు భావిస్తున్నారు? (Who will win?)",
+        options: [
+          { id: 1, text: "కూటమి (Alliance)", votes: 5430 },
+          { id: 2, text: "ప్రతిపక్షం (Opposition)", votes: 3210 },
+          { id: 3, text: "ఇతరులు (Others)", votes: 850 }
+        ]
+      };
+      setLivePoll(pollData || dummyPoll);
 
       const streamData = await safeFetch(`${BACKEND_URL}/api/live-streams`, []);
       const dummyStreams = [
