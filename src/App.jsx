@@ -11,8 +11,9 @@ import {
   Play, ThumbsUp, Smile, AlertOctagon, HelpCircle as QuestionIcon, Menu, Eye
 } from 'lucide-react';
 
-const BACKEND_URL = 'http://localhost:5000';
-let socket;
+const IS_PROD = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
+const BACKEND_URL = IS_PROD ? '' : 'http://localhost:5000';
+let socket = { on: () => {}, emit: () => {}, disconnect: () => {} };
 
 export default function App() {
   // VIEW & BRANDING STATES
@@ -435,7 +436,8 @@ export default function App() {
   useEffect(() => {
     fetchData();
 
-    socket = io(BACKEND_URL);
+    if (!IS_PROD) {
+      socket = io(BACKEND_URL);
 
     socket.on('connect', () => {
       console.log('⚡ Connected to Aptop Public Launch Server!');
@@ -492,8 +494,10 @@ export default function App() {
       setShowNotificationToast(true);
     });
 
+    }
+
     return () => {
-      socket.disconnect();
+      if (!IS_PROD && socket.disconnect) socket.disconnect();
     };
   }, []);
 
@@ -510,6 +514,7 @@ export default function App() {
 
   // Poll analytics & live data
   useEffect(() => {
+    if (IS_PROD) return;
     const analyticPoll = setInterval(() => {
       fetch(`${BACKEND_URL}/api/analytics`)
         .then(res => res.json())
@@ -533,6 +538,7 @@ export default function App() {
   const fetchData = async () => {
     setIsLoading(true);
     const safeFetch = async (url, fallback) => {
+      if (IS_PROD) return fallback;
       try {
         const res = await fetch(url);
         if (!res.ok) return fallback;
