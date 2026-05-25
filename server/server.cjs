@@ -163,7 +163,41 @@ const defaultData = {
     { id: 'rep2', name: 'కిరణ్ ప్రసాద్', nameEn: 'Kiran Prasad', photo: '/logo.png', district: 'Tirupati', bio: 'రాయలసీమ ఆలయ సంస్కృతి, ఆధ్యాత్మికత మరియు తిరుమల వార్తల సమగ్ర రిపోర్టర్.', stories: 95, twitter: '@kirantirupati', whatsapp: '9848022339' },
     { id: 'rep3', name: 'స్వప్న రెడ్డి', nameEn: 'Swapna Reddy', photo: '/logo.png', district: 'Hyderabad', bio: 'తెలంగాణ శాసనసభ, రాజధాని రాజకీయాలు మరియు ఐటీ కారిడార్ పరిణామాల ప్రత్యేక ప్రతినిధి.', stories: 145, twitter: '@swapnahyd', whatsapp: '9848022340' }
   ],
-  emergencyMode: false
+  emergencyMode: false,
+  shorts: [
+    { id: 'short-1', title: 'విశాఖ తీరంలో భారీ గాలులు', captionTe: 'తీరం దాటనున్న అల్పపీడనం.. అలర్ట్ జారీ!', image: '/hero.png', district: 'Visakhapatnam', date: 'ఇప్పుడే', views: 8200 },
+    { id: 'short-2', title: 'శ్రీవారి దర్శన సమయం అప్డేట్', captionTe: 'తిరుమలలో పోటెత్తిన రద్దీ దృశ్యాలు!', image: '/temple.png', district: 'Tirupati', date: '2 గంటల క్రితం', views: 12400 }
+  ],
+  epaper: [
+    { id: 'epaper-1', editionDate: '2026-05-25', title: 'ఆప్టాప్ డైలీ మార్నింగ్ డైజెస్ట్ - మే 25', pdfUrl: '/epaper_may25.pdf', downloads: 1420, columns: ['ఐటీ రంగంలో ప్రగతి', 'తిరుమలలో ప్రత్యేక ఏర్పాట్లు', 'రాజకీయ క్రీడ మొదలైంది!'] },
+    { id: 'epaper-2', editionDate: '2026-05-24', title: 'ఆప్టాప్ డైలీ మార్నింగ్ డైజెస్ట్ - మే 24', pdfUrl: '/epaper_may24.pdf', downloads: 2840, columns: ['మెట్రో ప్రాజెక్ట్ కి ఆమోదం', 'సెన్సెక్స్ రికార్డ్ గరిష్టం', 'స్థానిక క్రీడల అప్డేట్స్'] }
+  ],
+  bureauPerformance: {
+    Visakhapatnam: { stories: 120, traffic: 45000, topReporter: 'రవి కుమార్', trendingTag: '#VizagIT' },
+    Tirupati: { stories: 95, traffic: 32000, topReporter: 'కిరణ్ ప్రసాద్', trendingTag: '#TirumalaDarshan' },
+    Vijayawada: { stories: 84, traffic: 24000, topReporter: 'రవి వర్మ', trendingTag: '#AmaravatiUpdate' },
+    Hyderabad: { stories: 145, traffic: 68000, topReporter: 'స్వప్న రెడ్డి', trendingTag: '#AIHubHyd' }
+  },
+  notificationAnalytics: {
+    delivered: 24890,
+    opened: 18450,
+    clicked: 3108,
+    categoryCtr: [
+      { name: 'Politics', ctr: 14.5, count: 1800 },
+      { name: 'Spiritual', ctr: 11.2, count: 980 },
+      { name: 'Technology', ctr: 9.8, count: 420 }
+    ]
+  },
+  searchRankings: {
+    impressions: 485000,
+    clicks: 64200,
+    trendingKeywords: [
+      { term: 'తిరుమల శ్రీవారి దర్శనం టికెట్లు 2026', volume: '45K searches', trend: 'up' },
+      { term: 'ఏపీ నూతన ఐటీ పాలసీ పెట్టుబడులు', volume: '32K searches', trend: 'up' },
+      { term: 'హైదరాబాద్ ఏఐ ఇన్నోవేషన్ పార్క్', volume: '24K searches', trend: 'stable' }
+    ]
+  },
+  premiumUsers: []
 };
 
 let localDb = { ...defaultData };
@@ -620,6 +654,83 @@ app.post('/api/ai/breaking-mode', (req, res) => {
   });
 });
 
+// NEW API ENDPOINTS FOR GROWTH, MONETIZATION & MOBILE EXPANSION
+app.get('/api/shorts', (req, res) => {
+  res.json(localDb.shorts || []);
+});
+
+app.post('/api/shorts', (req, res) => {
+  const { title, captionTe, image, district } = req.body;
+  const newShort = {
+    id: 'short-' + Date.now(),
+    title: title || 'నూతన షార్ట్',
+    captionTe: captionTe || '',
+    image: image || '/hero.png',
+    district: district || 'Visakhapatnam',
+    date: 'ఇప్పుడే',
+    views: 0
+  };
+  if (!localDb.shorts) localDb.shorts = [];
+  localDb.shorts.unshift(newShort);
+  saveLocalDb();
+  io.emit('shorts_updated', localDb.shorts);
+  res.status(201).json(newShort);
+});
+
+app.post('/api/ai/shorts-meta', (req, res) => {
+  const { topic } = req.body;
+  res.json({
+    title: `ఆప్టాప్ క్లిప్: ${topic || 'ప్రత్యేక కవరేజ్'}`,
+    captionTe: `సంచలనం రేపుతున్న వార్త! ${topic || 'ప్రజా ప్రయోజనార్థం అప్డేట్'}. పూర్తి వివరాలకై ఈ రీల్ చూడండి! #AptopNews #TeluguNews #${topic ? topic.replace(/[^a-zA-Z0-9]/g, '') : 'Live'}`,
+    instagramCaption: `🔥 Trending in Telugu States: ${topic || 'Special coverage'}. Watch full news details! 🎥 Link in bio. \n\n#reels #telugureels #apnews #tsnews`,
+    youtubeTitle: `${topic || 'Telugu News Short'} | Aptop News Live`,
+    whatsappCaption: `📲 *Aptop News Channel Alert*:\n\n${topic || 'అసెంబ్లీ ప్రత్యేక చర్చలు'}\n\nపూర్తి వివరాలు మరియు వీడియోస్ కోసం ఛానల్ ఫాలో అవ్వండి! 👇`
+  });
+});
+
+app.get('/api/epaper', (req, res) => {
+  res.json(localDb.epaper || []);
+});
+
+app.get('/api/bureau-performance', (req, res) => {
+  res.json(localDb.bureauPerformance || {});
+});
+
+app.get('/api/notification-analytics', (req, res) => {
+  res.json(localDb.notificationAnalytics || {});
+});
+
+app.get('/api/search-rankings', (req, res) => {
+  res.json(localDb.searchRankings || {});
+});
+
+app.post('/api/membership/subscribe', (req, res) => {
+  const { name, email, plan } = req.body;
+  const subscriber = {
+    id: 'sub-' + Date.now(),
+    name,
+    email,
+    plan,
+    subscribedAt: new Date().toISOString()
+  };
+  if (!localDb.premiumUsers) localDb.premiumUsers = [];
+  localDb.premiumUsers.push(subscriber);
+  
+  const logEntry = {
+    id: Date.now(),
+    user: name || 'Premium Member',
+    role: 'Reader',
+    action: `Subscribed to Membership Plan: ${plan}`,
+    timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19)
+  };
+  if (!localDb.auditLogs) localDb.auditLogs = [];
+  localDb.auditLogs.unshift(logEntry);
+
+  saveLocalDb();
+  io.emit('audit_updated', localDb.auditLogs);
+  res.status(201).json(subscriber);
+});
+
 app.get('/api/analytics', (req, res) => {
   const totalViews = localDb.articles.reduce((acc, a) => acc + (a.views || 0), 0);
   res.json({
@@ -651,6 +762,8 @@ io.on('connection', (socket) => {
   socket.emit('media_library_updated', localDb.mediaLibrary);
   socket.emit('poll_updated', localDb.polls);
   socket.emit('emergency_updated', localDb.emergencyMode);
+  socket.emit('shorts_updated', localDb.shorts);
+  socket.emit('epaper_updated', localDb.epaper);
 
   socket.on('disconnect', () => {
     console.log('🔌 Client disconnected.');

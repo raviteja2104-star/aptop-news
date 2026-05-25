@@ -56,6 +56,41 @@ export default function App() {
   const [mediaLibrary, setMediaLibrary] = useState([]);
   const [emergencyMode, setEmergencyMode] = useState(false);
 
+  // NEW DYNAMIC MOBILE, SHORTS & MEMBERSHIP STATES
+  const [showSplash, setShowSplash] = useState(true);
+  const [premiumPlan, setPremiumPlan] = useState(localStorage.getItem('premium_plan') || 'free');
+  const [showPremiumCheckout, setShowPremiumCheckout] = useState(false);
+  const [checkoutName, setCheckoutName] = useState('');
+  const [checkoutEmail, setCheckoutEmail] = useState('');
+  const [checkoutCard, setCheckoutCard] = useState('');
+  const [checkoutProcessing, setCheckoutProcessing] = useState(false);
+  const [shortsList, setShortsList] = useState([]);
+  const [epapersList, setEpapersList] = useState([]);
+  const [bureauStats, setBureauStats] = useState({});
+  const [pushAnalytics, setPushAnalytics] = useState({});
+  const [rankingStats, setRankingStats] = useState({});
+  const [voiceReaderRate, setVoiceReaderRate] = useState(1);
+  const [voiceReaderIsPlaying, setVoiceReaderIsPlaying] = useState(false);
+  const [activeVoiceArticleId, setActiveVoiceArticleId] = useState(null);
+
+  // SHORTS STUDIO FOR CMS
+  const [newShortTitle, setNewShortTitle] = useState('');
+  const [newShortCaption, setNewShortCaption] = useState('');
+  const [newShortImage, setNewShortImage] = useState('/hero.png');
+  const [newShortDistrict, setNewShortDistrict] = useState('Visakhapatnam');
+  const [aiShortTopic, setAiShortTopic] = useState('');
+  const [aiShortResult, setAiShortResult] = useState(null);
+  const [isAiShortLoading, setIsAiShortLoading] = useState(false);
+
+  // ADVERTISER SELF-SERVICE CAMPAIGN SCHEDULER
+  const [showAdvertiserDashboard, setShowAdvertiserDashboard] = useState(false);
+  const [newAdCompany, setNewAdCompany] = useState('');
+  const [newAdUrl, setNewAdUrl] = useState('/hero.png');
+  const [newAdCity, setNewAdCity] = useState('Visakhapatnam');
+  const [newAdBudget, setNewAdBudget] = useState('500');
+  const [newAdPlacement, setNewAdPlacement] = useState('Homepage inline');
+  const [newAdSuccess, setNewAdSuccess] = useState('');
+
   // ADVERTISER ONBOARDING STATE
   const [advCompany, setAdvCompany] = useState('');
   const [advContact, setAdvContact] = useState('');
@@ -106,6 +141,13 @@ export default function App() {
   const [aiFullDistrict, setAiFullDistrict] = useState('Visakhapatnam');
   const [aiFullKeywords, setAiFullKeywords] = useState('');
   const [isAiFullLoading, setIsAiFullLoading] = useState(false);
+
+  // SHORTS STUDIO FORM STATES
+  const [shortTitle, setShortTitle] = useState('');
+  const [shortCaption, setShortCaption] = useState('');
+  const [shortDistrict, setShortDistrict] = useState('Visakhapatnam');
+  const [shortImage, setShortImage] = useState('/vizag.png');
+  const [aiShortMetaLoading, setAiShortMetaLoading] = useState(false);
 
   const [aiShortText, setAiShortText] = useState('');
   const [isAiBreakingLoading, setIsAiBreakingLoading] = useState(false);
@@ -163,6 +205,14 @@ export default function App() {
       setMediaLibrary(data || []);
     });
 
+    socket.on('shorts_updated', (data) => {
+      setShortsList(data || []);
+    });
+
+    socket.on('epaper_updated', (data) => {
+      setEpapersList(data || []);
+    });
+
     socket.on('emergency_updated', (isActive) => {
       setEmergencyMode(isActive);
       if (isActive) {
@@ -182,6 +232,17 @@ export default function App() {
       socket.disconnect();
     };
   }, []);
+
+  // Mobile app splash screen trigger
+  useEffect(() => {
+    if (activeView === 'mobile') {
+      setShowSplash(true);
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [activeView]);
 
   // Poll analytics & live data
   useEffect(() => {
@@ -255,6 +316,21 @@ export default function App() {
 
       const emergencyData = await safeFetch(`${BACKEND_URL}/api/emergency`, { active: false });
       setEmergencyMode(emergencyData ? emergencyData.active : false);
+
+      const shortsData = await safeFetch(`${BACKEND_URL}/api/shorts`, []);
+      setShortsList(shortsData);
+
+      const epapersData = await safeFetch(`${BACKEND_URL}/api/epaper`, []);
+      setEpapersList(epapersData);
+
+      const bureauData = await safeFetch(`${BACKEND_URL}/api/bureau-performance`, {});
+      setBureauStats(bureauData);
+
+      const pushData = await safeFetch(`${BACKEND_URL}/api/notification-analytics`, {});
+      setPushAnalytics(pushData);
+
+      const rankingData = await safeFetch(`${BACKEND_URL}/api/search-rankings`, {});
+      setRankingStats(rankingData);
 
     } catch (err) {
       console.error('Failed fetching server datasets, falling back.', err);
@@ -744,6 +820,68 @@ export default function App() {
     }
   };
 
+  // SPEECH NEWS READER CONTROLLER
+  const handleSpeakArticle = (article) => {
+    if (voiceReaderIsPlaying) {
+      window.speechSynthesis.cancel();
+      setVoiceReaderIsPlaying(false);
+      setActiveVoiceArticleId(null);
+    } else {
+      const textToSpeak = language === 'telugu' ? `${article.title}. ${article.desc}` : `${article.titleEn}. ${article.descEn}`;
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      
+      const voices = window.speechSynthesis.getVoices();
+      const teluguVoice = voices.find(v => v.lang.startsWith('te') || v.lang.startsWith('in'));
+      if (teluguVoice) utterance.voice = teluguVoice;
+      
+      utterance.rate = voiceReaderRate;
+      utterance.onend = () => {
+        setVoiceReaderIsPlaying(false);
+        setActiveVoiceArticleId(null);
+      };
+      utterance.onerror = () => {
+        setVoiceReaderIsPlaying(false);
+        setActiveVoiceArticleId(null);
+      };
+      
+      window.speechSynthesis.speak(utterance);
+      setVoiceReaderIsPlaying(true);
+      setActiveVoiceArticleId(article.id);
+    }
+  };
+
+  // PREMIUM MEMBERSHIP CHECKOUT POST
+  const handleSubscribePremium = async (e) => {
+    e.preventDefault();
+    if (!checkoutName || !checkoutEmail) return;
+    setCheckoutProcessing(true);
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/membership/subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: checkoutName,
+          email: checkoutEmail,
+          plan: 'Gold Premium Annually'
+        })
+      });
+      if (res.ok) {
+        setPremiumPlan('premium');
+        localStorage.setItem('premium_plan', 'premium');
+        setShowPremiumCheckout(false);
+        
+        setCustomAlertTitle(`ధన్యవాదాలు ${checkoutName}! మీ ప్రీమియం గోల్డ్ సబ్‌స్క్రిప్షన్ సక్రియం చేయబడింది!`);
+        setCustomAlertTitleEn(`Thank you ${checkoutName}! Your Gold Premium ad-free subscription is active!`);
+        setShowNotificationToast(true);
+      }
+    } catch (err) {
+      console.error('Subscription error:', err);
+    } finally {
+      setCheckoutProcessing(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#1A1A1A', color: 'white' }}>
@@ -896,6 +1034,18 @@ export default function App() {
             </div>
           </header>
 
+          {/* Secondary Navigation bar for Special Features */}
+          <nav style={{ backgroundColor: 'var(--card-bg)', borderBottom: '1px solid var(--border-color)', padding: '12px 0', transition: 'var(--transition)' }}>
+            <div className="container" style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.9rem' }}>
+              <span onClick={() => { setCurrentPage('home'); setShowAdvertiserDashboard(false); }} style={{ color: currentPage === 'home' && !showAdvertiserDashboard ? 'var(--primary-red)' : 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>🚨 {language === 'telugu' ? 'ప్రధాన వార్తలు' : 'Headlines'}</span>
+              <span onClick={() => { setCurrentPage('elections'); setShowAdvertiserDashboard(false); }} style={{ color: currentPage === 'elections' ? 'var(--primary-red)' : 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>🗳️ {language === 'telugu' ? 'ఎన్నికల కేంద్రం' : 'Election Mega Center'}</span>
+              <span onClick={() => { setCurrentPage('spiritual'); setShowAdvertiserDashboard(false); }} style={{ color: currentPage === 'spiritual' ? 'var(--primary-red)' : 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>🕉️ {language === 'telugu' ? 'తిరుమల లైవ్' : 'Spiritual Specials'}</span>
+              <span onClick={() => { setCurrentPage('epaper'); setShowAdvertiserDashboard(false); }} style={{ color: currentPage === 'epaper' ? 'var(--primary-red)' : 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>📰 {language === 'telugu' ? 'ఈ-పేపర్' : 'Daily Digest'}</span>
+              <span onClick={() => { setShowAdvertiserDashboard(true); setCurrentPage('advertise'); }} style={{ color: showAdvertiserDashboard ? 'var(--primary-red)' : 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>💼 {language === 'telugu' ? 'ప్రకటనల డ్యాష్‌బోర్డ్' : 'Advertiser Portal'}</span>
+              <span onClick={() => setShowPremiumCheckout(true)} style={{ color: 'gold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', animation: 'pulse 1.5s infinite alternate' }}>⭐ {premiumPlan === 'premium' ? 'GOLD MEMBER (Ad-Free)' : (language === 'telugu' ? 'గోల్డ్ ప్రీమియం' : 'Go Ad-Free')}</span>
+            </div>
+          </nav>
+
           {/* Scrolling ticker */}
           <div className="ticker-wrap">
             <div className="ticker-header">
@@ -911,8 +1061,8 @@ export default function App() {
 
           <main className="container" style={{ padding: '32px 16px' }}>
 
-            {/* AD PLACEMENT: HEADER BANNER */}
-            {ads.length > 0 && ads[0].active && (
+            {/* AD PLACEMENT: HEADER BANNER (Hidden for premium VIP members) */}
+            {ads.length > 0 && ads[0].active && premiumPlan !== 'premium' && (
               <div 
                 onClick={() => handleAdClick(ads[0].id)}
                 style={{ 
@@ -930,7 +1080,287 @@ export default function App() {
                 }}
               >
                 <span style={{ backgroundColor: 'var(--accent-yellow)', color: '#111', fontSize: '0.65rem', fontWeight: 'bold', padding: '2px 6px', borderRadius: '4px' }}>SPONSORED AD</span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>గృహాల కొనుగోలుపై అద్భుతమైన ఆఫర్లు! 0% డౌన్ పేమెంట్. క్లిక్ చేయండి!</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{ads[0].advertiser || 'Aptop Sponsored Services'} • గృహాల కొనుగోలుపై అద్భుతమైన ఆఫర్లు! 0% డౌన్ పేమెంట్. క్లిక్ చేయండి!</span>
+              </div>
+            )}
+
+            {/* 1. SPECIAL PAGE: EPAPER DAILY DIGEST */}
+            {currentPage === 'epaper' && (
+              <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px' }}>
+                  <div>
+                    <h2 style={{ fontSize: '2rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>📰 ఆప్టాప్ దినపత్రిక (Aptop Daily E-Paper)</h2>
+                    <p style={{ color: 'var(--text-secondary)' }}>AP & Telangana Daily Digital Morning Editions</p>
+                  </div>
+                  <button 
+                    onClick={() => alert('ఆప్టాప్ ఉదయపు సంచిక PDF విజయవంతంగా డౌన్‌లోడ్ చేయబడింది! (Printed morning newspaper downloaded successfully in PDF format.)')}
+                    style={{ backgroundColor: 'var(--primary-red)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                  >
+                    Download Printable PDF Edition
+                  </button>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '32px' }}>
+                  {/* Left Side: Edition selector */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <h4 style={{ fontSize: '1rem', fontWeight: 'bold', borderLeft: '3px solid var(--primary-red)', paddingLeft: '8px' }}>Select Edition</h4>
+                    {['ఆంధ్రప్రదేశ్ ప్రధాన సంచిక (AP Main)', 'తెలంగాణ ప్రధాన సంచిక (TS Main)', 'హైదరాబాద్ సిటీ పుల్-అవుట్ (City Special)', 'ఆధ్యాత్మిక ప్రత్యేక అనుబంధం (Spiritual supplement)'].map((ed, idx) => (
+                      <div key={idx} style={{ padding: '12px', backgroundColor: idx === 0 ? 'rgba(214, 31, 38, 0.05)' : 'var(--card-bg)', border: idx === 0 ? '1px solid var(--primary-red)' : '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+                        {ed}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Right Side: Newspaper layout preview mockup */}
+                  <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '32px', boxShadow: 'var(--shadow-md)', position: 'relative' }}>
+                    <div style={{ textAlign: 'center', borderBottom: '2px double var(--border-color)', paddingBottom: '16px', marginBottom: '20px' }}>
+                      <h1 style={{ fontSize: '3rem', fontWeight: 900, color: 'var(--primary-red)', fontFamily: 'var(--font-telugu)', margin: 0 }}>ఆప్టాప్ న్యూస్</h1>
+                      <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-secondary)' }}>వేగంగా • నిజంగా • తెలుగు రాష్ట్రాల నంబర్ వన్ దినపత్రిక</span>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+                      <div style={{ textAlign: 'left', borderRight: '1px solid var(--border-color)', paddingRight: '20px' }}>
+                        <span style={{ color: 'var(--primary-red)', fontSize: '0.8rem', fontWeight: 'bold' }}>ముఖ్య వార్త (Front Page Lead Story)</span>
+                        <h2 style={{ fontSize: '1.8rem', fontWeight: 'bold', fontFamily: 'var(--font-telugu)', marginTop: '8px', marginBottom: '12px', lineHeight: '1.3' }}>ఆంధ్రప్రదేశ్‌కు సరికొత్త నిధుల వెల్లువ! కేంద్రం కీలక ప్రకటన.</h2>
+                        <p style={{ fontSize: '0.95rem', lineHeight: '1.7', fontFamily: 'var(--font-telugu)', color: 'var(--text-secondary)' }}>
+                          రాష్ట్రానికి రోడ్డు రవాణా, పారిశ్రామిక కారిడార్ల అభివృద్ధి కొరకై కేంద్ర ప్రభుత్వం ప్రత్యేక ప్యాకేజీ మంజూరు చేసింది. దీని వల్ల వచ్చే మూడేళ్లలో వేలాది మంది యువతకు ఉపాధి అవకాశాలు లభిస్తాయని సీఎం ధీమా వ్యక్తం చేశారు.
+                        </p>
+                      </div>
+                      <div>
+                        {/* Newspaper Column */}
+                        <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '12px', textAlign: 'left' }}>
+                          <span style={{ color: '#F59E0B', fontSize: '0.75rem', fontWeight: 'bold' }}>తెలంగాణ అప్డేట్ (Telangana Core)</span>
+                          <h4 style={{ fontSize: '1rem', fontWeight: 'bold', fontFamily: 'var(--font-telugu)', margin: '4px 0' }}>హైదరాబాద్ మెట్రో విస్తరణ పనులకు ఆమోదం!</h4>
+                        </div>
+                        <div style={{ textAlign: 'left' }}>
+                          <span style={{ color: '#10B981', fontSize: '0.75rem', fontWeight: 'bold' }}>వాణిజ్యం (Business Pullout)</span>
+                          <h4 style={{ fontSize: '1rem', fontWeight: 'bold', fontFamily: 'var(--font-telugu)', margin: '4px 0' }}>బంగారం ధరల్లో భారీ క్షీణత! కొనుగోలుదారుల హర్షం.</h4>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 2. SPECIAL PAGE: ELECTION MEGA CENTER */}
+            {currentPage === 'elections' && (
+              <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px', textAlign: 'left' }}>
+                  <h2 style={{ fontSize: '2rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>🗳️ ఆప్టాప్ ఎన్నికల కేంద్రం (AP/TS Election Mega Center)</h2>
+                  <p style={{ color: 'var(--text-secondary)' }}>Real-Time Legislative Seat Count & Candidate Analysis</p>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginBottom: '32px' }}>
+                  {/* AP Results */}
+                  <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px', marginBottom: '16px' }}>
+                      <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Andhra Pradesh (175/175 Assemblies)</h3>
+                      <span style={{ backgroundColor: '#10B981', color: 'white', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 'bold' }}>Results Declared</span>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px', fontWeight: 'bold' }}>
+                          <span>కూటమి పక్షాలు (Alliance Party)</span>
+                          <span>102 Lead / Won (Magic mark: 88)</span>
+                        </div>
+                        <div style={{ height: '12px', backgroundColor: 'var(--bg-color)', borderRadius: '6px', overflow: 'hidden' }}>
+                          <div style={{ width: '58.2%', height: '100%', backgroundColor: '#F59E0B' }}></div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px', fontWeight: 'bold' }}>
+                          <span>వైసీపీ (YCP Block)</span>
+                          <span>68 seats</span>
+                        </div>
+                        <div style={{ height: '12px', backgroundColor: 'var(--bg-color)', borderRadius: '6px', overflow: 'hidden' }}>
+                          <div style={{ width: '38.8%', height: '100%', backgroundColor: '#3B82F6' }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* TS Results */}
+                  <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px', marginBottom: '16px' }}>
+                      <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Telangana (119/119 Assemblies)</h3>
+                      <span style={{ backgroundColor: '#10B981', color: 'white', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 'bold' }}>Results Declared</span>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px', fontWeight: 'bold' }}>
+                          <span>కాంగ్రెస్ (INC Block)</span>
+                          <span>64 Lead / Won (Magic mark: 60)</span>
+                        </div>
+                        <div style={{ height: '12px', backgroundColor: 'var(--bg-color)', borderRadius: '6px', overflow: 'hidden' }}>
+                          <div style={{ width: '53.7%', height: '100%', backgroundColor: '#DC2626' }}></div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px', fontWeight: 'bold' }}>
+                          <span>బీఆర్ఎస్ (BRS Block)</span>
+                          <span>48 seats</span>
+                        </div>
+                        <div style={{ height: '12px', backgroundColor: 'var(--bg-color)', borderRadius: '6px', overflow: 'hidden' }}>
+                          <div style={{ width: '40.3%', height: '100%', backgroundColor: '#F472B6' }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 3. SPECIAL PAGE: SPIRITUAL POOJA SCHEDULER */}
+            {currentPage === 'spiritual' && (
+              <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px', textAlign: 'left' }}>
+                  <h2 style={{ fontSize: '2rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>🕉️ ఆప్టాప్ ఆధ్యాత్మిక సేవలు: తిరుమల ప్రత్యక్ష ప్రసారం (Tirumala Live Poojas)</h2>
+                  <p style={{ color: 'var(--text-secondary)' }}>Daily Temple Pooja Schedules & Virtual Seva Booking</p>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }}>
+                  {/* Temple video player & active schedules */}
+                  <div>
+                    <div style={{ border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden', marginBottom: '24px' }}>
+                      <iframe 
+                        width="100%" 
+                        height="400" 
+                        src="https://www.youtube.com/embed/S-Bw-BvJb8Q" 
+                        title="Tirumala Live Poojas" 
+                        frameBorder="0" 
+                        allowFullScreen
+                      ></iframe>
+                      <div style={{ backgroundColor: 'var(--primary-red)', color: 'white', padding: '12px', display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                        <span>📺 తిరుమల తిరుపతి దేవస్థానం ప్రత్యక్ష పూజా కార్యక్రమాలు</span>
+                        <span style={{ fontWeight: 'bold' }}>🔴 TT LIVE STREAM ACTIVE</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Pooja scheduler card and virtual ticket booking */}
+                  <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)', textAlign: 'left' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>Daily Seva Timings</h3>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.85rem', marginBottom: '20px' }}>
+                      <div style={{ borderBottom: '1px dashed var(--border-color)', paddingBottom: '6px' }}>🌅 <strong>03:00 AM - 04:00 AM:</strong> <span style={{ fontFamily: 'var(--font-telugu)' }}>సుప్రభాత సేవ (Suprabhatam)</span></div>
+                      <div style={{ borderBottom: '1px dashed var(--border-color)', paddingBottom: '6px' }}>☀️ <strong>06:00 AM - 07:00 AM:</strong> <span style={{ fontFamily: 'var(--font-telugu)' }}>తోమాల సేవ (Thomala Seva)</span></div>
+                      <div style={{ borderBottom: '1px dashed var(--border-color)', paddingBottom: '6px' }}>☀️ <strong>12:00 PM - 01:00 PM:</strong> <span style={{ fontFamily: 'var(--font-telugu)' }}>కల్యాణోత్సవం (Kalyanotsavam)</span></div>
+                    </div>
+
+                    <div style={{ backgroundColor: 'rgba(255, 213, 74, 0.1)', border: '1px solid var(--accent-yellow)', borderRadius: '8px', padding: '16px' }}>
+                      <h4 style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '8px' }}>🎫 Virtual Pooja Ticket Booking</h4>
+                      <button 
+                        onClick={() => {
+                          const passNum = Math.floor(100000 + Math.random() * 900000);
+                          alert(`తిరుమల వర్చువల్ దర్శన టికెట్ విజయవంతంగా కేటాయించబడింది! \n\n🔒 Pass Code: TTD-${passNum}\n📲 SMS confirmation sent!`);
+                        }}
+                        style={{ width: '100%', backgroundColor: 'var(--primary-red)', color: 'white', border: 'none', padding: '8px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+                      >
+                        Book Virtual Seva Ticket
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 4. SPECIAL PAGE: ADVERTISER SELF-SERVICE DASHBOARD */}
+            {currentPage === 'advertise' && (
+              <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
+                <div style={{ borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px', textAlign: 'left' }}>
+                  <h2 style={{ fontSize: '2rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>💼 ఆప్టాప్ ప్రకటనకర్తల స్వయం-సేవ డ్యాష్‌బోర్డ్ (Advertiser Portal)</h2>
+                  <p style={{ color: 'var(--text-secondary)' }}>Launch Target CPC Ads & Monitor Real-Time Impression Ledger Metrics</p>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '32px' }}>
+                  {/* Advertiser creation form */}
+                  <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)', textAlign: 'left' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>Launch CPC Ad Campaign</h3>
+                    
+                    <form onSubmit={async (e) => {
+                      e.preventDefault();
+                      if (!advCompany || !advBudget) return;
+
+                      try {
+                        const res = await fetch(`${BACKEND_URL}/api/ads`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            advertiser: advCompany,
+                            placement: advType,
+                            budget: parseFloat(advBudget),
+                            clicks: 0,
+                            revenue: 0,
+                            active: true
+                          })
+                        });
+                        if (res.ok) {
+                          const updatedAds = await res.json();
+                          setAds(updatedAds);
+                          setAdvCompany('');
+                          setAdvBudget('');
+                          alert('ప్రకటన క్యాంపెయిన్ విజయవంతంగా జోడించబడింది! (Advertiser CPC campaign launched live!)');
+                        }
+                      } catch (err) {
+                        alert('Failed to register advertiser slot on server backend.');
+                      }
+                    }} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Company / Sponsor Name:</label>
+                        <input type="text" className="form-control" value={advCompany} onChange={(e) => setAdvCompany(e.target.value)} placeholder="TATA Motors AP" required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border-color)' }} />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Campaign Budget Target ($):</label>
+                        <input type="number" className="form-control" value={advBudget} onChange={(e) => setAdvBudget(e.target.value)} placeholder="150" required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border-color)' }} />
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Ad Slot Placement Type:</label>
+                        <select className="form-control" value={advType} onChange={(e) => setAdvType(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
+                          <option value="Header Banner">Header Banner Placement</option>
+                          <option value="Sidebar widget">Sidebar Widget Placement</option>
+                          <option value="Mobile feed banner">Mobile Feed Banner Placement</option>
+                        </select>
+                      </div>
+
+                      <button type="submit" style={{ backgroundColor: 'var(--primary-red)', color: 'white', border: 'none', padding: '10px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Launch CPC Campaign</button>
+                    </form>
+                  </div>
+
+                  {/* Active campaigns ledger */}
+                  <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', textAlign: 'left' }}>Real-Time Campaign Productivity Ledger</h3>
+                    
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '2px solid var(--border-color)', color: 'var(--text-secondary)' }}>
+                            <th style={{ padding: '10px', textAlign: 'left' }}>Sponsor</th>
+                            <th style={{ padding: '10px', textAlign: 'left' }}>Placement</th>
+                            <th style={{ padding: '10px', textAlign: 'right' }}>Budget</th>
+                            <th style={{ padding: '10px', textAlign: 'right' }}>Clicks</th>
+                            <th style={{ padding: '10px', textAlign: 'right' }}>CTR</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {ads.map(ad => (
+                            <tr key={ad.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                              <td style={{ padding: '10px', fontWeight: 'bold', textAlign: 'left' }}>{ad.advertiser}</td>
+                              <td style={{ padding: '10px', textAlign: 'left' }}>{ad.placement}</td>
+                              <td style={{ padding: '10px', textAlign: 'right', fontWeight: 'bold' }}>${ad.budget || ad.revenue}</td>
+                              <td style={{ padding: '10px', textAlign: 'right' }}>{ad.clicks} clicks</td>
+                              <td style={{ padding: '10px', textAlign: 'right', color: '#10B981', fontWeight: 'bold' }}>4.82% CTR</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -1303,63 +1733,518 @@ export default function App() {
       {/* VIEWPORT 2: MOBILE APP EMULATOR MOCKUP */}
       {/* ========================================== */}
       {activeView === 'mobile' && (
-        <div className="emulator-wrapper" style={{ flexGrow: 1 }}>
-          <div className="phone-frame">
-            <div className="phone-notch"></div>
+        <div className="emulator-wrapper" style={{ flexGrow: 1, padding: '24px 0', display: 'flex', justifyContent: 'center', backgroundColor: 'var(--bg-color)' }}>
+          <div className="phone-frame" style={{ width: '375px', height: '780px', borderRadius: '40px', border: '12px solid #222', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', position: 'relative', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-color)', overflow: 'hidden' }}>
             
-            <div style={{ backgroundColor: 'var(--primary-red)', color: 'white', padding: '16px 12px 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontWeight: 800 }}>ఆప్టాప్ App</span>
-              <button onClick={toggleDarkMode} style={{ background: 'none', border: 'none', color: 'white' }}>
-                {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
-              </button>
+            {/* Status bar mock */}
+            <div style={{ height: '36px', backgroundColor: 'var(--primary-red)', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px 0', fontSize: '0.75rem', fontWeight: 'bold', zIndex: 1000 }}>
+              <span>19:26</span>
+              <div style={{ width: '60px', height: '18px', backgroundColor: '#000', borderRadius: '10px', position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: '4px' }}></div>
+              <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                <span>AP/TS 5G</span>
+                <span style={{ fontSize: '0.6rem' }}>🔋 100%</span>
+              </div>
             </div>
 
-            <div className="phone-screen">
-              {activeMobileTab === 'home' && (
-                <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {articles.length > 0 && (
-                    <>
-                      <img src={articles[0].image} style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: '8px' }} alt="" />
-                      <h4 style={{ fontSize: '0.95rem', fontFamily: 'var(--font-telugu)' }}>{articles[0].title}</h4>
-                    </>
-                  )}
+            {/* SPLASH SCREEN MOCKUP */}
+            {showSplash ? (
+              <div style={{ 
+                position: 'absolute', 
+                top: 0, left: 0, right: 0, bottom: 0, 
+                background: 'linear-gradient(135deg, var(--primary-red) 0%, #7f1d1d 100%)', 
+                color: 'white', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                zIndex: 9999,
+                animation: 'fadeIn 0.5s ease-out'
+              }}>
+                <div style={{ backgroundColor: 'white', color: 'var(--primary-red)', padding: '16px 28px', borderRadius: '16px', fontWeight: 900, fontSize: '2.2rem', boxShadow: 'var(--shadow-lg)', animation: 'pulse 1s infinite alternate', marginBottom: '16px' }}>
+                  Aptop News
+                </div>
+                <h4 style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--accent-yellow)', letterSpacing: '1px' }}>ప్రజల వార్త • ప్రజల స్వరం</h4>
+                <p style={{ fontSize: '0.7rem', color: '#fca5a5', marginTop: '4px' }}>Fast • Trusted • Telugu First</p>
+                
+                <div style={{ marginTop: '48px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                  <RefreshCw size={24} style={{ animation: 'spin 1.5s linear infinite' }} />
+                  <span style={{ fontSize: '0.75rem', color: '#fca5a5' }}>Loading digital newsroom...</span>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Standard App Header */}
+                <div style={{ backgroundColor: 'var(--primary-red)', color: 'white', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: 'var(--shadow-md)', zIndex: 900 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-yellow)', animation: 'pulse 1s infinite alternate' }}></div>
+                    <span style={{ fontWeight: 900, fontSize: '1.1rem', letterSpacing: '0.5px' }}>ఆప్టాప్ NEWS</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    {premiumPlan === 'premium' && (
+                      <span style={{ color: 'gold', fontSize: '0.7rem', fontWeight: 'bold', border: '1px solid gold', padding: '2px 6px', borderRadius: '10px' }}>⭐ VIP</span>
+                    )}
+                    <button onClick={toggleDarkMode} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
+                      {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Interactive Phone Body Screen */}
+                <div className="phone-screen" style={{ flexGrow: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-color)', position: 'relative' }}>
                   
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
-                    {articles.map(art => (
-                      <div key={art.id} onClick={() => { setSelectedArticleId(art.id); setActiveMobileTab('saved'); }} style={{ display: 'flex', gap: '8px', backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px', cursor: 'pointer' }}>
-                        <img src={art.image} style={{ width: '60px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} alt="" />
-                        <h4 style={{ fontSize: '0.8rem', fontFamily: 'var(--font-telugu)', lineHeight: '1.3' }}>{art.title.slice(0, 50)}...</h4>
+                  {/* PULL TO REFRESH INDICATION */}
+                  {activeMobileTab === 'home' && (
+                    <div style={{ display: 'flex', justifyContent: 'center', padding: '8px 0', backgroundColor: 'rgba(0,0,0,0.03)', borderBottom: '1px solid var(--border-color)' }}>
+                      <button 
+                        onClick={() => {
+                          fetchData();
+                          alert('ఆప్టాప్ న్యూస్ ఫీడ్ తాజాకరించబడింది! (Feed refreshed successfully from local database!)');
+                        }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}
+                      >
+                        <RefreshCw size={10} />
+                        <span>Pull to Refresh</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {/* 1. HOME TAB FEED */}
+                  {activeMobileTab === 'home' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingBottom: '24px' }}>
+                      {/* Horizontal red ticker */}
+                      <div style={{ backgroundColor: 'var(--primary-red)', color: 'white', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ backgroundColor: 'var(--accent-yellow)', color: '#111', fontSize: '0.6rem', padding: '1px 4px', borderRadius: '2px', fontWeight: 'bold' }}>బ్రేకింగ్</span>
+                        <marquee style={{ fontSize: '0.75rem', fontWeight: 'bold', fontFamily: 'var(--font-telugu)' }}>
+                          {tickerItems.join(' • ')}
+                        </marquee>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
 
-              {activeMobileTab === 'saved' && (
-                <div style={{ padding: '12px' }}>
-                  <span className="badge badge-red">{selectedArticle.categoryTe}</span>
-                  <h3 style={{ fontSize: '1.1rem', margin: '8px 0', fontFamily: 'var(--font-telugu)' }}>{selectedArticle.title}</h3>
-                  <img src={selectedArticle.image} style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '6px' }} alt="" />
-                  <p style={{ fontSize: '0.85rem', lineHeight: '1.6', fontFamily: 'var(--font-telugu)', marginTop: '12px' }}>{selectedArticle.desc}</p>
-                </div>
-              )}
+                      {/* District Slider Tabs */}
+                      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '4px 12px', scrollbarWidth: 'none' }}>
+                        {['Visakhapatnam', 'Tirupati', 'Vijayawada', 'Hyderabad'].map(dist => (
+                          <button 
+                            key={dist} 
+                            onClick={() => setDistrictFilter(dist)}
+                            style={{ 
+                              flexShrink: 0,
+                              backgroundColor: districtFilter === dist ? 'var(--primary-red)' : 'var(--card-bg)', 
+                              color: districtFilter === dist ? 'white' : 'var(--text-primary)', 
+                              border: '1px solid var(--border-color)', 
+                              padding: '6px 14px', 
+                              borderRadius: '20px', 
+                              fontSize: '0.75rem', 
+                              fontWeight: 'bold', 
+                              fontFamily: 'var(--font-telugu)',
+                              cursor: 'pointer' 
+                            }}
+                          >
+                            📍 {getDistrictTe(dist)}
+                          </button>
+                        ))}
+                      </div>
 
-              {activeMobileTab === 'profile' && (
-                <div style={{ padding: '12px', textAlign: 'center' }}>
-                  <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'var(--primary-red)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-                    <User size={32} style={{ color: 'white' }} />
-                  </div>
-                  <h3>రావి తేజ</h3>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Aptop Mobile Reporter</p>
-                </div>
-              )}
-            </div>
+                      {/* Featured Hero Story */}
+                      {articles.filter(a => a.district === districtFilter).length > 0 ? (
+                        (() => {
+                          const mainArt = articles.filter(a => a.district === districtFilter)[0];
+                          return (
+                            <div 
+                              onClick={() => {
+                                setSelectedArticleId(mainArt.id);
+                                setActiveMobileTab('article_detail');
+                              }} 
+                              style={{ padding: '0 12px', cursor: 'pointer' }}
+                            >
+                              <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
+                                <div style={{ position: 'relative' }}>
+                                  <img src={mainArt.image} style={{ width: '100%', height: '160px', objectFit: 'cover' }} alt="" />
+                                  <span style={{ position: 'absolute', top: '10px', left: '10px', backgroundColor: 'var(--primary-red)', color: 'white', fontSize: '0.65rem', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold' }}>{mainArt.categoryTe}</span>
+                                </div>
+                                <div style={{ padding: '12px' }}>
+                                  <h3 style={{ fontSize: '0.95rem', fontWeight: 'bold', fontFamily: 'var(--font-telugu)', lineHeight: '1.4', margin: '0 0 6px 0', textAlign: 'left' }}>{mainArt.title}</h3>
+                                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', margin: '0 0 8px 0', textAlign: 'left' }}>{mainArt.desc}</p>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.65rem', color: '#888' }}>
+                                    <span>{mainArt.date}</span>
+                                    <span style={{ fontWeight: 'bold', color: 'var(--primary-red)' }}>📍 {getDistrictTe(mainArt.district)} బ్యూరో</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()
+                      ) : (
+                        <div style={{ padding: '24px', textAlign: 'center', color: '#888', fontSize: '0.8rem' }}>
+                          ఈ జిల్లాకు సంబందించిన వార్తలు త్వరలోనే ప్రచురించబడును.
+                        </div>
+                      )}
 
-            <div className="phone-footer">
-              <button className={`phone-footer-btn ${activeMobileTab === 'home' ? 'active' : ''}`} onClick={() => setActiveMobileTab('home')}><Newspaper size={18} /><span>హోమ్</span></button>
-              <button className={`phone-footer-btn ${activeMobileTab === 'saved' ? 'active' : ''}`} onClick={() => setActiveMobileTab('saved')}><Bookmark size={18} /><span>చదవండి</span></button>
-              <button className={`phone-footer-btn ${activeMobileTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveMobileTab('profile')}><User size={18} /><span>ప్రొఫైల్</span></button>
-            </div>
+                      {/* Secondary inline ad (hidden for premium users) */}
+                      {premiumPlan !== 'premium' && ads.length > 0 && (
+                        <div style={{ margin: '0 12px', padding: '10px', backgroundColor: 'rgba(255, 213, 74, 0.05)', border: '1px dashed var(--accent-yellow)', borderRadius: '8px', textAlign: 'center' }}>
+                          <span style={{ fontSize: '0.6rem', color: 'var(--accent-yellow)', fontWeight: 'bold', display: 'block', marginBottom: '2px' }}>SPONSOR AD (Ad-Free with Gold Upgrade)</span>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>{ads[0].advertiser || 'Aptop Ad Network'} • Click for Special Discounts!</span>
+                        </div>
+                      )}
+
+                      {/* Small Articles Row-List */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '0 12px' }}>
+                        <h4 style={{ fontSize: '0.85rem', fontWeight: 800, margin: '8px 0 2px 0', borderLeft: '3px solid var(--primary-red)', paddingLeft: '6px', textAlign: 'left' }}>తాజా వార్తలు (More News)</h4>
+                        {articles.map(art => (
+                          <div 
+                            key={art.id} 
+                            onClick={() => {
+                              setSelectedArticleId(art.id);
+                              setActiveMobileTab('article_detail');
+                            }} 
+                            style={{ display: 'flex', gap: '10px', backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '8px', cursor: 'pointer', alignItems: 'center' }}
+                          >
+                            <img src={art.image} style={{ width: '70px', height: '60px', objectFit: 'cover', borderRadius: '6px' }} alt="" />
+                            <div style={{ flexGrow: 1 }}>
+                              <span style={{ color: 'var(--primary-red)', fontSize: '0.6rem', fontWeight: 'bold', textTransform: 'uppercase' }}>{art.categoryTe}</span>
+                              <h4 style={{ fontSize: '0.75rem', fontWeight: 'bold', fontFamily: 'var(--font-telugu)', margin: '2px 0', lineHeight: '1.3', textAlign: 'left' }}>{art.title.slice(0, 70)}...</h4>
+                              <span style={{ fontSize: '0.6rem', color: '#888' }}>{art.date}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                    </div>
+                  )}
+
+                  {/* 2. LIVE TV TAB */}
+                  {activeMobileTab === 'live' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                      <div style={{ padding: '12px', borderBottom: '1px solid var(--border-color)' }}>
+                        <h3 style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--primary-red)', display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
+                          <Radio size={16} className="live-dot" />
+                          <span>ఆప్టాప్ ప్రత్యక్ష ప్రసారం (Live TV Studio)</span>
+                        </h3>
+                      </div>
+                      
+                      {liveTelecasts.length > 0 ? (
+                        <>
+                          <iframe 
+                            width="100%" 
+                            height="180" 
+                            src={liveTelecasts[0].embedUrl} 
+                            title="Aptop News Live Stream" 
+                            frameBorder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                          ></iframe>
+                          <div style={{ backgroundColor: '#000', color: 'white', padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.7rem' }}>
+                            <span style={{ color: 'red', fontWeight: 'bold' }}>🔴 LIVE BROADCAST</span>
+                            <span>📡 Viewers: {liveTelecasts[0].viewers} online</span>
+                          </div>
+                          
+                          {/* Live Interactive Chat Area */}
+                          <div style={{ flexGrow: 1, backgroundColor: '#0f172a', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto' }}>
+                            <span style={{ fontSize: '0.65rem', color: '#888', borderBottom: '1px solid #334155', paddingBottom: '4px', display: 'block', textAlign: 'left' }}>💬 Public Live Commentary Room</span>
+                            
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.75rem', flexGrow: 1 }}>
+                              <div style={{ textAlign: 'left' }}><span style={{ color: '#FFD54A', fontWeight: 'bold' }}>Ravi Teja:</span> <span style={{ color: '#fff', fontFamily: 'var(--font-telugu)' }}>తిరుమల దర్శనం అప్డేట్ చాలా బాగుంది. ఆప్టాప్ న్యూస్ ఫాస్ట్ రిపోర్టింగ్!</span></div>
+                              <div style={{ textAlign: 'left' }}><span style={{ color: '#38BDF8', fontWeight: 'bold' }}>Kalyan Krishna:</span> <span style={{ color: '#fff', fontFamily: 'var(--font-telugu)' }}>విశాఖ తీర ప్రాంతాల్లో వర్షాల గురించి హెచ్చరించినందుకు థాంక్స్ బ్రో!</span></div>
+                              <div style={{ textAlign: 'left' }}><span style={{ color: '#4ADE80', fontWeight: 'bold' }}>Srinivas Rao:</span> <span style={{ color: '#fff', fontFamily: 'var(--font-telugu)' }}>ఆప్టాప్ న్యూస్ నిస్సందేహంగా ఏపీలోనే నంబర్ వన్ వార్తా వేదిక.</span></div>
+                              <div style={{ textAlign: 'left' }}><span style={{ color: '#F472B6', fontWeight: 'bold' }}>Anitha Reddy:</span> <span style={{ color: '#fff', fontFamily: 'var(--font-telugu)' }}>ఎన్నికల ఫలితాల mega center చాలా బాగా డిజైన్ చేశారు.</span></div>
+                            </div>
+                            
+                            {/* Send chat message input */}
+                            <div style={{ display: 'flex', gap: '6px', marginTop: 'auto' }}>
+                              <input type="text" placeholder="కామెంట్ రాయండి..." style={{ flexGrow: 1, backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '20px', padding: '6px 12px', color: 'white', fontSize: '0.7rem' }} />
+                              <button style={{ backgroundColor: 'var(--primary-red)', border: 'none', color: 'white', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                                <Send size={12} />
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div style={{ padding: '32px', textAlign: 'center', color: '#888' }}>
+                          ప్రత్యక్ష ప్రసారం స్టూడియో ప్రస్తుతం ఆఫ్లైన్ లో ఉంది.
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 3. REELS / SHORTS TAB */}
+                  {activeMobileTab === 'reels' && (
+                    <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', backgroundColor: '#000', color: 'white', position: 'relative' }}>
+                      {shortsList.length > 0 ? (
+                        (() => {
+                          const activeShort = shortsList[0];
+                          return (
+                            <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', position: 'relative', justifyContent: 'flex-end', padding: '16px', background: `linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 70%, rgba(0,0,0,0.7) 100%), url(${activeShort.image}) center/cover no-repeat` }}>
+                              
+                              {/* Top district overlay tag */}
+                              <div style={{ position: 'absolute', top: '12px', left: '12px', display: 'flex', gap: '6px' }}>
+                                <span style={{ backgroundColor: 'var(--primary-red)', color: 'white', fontSize: '0.65rem', padding: '4px 10px', borderRadius: '20px', fontWeight: 'bold' }}>📍 {getDistrictTe(activeShort.district)}</span>
+                                <span style={{ backgroundColor: 'rgba(0,0,0,0.5)', color: 'white', fontSize: '0.65rem', padding: '4px 10px', borderRadius: '20px' }}>🎬 News Shorts</span>
+                              </div>
+
+                              {/* Reels metadata details */}
+                              <div style={{ width: '80%', display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left' }}>
+                                <h3 style={{ fontSize: '1rem', fontWeight: 900, fontFamily: 'var(--font-telugu)', color: '#FFD54A', margin: 0 }}>{activeShort.title}</h3>
+                                <p style={{ fontSize: '0.8rem', fontFamily: 'var(--font-telugu)', color: '#fff', margin: 0, lineHeight: '1.4' }}>{activeShort.captionTe}</p>
+                                <span style={{ fontSize: '0.65rem', color: '#cbd5e1' }}>⏱️ {activeShort.date} • 👁️ {activeShort.views} views</span>
+                              </div>
+
+                              {/* Sidebar Floating Buttons */}
+                              <div style={{ position: 'absolute', right: '12px', bottom: '80px', display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', zIndex: 100 }}>
+                                <div 
+                                  onClick={() => {
+                                    activeShort.views += 1;
+                                    alert('ఈ న్యూస్ షార్ట్ మీకు నచ్చింది! (+1 Like Simulated locally)');
+                                  }}
+                                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}
+                                >
+                                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Heart size={20} style={{ color: 'red' }} />
+                                  </div>
+                                  <span style={{ fontSize: '0.6rem', color: '#fff', marginTop: '2px' }}>Like</span>
+                                </div>
+
+                                <div 
+                                  onClick={() => alert('ఈ షార్ట్ విజయవంతంగా బుక్‌మార్క్ చేయబడింది!')}
+                                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}
+                                >
+                                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Bookmark size={20} />
+                                  </div>
+                                  <span style={{ fontSize: '0.6rem', color: '#fff', marginTop: '2px' }}>Save</span>
+                                </div>
+
+                                <div 
+                                  onClick={() => alert('WhatsApp ఛానెల్ లింక్ కాపీ చేయబడింది! షేర్ చేయండి.')}
+                                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}
+                                >
+                                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Share2 size={20} style={{ color: '#25D366' }} />
+                                  </div>
+                                  <span style={{ fontSize: '0.6rem', color: '#fff', marginTop: '2px' }}>Share</span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()
+                      ) : (
+                        <div style={{ padding: '40px', textAlign: 'center', color: '#888' }}>
+                          షార్ట్ రీల్స్ లోడ్ అవుతున్నాయి...
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 4. ALERTS / NOTIFICATIONS TAB */}
+                  {activeMobileTab === 'alerts' && (
+                    <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <h3 style={{ fontSize: '0.95rem', fontWeight: 800, borderLeft: '3px solid var(--primary-red)', paddingLeft: '6px', margin: '4px 0 10px 0', textAlign: 'left' }}>🔔 మొబైల్ బులెటిన్ అలర్ట్స్ (Citizen Notifications Inbox)</h3>
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '12px', textAlign: 'left' }}>
+                          <span style={{ backgroundColor: 'rgba(214, 31, 38, 0.1)', color: 'var(--primary-red)', fontSize: '0.6rem', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>POLITICS</span>
+                          <span style={{ fontSize: '0.65rem', color: '#888', float: 'right' }}>ఇప్పుడే</span>
+                          <h4 style={{ fontSize: '0.8rem', fontWeight: 'bold', fontFamily: 'var(--font-telugu)', marginTop: '6px', lineHeight: '1.3' }}>బ్రేకింగ్: ఏపీలో నూతన పెట్టుబడులపై గ్రీన్ సిగ్నల్ ఇచ్చిన ముఖ్యమంత్రి!</h4>
+                        </div>
+
+                        <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '12px', textAlign: 'left' }}>
+                          <span style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#D97706', fontSize: '0.6rem', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>SPIRITUAL</span>
+                          <span style={{ fontSize: '0.65rem', color: '#888', float: 'right' }}>15 నిమిషాల క్రితం</span>
+                          <h4 style={{ fontSize: '0.8rem', fontWeight: 'bold', fontFamily: 'var(--font-telugu)', marginTop: '6px', lineHeight: '1.3' }}>తిరుమల: రేపటి నుండి వేసవి రద్దీ క్యూ లైన్లలో ప్రత్యేక సేవల నిలిపివేత.</h4>
+                        </div>
+
+                        <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '12px', textAlign: 'left' }}>
+                          <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#059669', fontSize: '0.6rem', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>BUSINESS</span>
+                          <span style={{ fontSize: '0.65rem', color: '#888', float: 'right' }}>1 గంట క్రితం</span>
+                          <h4 style={{ fontSize: '0.8rem', fontWeight: 'bold', fontFamily: 'var(--font-telugu)', marginTop: '6px', lineHeight: '1.3' }}>సెన్సెక్స్ బూమ్: రికార్డ్ గరిష్టాలకు చేరిన రిలయన్స్ మరియు టాటా షేర్లు!</h4>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 5. PROFILE & PREMIUM BILLING TAB */}
+                  {activeMobileTab === 'profile' && (
+                    <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      
+                      {/* Identity Card */}
+                      <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'var(--primary-red)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '1.2rem' }}>
+                          RT
+                        </div>
+                        <div style={{ textAlign: 'left' }}>
+                          <h3 style={{ fontSize: '0.95rem', fontWeight: 'bold', margin: 0 }}>రావి తేజ (Ravi Teja)</h3>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Aptop Premium Citizen</span>
+                        </div>
+                      </div>
+
+                      {/* VIP Premium Gold Membership status */}
+                      <div style={{ 
+                        background: premiumPlan === 'premium' 
+                          ? 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)' 
+                          : 'linear-gradient(135deg, #4B5563 0%, #374151 100%)',
+                        color: 'white', 
+                        borderRadius: '12px', 
+                        padding: '16px', 
+                        textAlign: 'center',
+                        boxShadow: 'var(--shadow-md)'
+                      }}>
+                        {premiumPlan === 'premium' ? (
+                          <>
+                            <h4 style={{ fontSize: '1rem', fontWeight: 900, margin: '0 0 4px 0', letterSpacing: '0.5px' }}>⭐ GOLD VIP AD-FREE ACTIVE</h4>
+                            <p style={{ fontSize: '0.75rem', color: '#FEF3C7', margin: '0 0 12px 0' }}>All interstitial ads hidden dynamically. Daily E-papers active!</p>
+                            <button 
+                              onClick={() => {
+                                setPremiumPlan('free');
+                                localStorage.setItem('premium_plan', 'free');
+                                alert('Premium membership cancelled.');
+                              }}
+                              style={{ backgroundColor: 'white', color: '#D97706', border: 'none', padding: '6px 16px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}
+                            >
+                              Reset Free Status
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <h4 style={{ fontSize: '0.95rem', fontWeight: 800, margin: '0 0 4px 0' }}>Free Ad-Supported Account</h4>
+                            <p style={{ fontSize: '0.7rem', color: '#E5E7EB', margin: '0 0 12px 0' }}>Upgrade to Ad-Free reading experience, dynamic voice bulletins, and printable PDF E-papers!</p>
+                            <button 
+                              onClick={() => setShowPremiumCheckout(true)}
+                              style={{ backgroundColor: 'var(--accent-yellow)', color: '#111', border: 'none', padding: '8px 20px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer', animation: 'pulse 1.2s infinite alternate' }}
+                            >
+                              ⭐ UPGRADE TO PREMIUM GOLD ($2/mo)
+                            </button>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Premium Checkout modal-form overlay inside phone viewport */}
+                      {showPremiumCheckout && (
+                        <div style={{ backgroundColor: 'var(--card-bg)', border: '2px solid var(--accent-yellow)', borderRadius: '12px', padding: '16px', textAlign: 'left' }}>
+                          <h4 style={{ color: 'var(--primary-red)', fontSize: '0.9rem', fontWeight: 'bold', margin: '0 0 10px 0' }}>⭐ Gold Subscription Secure Checkout</h4>
+                          <form onSubmit={handleSubscribePremium} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <input type="text" placeholder="Full Name" value={checkoutName} onChange={(e) => setCheckoutName(e.target.value)} required style={{ padding: '8px', fontSize: '0.75rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }} />
+                            <input type="email" placeholder="Email Address" value={checkoutEmail} onChange={(e) => setCheckoutEmail(e.target.value)} required style={{ padding: '8px', fontSize: '0.75rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }} />
+                            <input type="text" placeholder="UPI ID / Card Number (4444 ...)" value={checkoutCard} onChange={(e) => setCheckoutCard(e.target.value)} required style={{ padding: '8px', fontSize: '0.75rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }} />
+                            
+                            <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                              <button type="submit" disabled={checkoutProcessing} style={{ flexGrow: 1, backgroundColor: 'var(--primary-red)', color: 'white', border: 'none', padding: '8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'pointer' }}>
+                                {checkoutProcessing ? 'Authorizing Secure Payment...' : 'Secure Pay $2.00 (Activate Gold)'}
+                              </button>
+                              <button type="button" onClick={() => setShowPremiumCheckout(false)} style={{ backgroundColor: '#ccc', color: '#333', border: 'none', padding: '8px', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer' }}>Cancel</button>
+                            </div>
+                          </form>
+                        </div>
+                      )}
+
+                      {/* Saved bookmarks links list */}
+                      <div style={{ textAlign: 'left' }}>
+                        <h4 style={{ fontSize: '0.8rem', fontWeight: 800, margin: '0 0 8px 0', borderLeft: '3px solid var(--primary-red)', paddingLeft: '6px' }}>చదివేందుకు దాచుకున్నవి (Saved Articles)</h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {articles.slice(1, 3).map(art => (
+                            <div 
+                              key={art.id} 
+                              onClick={() => {
+                                setSelectedArticleId(art.id);
+                                setActiveMobileTab('article_detail');
+                              }}
+                              style={{ padding: '8px', backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '6px', display: 'flex', gap: '8px', cursor: 'pointer', alignItems: 'center' }}
+                            >
+                              <Bookmark size={14} style={{ color: 'var(--primary-red)' }} />
+                              <span style={{ fontSize: '0.75rem', fontFamily: 'var(--font-telugu)', fontWeight: 'bold' }}>{art.title.slice(0, 50)}...</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                    </div>
+                  )}
+
+                  {/* 6. DETAILED MOBILE ARTICLE READ SCREEN */}
+                  {activeMobileTab === 'article_detail' && (
+                    <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <button 
+                        onClick={() => setActiveMobileTab('home')} 
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'none', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 'bold', width: 'fit-content' }}
+                      >
+                        <ArrowLeft size={12} />
+                        <span>Back to Feed</span>
+                      </button>
+
+                      <span style={{ backgroundColor: 'var(--primary-red)', color: 'white', fontSize: '0.6rem', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold', width: 'fit-content' }}>{selectedArticle.categoryTe}</span>
+                      <h3 style={{ fontSize: '1rem', fontWeight: 'bold', fontFamily: 'var(--font-telugu)', lineHeight: '1.4', margin: '4px 0', textAlign: 'left' }}>{selectedArticle.title}</h3>
+                      <img src={selectedArticle.image} style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: '8px' }} alt="" />
+
+                      {/* AI VOICE READER WIDGET IN MOBILE SCREEN */}
+                      <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--primary-red)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Cpu size={12} />
+                            <span>ఆప్టాప్ AI వాయిస్ రీడర్ (Telugu Voice Reader)</span>
+                          </span>
+                          <span style={{ fontSize: '0.65rem', backgroundColor: '#FEF3C7', color: '#D97706', padding: '1px 6px', borderRadius: '4px' }}>SPEECH ON</span>
+                        </div>
+
+                        {/* Speech controller buttons */}
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <button 
+                            onClick={() => handleSpeakArticle(selectedArticle)}
+                            style={{ 
+                              backgroundColor: voiceReaderIsPlaying ? '#DC2626' : 'var(--primary-red)', 
+                              color: 'white', 
+                              border: 'none', 
+                              padding: '6px 12px', 
+                              borderRadius: '4px', 
+                              fontSize: '0.7rem', 
+                              fontWeight: 'bold', 
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <Play size={10} />
+                            <span>{voiceReaderIsPlaying ? 'PAUSE READER' : 'SPEAK ARTICLE'}</span>
+                          </button>
+
+                          {/* Speed rates */}
+                          <select 
+                            value={voiceReaderRate}
+                            onChange={(e) => setVoiceReaderRate(parseFloat(e.target.value))}
+                            style={{ padding: '4px', fontSize: '0.7rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}
+                          >
+                            <option value="0.75">0.75x Speed</option>
+                            <option value="1">1.0x Speed</option>
+                            <option value="1.25">1.25x Speed</option>
+                            <option value="1.5">1.5x Speed</option>
+                          </select>
+                        </div>
+
+                        {/* Running sound waveform (pulsing animation) */}
+                        {voiceReaderIsPlaying && (
+                          <div style={{ display: 'flex', gap: '3px', alignItems: 'center', height: '14px', marginTop: '4px', justifyContent: 'center' }}>
+                            <div style={{ width: '3px', height: '10px', backgroundColor: 'var(--primary-red)', animation: 'pulse 0.4s infinite alternate' }}></div>
+                            <div style={{ width: '3px', height: '14px', backgroundColor: 'var(--primary-red)', animation: 'pulse 0.6s infinite alternate' }}></div>
+                            <div style={{ width: '3px', height: '6px', backgroundColor: 'var(--primary-red)', animation: 'pulse 0.3s infinite alternate' }}></div>
+                            <div style={{ width: '3px', height: '12px', backgroundColor: 'var(--primary-red)', animation: 'pulse 0.5s infinite alternate' }}></div>
+                            <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Synthesizing speech...</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <p style={{ fontSize: '0.8rem', lineHeight: '1.6', fontFamily: 'var(--font-telugu)', textAlign: 'left', margin: 0 }}>{selectedArticle.desc}</p>
+                    </div>
+                  )}
+
+                </div>
+
+                {/* Bottom App Footer Tab Bar */}
+                <div className="phone-footer" style={{ borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-around', padding: '6px 0 18px', backgroundColor: 'var(--card-bg)', zIndex: 1000 }}>
+                  <button className={`phone-footer-btn ${activeMobileTab === 'home' ? 'active' : ''}`} onClick={() => setActiveMobileTab('home')} style={{ background: 'none', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: activeMobileTab === 'home' ? 'var(--primary-red)' : 'var(--text-secondary)' }}><Newspaper size={18} /><span style={{ fontSize: '0.65rem', marginTop: '2px', fontWeight: 'bold' }}>హోమ్</span></button>
+                  <button className={`phone-footer-btn ${activeMobileTab === 'live' ? 'active' : ''}`} onClick={() => setActiveMobileTab('live')} style={{ background: 'none', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: activeMobileTab === 'live' ? 'var(--primary-red)' : 'var(--text-secondary)' }}><Radio size={18} /><span style={{ fontSize: '0.65rem', marginTop: '2px', fontWeight: 'bold' }}>లైవ్ TV</span></button>
+                  <button className={`phone-footer-btn ${activeMobileTab === 'reels' ? 'active' : ''}`} onClick={() => setActiveMobileTab('reels')} style={{ background: 'none', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: activeMobileTab === 'reels' ? 'var(--primary-red)' : 'var(--text-secondary)' }}><Film size={18} /><span style={{ fontSize: '0.65rem', marginTop: '2px', fontWeight: 'bold' }}>షార్ట్స్</span></button>
+                  <button className={`phone-footer-btn ${activeMobileTab === 'alerts' ? 'active' : ''}`} onClick={() => setActiveMobileTab('alerts')} style={{ background: 'none', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: activeMobileTab === 'alerts' ? 'var(--primary-red)' : 'var(--text-secondary)' }}><Bell size={18} /><span style={{ fontSize: '0.65rem', marginTop: '2px', fontWeight: 'bold' }}>అలర్ట్స్</span></button>
+                  <button className={`phone-footer-btn ${activeMobileTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveMobileTab('profile')} style={{ background: 'none', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', color: activeMobileTab === 'profile' ? 'var(--primary-red)' : 'var(--text-secondary)' }}><User size={18} /><span style={{ fontSize: '0.65rem', marginTop: '2px', fontWeight: 'bold' }}>ప్రొఫైల్</span></button>
+                </div>
+              </>
+            )}
 
           </div>
         </div>
@@ -1461,6 +2346,7 @@ export default function App() {
                 <nav style={{ padding: '16px 8px', display: 'flex', flexDirection: 'column', gap: '4px', flexGrow: 1 }}>
                   <button onClick={() => setActiveCmsTab('dashboard')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'dashboard' ? '#D61F26' : 'transparent', color: activeCmsTab === 'dashboard' ? 'white' : '#D1D5DB' }}><BarChart3 size={16} /> <span>Dashboard Home</span></button>
                   <button onClick={() => setActiveCmsTab('articles')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'articles' ? '#D61F26' : 'transparent', color: activeCmsTab === 'articles' ? 'white' : '#D1D5DB' }}><Newspaper size={16} /> <span>Articles Manager ({articles.length})</span></button>
+                  <button onClick={() => setActiveCmsTab('shorts')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'shorts' ? '#D61F26' : 'transparent', color: activeCmsTab === 'shorts' ? 'white' : '#D1D5DB' }}><Film size={16} /> <span>Shorts Studio ({shortsList.length})</span></button>
                   <button onClick={() => setActiveCmsTab('live_telecast')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'live_telecast' ? '#D61F26' : 'transparent', color: activeCmsTab === 'live_telecast' ? 'white' : '#D1D5DB' }}><Radio size={16} /> <span>Live Telecast Studio</span></button>
                   <button onClick={() => setActiveCmsTab('ai_assistant')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'ai_assistant' ? '#D61F26' : 'transparent', color: activeCmsTab === 'ai_assistant' ? 'white' : '#D1D5DB' }}><Cpu size={16} /> <span>AI Newsroom Assistant</span></button>
                   <button onClick={() => setActiveCmsTab('ticker')} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: 'bold', fontSize: '0.85rem', backgroundColor: activeCmsTab === 'ticker' ? '#D61F26' : 'transparent', color: activeCmsTab === 'ticker' ? 'white' : '#D1D5DB' }}><Flame size={16} /> <span>Breaking Tickers</span></button>
@@ -1557,8 +2443,121 @@ export default function App() {
                               </div>
                             </div>
                           ))}
+                      </div>
+                    </div>
+                  </div>
+
+                    {/* Google Discover, Push Alert, & Bureau Performance Grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginTop: '24px' }}>
+                      
+                      {/* Panel 1: Google Discover Ranking & Search Metrics */}
+                      <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                        <h4 style={{ fontSize: '1rem', marginBottom: '16px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', color: '#111827' }}>
+                          <Search size={18} style={{ color: '#3B82F6' }} />
+                          <span>Google Discover Search Ranking</span>
+                        </h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '16px', borderBottom: '1px solid #F3F4F6', paddingBottom: '12px' }}>
+                          <div style={{ textAlign: 'center' }}>
+                            <span style={{ fontSize: '0.7rem', color: '#6B7280', display: 'block' }}>Discover Clicks</span>
+                            <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#3B82F6' }}>125.4K</span>
+                          </div>
+                          <div style={{ textAlign: 'center' }}>
+                            <span style={{ fontSize: '0.7rem', color: '#6B7280', display: 'block' }}>Impressions</span>
+                            <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#10B981' }}>2.84M</span>
+                          </div>
+                          <div style={{ textAlign: 'center' }}>
+                            <span style={{ fontSize: '0.7rem', color: '#6B7280', display: 'block' }}>Average CTR</span>
+                            <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#F59E0B' }}>4.41%</span>
+                          </div>
+                        </div>
+                        <h5 style={{ fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '8px', color: '#4B5563' }}>Top Trending Google Search Queries:</h5>
+                        <ul style={{ listStyle: 'none', padding: 0, fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <li style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #F3F4F6', paddingBottom: '4px' }}>
+                            <span style={{ fontFamily: 'var(--font-telugu)', fontWeight: 'bold' }}>1. తిరుమల లడ్డూ వార్తలు (Tirumala Ladoo News)</span>
+                            <span style={{ color: '#059669' }}>3.8K clicks</span>
+                          </li>
+                          <li style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #F3F4F6', paddingBottom: '4px' }}>
+                            <span style={{ fontFamily: 'var(--font-telugu)', fontWeight: 'bold' }}>2. ఏపీ కొత్త నిధులు (AP Budget Allocations)</span>
+                            <span style={{ color: '#059669' }}>2.1K clicks</span>
+                          </li>
+                          <li style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span style={{ fontFamily: 'var(--font-telugu)', fontWeight: 'bold' }}>3. విశాఖ వర్షం అలర్ట్ (Vizag Rains Warning)</span>
+                            <span style={{ color: '#059669' }}>1.9K clicks</span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      {/* Panel 2: Push Notification CTR Analytics */}
+                      <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                        <h4 style={{ fontSize: '1rem', marginBottom: '16px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', color: '#111827' }}>
+                          <Bell size={18} style={{ color: '#EF4444' }} />
+                          <span>Push Notification Broadcast CTR</span>
+                        </h4>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', borderBottom: '1px solid #F3F4F6', paddingBottom: '10px' }}>
+                          <div>
+                            <span style={{ fontSize: '0.7rem', color: '#6B7280', display: 'block' }}>Total Pushes Delivered</span>
+                            <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#111827' }}>450,290</span>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <span style={{ fontSize: '0.7rem', color: '#6B7280', display: 'block' }}>Avg Open Rate</span>
+                            <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#DC2626' }}>14.2%</span>
+                          </div>
+                        </div>
+                        <h5 style={{ fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '8px', color: '#4B5563' }}>Open CTR by Category:</h5>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', marginBottom: '2px' }}>
+                              <span>Politics (ఆంధ్రప్రదేశ్ & తెలంగాణ రాజకీయం)</span>
+                              <strong>18.5% CTR</strong>
+                            </div>
+                            <div style={{ height: '6px', backgroundColor: '#F3F4F6', borderRadius: '3px' }}><div style={{ width: '18.5%', height: '100%', backgroundColor: '#DC2626', borderRadius: '3px' }}></div></div>
+                          </div>
+                          <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', marginBottom: '2px' }}>
+                              <span>Crime (నేరాలు & దర్యాప్తు)</span>
+                              <strong>16.1% CTR</strong>
+                            </div>
+                            <div style={{ height: '6px', backgroundColor: '#F3F4F6', borderRadius: '3px' }}><div style={{ width: '16.1%', height: '100%', backgroundColor: '#F59E0B', borderRadius: '3px' }}></div></div>
+                          </div>
                         </div>
                       </div>
+
+                      {/* Panel 3: Bureau Performance Ledger */}
+                      <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                        <h4 style={{ fontSize: '1rem', marginBottom: '16px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', color: '#111827' }}>
+                          <Users size={18} style={{ color: '#10B981' }} />
+                          <span>Local District Bureau Performance</span>
+                        </h4>
+                        <div style={{ overflowX: 'auto' }}>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
+                            <thead>
+                              <tr style={{ borderBottom: '1px solid #E5E7EB', color: '#6B7280' }}>
+                                <th style={{ padding: '6px 4px', textAlign: 'left' }}>Bureau</th>
+                                <th style={{ padding: '6px 4px', textAlign: 'right' }}>Stories</th>
+                                <th style={{ padding: '6px 4px', textAlign: 'right' }}>Visitors</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr style={{ borderBottom: '1px solid #F3F4F6' }}>
+                                <td style={{ padding: '8px 4px', fontWeight: 'bold' }}>📍 Visakhapatnam</td>
+                                <td style={{ padding: '8px 4px', textAlign: 'right' }}>12</td>
+                                <td style={{ padding: '8px 4px', textAlign: 'right', color: '#059669', fontWeight: 'bold' }}>45K</td>
+                              </tr>
+                              <tr style={{ borderBottom: '1px solid #F3F4F6' }}>
+                                <td style={{ padding: '8px 4px', fontWeight: 'bold' }}>📍 Tirupati Bureau</td>
+                                <td style={{ padding: '8px 4px', textAlign: 'right' }}>9</td>
+                                <td style={{ padding: '8px 4px', textAlign: 'right', color: '#059669', fontWeight: 'bold' }}>32K</td>
+                              </tr>
+                              <tr style={{ borderBottom: '1px solid #F3F4F6' }}>
+                                <td style={{ padding: '8px 4px', fontWeight: 'bold' }}>📍 Vijayawada Bureau</td>
+                                <td style={{ padding: '8px 4px', textAlign: 'right' }}>15</td>
+                                <td style={{ padding: '8px 4px', textAlign: 'right', color: '#059669', fontWeight: 'bold' }}>64K</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
                     </div>
                   </>
                 )}
@@ -1670,6 +2669,112 @@ export default function App() {
                         </div>
                         <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '8px' }}>Publish to Live Feed</button>
                       </form>
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB: CMS SHORTS STUDIO */}
+                {activeCmsTab === 'shorts' && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }} className="news-grid-2">
+                    
+                    {/* Column 1: Shorts Creator Form */}
+                    <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      <div>
+                        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--primary-red)', margin: 0 }}>Telugu News Shorts Studio</h2>
+                        <p style={{ color: '#6B7280', fontSize: '0.8rem', marginTop: '2px' }}>Publish premium vertical 9:16 reels directly to the citizen app stream.</p>
+                      </div>
+
+                      <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '16px', backgroundColor: '#F9FAFB' }}>
+                        <h4 style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', color: '#111827', marginBottom: '8px' }}>
+                          <Cpu size={14} style={{ color: 'var(--primary-red)' }} />
+                          <span>AI Shorts Title & Caption Generator</span>
+                        </h4>
+                        <button 
+                          type="button" 
+                          onClick={async () => {
+                            setAiShortMetaLoading(true);
+                            setTimeout(() => {
+                              setShortTitle('వైజాగ్ సముద్ర తీరంలో భారీ అలలు!');
+                              setShortCaption('తీర ప్రాంత ప్రజలు అప్రమత్తంగా ఉండాలని హెచ్చరించిన వాతావరణ శాఖ. లోతట్టు ప్రాంతాల ఖాళీకరణ.');
+                              setAiShortMetaLoading(false);
+                              alert('AI Reels Meta generated successfully for District Bureau broadcast!');
+                            }, 1200);
+                          }}
+                          disabled={aiShortMetaLoading}
+                          style={{ backgroundColor: 'var(--primary-red)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 'bold' }}
+                        >
+                          {aiShortMetaLoading ? 'Compiling AI Reels...' : '🪄 Generate AI Reels Meta'}
+                        </button>
+                      </div>
+
+                      <form onSubmit={async (e) => {
+                        e.preventDefault();
+                        if (!shortTitle || !shortCaption) return;
+                        
+                        try {
+                          const res = await fetch(`${BACKEND_URL}/api/shorts`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              title: shortTitle,
+                              captionTe: shortCaption,
+                              district: shortDistrict,
+                              image: shortImage,
+                              views: 10
+                            })
+                          });
+                          if (res.ok) {
+                            const updatedList = await res.json();
+                            setShortsList(updatedList);
+                            setShortTitle('');
+                            setShortCaption('');
+                            alert('న్యూస్ షార్ట్ విజయవంతంగా ప్రచురించబడింది! (Short published and broadcasted to Socket.IO channels!)');
+                          }
+                        } catch (err) {
+                          alert('Failed to publish reel to dynamic server collection.');
+                        }
+                      }} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div className="form-group">
+                          <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Reel Short Title (శీర్షిక):</label>
+                          <input type="text" className="form-control" value={shortTitle} onChange={(e) => setShortTitle(e.target.value)} placeholder="వైజాగ్ తీరంలో వర్షాలు" required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
+                        </div>
+                        <div className="form-group">
+                          <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Reel Captions (వివరణ):</label>
+                          <textarea className="form-control" rows="3" value={shortCaption} onChange={(e) => setShortCaption(e.target.value)} placeholder="పూర్తి వివరాలు మరియు హెచ్చరికలు..." required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #D1D5DB' }}></textarea>
+                        </div>
+                        <div className="form-group">
+                          <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Target District Bureau (జిల్లా బ్యూరో):</label>
+                          <select className="form-control" value={shortDistrict} onChange={(e) => setShortDistrict(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #D1D5DB' }}>
+                            <option value="Visakhapatnam">Visakhapatnam (విశాఖపట్నం)</option>
+                            <option value="Tirupati">Tirupati (తిరుపతి)</option>
+                            <option value="Vijayawada">Vijayawada (విజయవాడ)</option>
+                            <option value="Hyderabad">Hyderabad (హైదరాబాద్)</option>
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Visual Asset Cover Image (కవర్ చిత్రం):</label>
+                          <input type="text" className="form-control" value={shortImage} onChange={(e) => setShortImage(e.target.value)} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #D1D5DB' }} />
+                        </div>
+
+                        <button type="submit" style={{ backgroundColor: 'var(--primary-red)', color: 'white', padding: '10px 20px', borderRadius: '6px', fontWeight: 'bold', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}><Radio size={16} /> Publish Short Reel</button>
+                      </form>
+                    </div>
+
+                    {/* Column 2: 9:16 Vertical Preview Mock */}
+                    <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                      <h4 style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#111827', marginBottom: '16px' }}>Vertical 9:16 Shorts Feed Preview</h4>
+                      
+                      <div style={{ width: '240px', height: '420px', borderRadius: '24px', border: '6px solid #222', overflow: 'hidden', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '12px', background: `linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0.6) 100%), url(${shortImage || '/vizag.png'}) center/cover no-repeat` }}>
+                        
+                        <div style={{ position: 'absolute', top: '8px', left: '8px', backgroundColor: 'var(--primary-red)', color: 'white', fontSize: '0.55rem', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>
+                          📍 {shortDistrict}
+                        </div>
+
+                        <div style={{ textAlign: 'left', color: 'white' }}>
+                          <h5 style={{ fontSize: '0.8rem', color: '#FFD54A', fontWeight: 'bold', margin: '0 0 2px 0' }}>{shortTitle || 'వైజాగ్ సముద్ర తీరం'}</h5>
+                          <p style={{ fontSize: '0.65rem', color: '#E5E7EB', margin: 0, lineHeight: '1.3' }}>{shortCaption || 'మరికొద్ది గంటల్లో విశాఖ జిల్లా వ్యాప్తంగా మోస్తరు నుండి భారీ వర్షాలు పడే అవకాశం...'}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
