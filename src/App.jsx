@@ -620,7 +620,8 @@ export default function App() {
       const streamData = await safeFetch(`${BACKEND_URL}/api/live-streams`, []);
       const dummyStreams = [
         { id: 901, active: true, embedUrl: 'https://www.youtube.com/embed/jfKfPfyJRdk', viewers: '14.2K', titleTe: 'ఏపీఎక్స్ న్యూస్ లైవ్ కవరేజ్', titleEn: 'Aptop News Live 24/7' },
-        { id: 902, active: true, embedUrl: 'https://www.youtube.com/embed/5qap5aO4i9A', viewers: '8.4K', titleTe: 'అసెంబ్లీ సమావేశాలు లైవ్', titleEn: 'Assembly Sessions Live' }
+        { id: 902, active: true, embedUrl: 'https://www.youtube.com/embed/5qap5aO4i9A', viewers: '8.4K', titleTe: 'అసెంబ్లీ సమావేశాలు లైవ్', titleEn: 'Assembly Sessions Live' },
+        { id: 903, active: true, embedUrl: 'https://www.youtube.com/embed/r1v_sS067qI', viewers: '5.6K', titleTe: 'స్పెషల్ ఎడిషన్ లైవ్', titleEn: 'Special Edition Live' }
       ];
       setLiveTelecasts([...streamData, ...dummyStreams]);
 
@@ -1293,1121 +1294,391 @@ export default function App() {
         <Route path="/*" element={
           <>
         <div className="portal-container" style={{ flexGrow: 1 }}>
-          
-          {/* Header */}
-          <header style={{ backgroundColor: 'var(--card-bg)', borderBottom: '1px solid var(--border-color)', padding: '16px 0', transition: 'var(--transition)' }}>
-            <div className="container main-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <button className="mobile-only" onClick={() => setIsMobileMenuOpen(true)} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', padding: '4px' }}>
-                  <Menu size={24} />
-                </button>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setCurrentPage('home')}>
-                  <div style={{ backgroundColor: 'var(--primary-red)', color: 'white', padding: '8px 16px', borderRadius: '6px', fontWeight: 800, fontSize: '1.6rem' }}>
-                    <span>Aptop News</span>
-                  </div>
-                  <div className="desktop-only" style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--primary-red)', letterSpacing: '2px', textTransform: 'uppercase' }}>
-                      {language === 'telugu' ? 'ప్రజల వార్త • ప్రజల స్వరం' : 'Fast • Trusted • Telugu First'}
-                    </span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-                      <span style={{ backgroundColor: '#065F46', color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>VERIFIED NEWSROOM</span>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Reporters Online: 48</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* PWA INSTALL TRIGGER */}
-              {showPwaPrompt && (
-                <button 
-                  className="desktop-only"
-                  onClick={() => {
-                    setIsPwaInstalled(true);
-                    setShowPwaPrompt(false);
-                  }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(255, 213, 74, 0.1)', border: '1px solid var(--accent-yellow)', color: 'var(--text-primary)', padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}
-                >
-                  <DownloadCloud size={14} style={{ color: 'var(--accent-yellow)' }} />
-                  <span>{isPwaInstalled ? 'Aptop App Installed' : 'Install Aptop News WebApp'}</span>
-                </button>
-              )}
-
-              <div className="search-bar" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexGrow: 1, maxWidth: '240px', position: 'relative' }}>
-                <Search size={18} style={{ position: 'absolute', left: '12px', color: 'var(--text-secondary)' }} />
-                <input 
-                  type="text"
-                  placeholder={language === 'telugu' ? 'వార్త శోధన...' : 'Search news headlines...'}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{ width: '100%', padding: '10px 12px 10px 40px', borderRadius: '30px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.9rem' }}
-                />
-              </div>
-
-              <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', padding: '6px 12px', backgroundColor: 'rgba(214, 31, 38, 0.05)', borderRadius: '20px', border: '1px solid var(--border-color)' }}>
-                  <Sun size={16} style={{ color: 'var(--accent-yellow)' }} />
-                  <span>AP 34°C • {language === 'telugu' ? 'ఎండ తీవ్రత' : 'Sunny'}</span>
-                </div>
-
-                <button 
-                  className="desktop-only"
-                  onClick={() => {
-                    if (articles.length > 0) setSelectedArticleId(articles[0].id);
-                    setCurrentPage('article');
-                  }}
-                  style={{ backgroundColor: 'var(--primary-red)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '20px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-                >
-                  <Radio size={16} className="live-dot" />
-                  <span>LIVE TV</span>
-                </button>
-
-                <button onClick={() => setLanguage(language === 'telugu' ? 'english' : 'telugu')} style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '8px 12px', borderRadius: '8px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
-                  {language === 'telugu' ? 'EN' : 'తెలుగు'}
-                </button>
-
-                <button onClick={toggleDarkMode} style={{ background: 'none', border: '1px solid var(--border-color)', padding: '8px', borderRadius: '8px', cursor: 'pointer', color: 'var(--text-primary)' }}>
-                  {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-                </button>
-              </div>
-
-            </div>
-          </header>
-
-          {/* Mobile Drawer Menu */}
-          {isMobileMenuOpen && (
-            <div className="mobile-drawer-overlay" onClick={() => setIsMobileMenuOpen(false)}>
-              <div className="mobile-drawer reference-drawer-menu" onClick={e => e.stopPropagation()}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', borderBottom: '1px solid #2D2D2D', alignItems: 'center' }}>
-                  <button onClick={() => setIsMobileMenuOpen(false)} style={{ background: 'none', border: 'none', color: 'white' }}><X size={24} /></button>
-                  <span style={{ fontWeight: 800, fontSize: '1.2rem', color: 'white' }}>Aptop News</span>
-                  <div style={{ display: 'flex', gap: '16px' }}>
-                    <Search size={20} style={{ color: 'white' }} onClick={() => setCurrentPage('search')} />
-                    <button onClick={toggleDarkMode} style={{ background: 'none', border: 'none', color: 'white' }}>
-                      {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-                    </button>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', padding: '0', overflowY: 'auto', height: 'calc(100vh - 65px)' }}>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Home</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('bookmarks'); setIsMobileMenuOpen(false); }} style={{ color: 'var(--primary-red)' }}>⭐ Saved Stories</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Andhra Pradesh</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Telangana</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Politics</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Business</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Entertainment</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>World</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>National</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Sports</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Technology</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Education</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Lifestyle</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('spiritual'); setIsMobileMenuOpen(false); }}>Spiritual</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Jobs</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('epaper'); setIsMobileMenuOpen(false); }}>E-paper</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Live TV</span>
-                  <span className="drawer-link" onClick={() => { setShowPremiumCheckout(true); setIsMobileMenuOpen(false); }} style={{ color: 'var(--accent-yellow)' }}>Premium</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('advertise'); setShowAdvertiserDashboard(true); setIsMobileMenuOpen(false); }}>Advertise</span>
-                  <span className="drawer-link" onClick={() => { setCurrentPage('home'); setIsMobileMenuOpen(false); }}>Contact</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Secondary Navigation bar for Special Features (Desktop only) */}
-          <nav className="secondary-nav desktop-only" style={{ backgroundColor: 'var(--card-bg)', borderBottom: '1px solid var(--border-color)', padding: '12px 0', transition: 'var(--transition)' }}>
-            <div className="container nav-container" style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.9rem' }}>
-              <span onClick={() => { setCurrentPage('home'); setShowAdvertiserDashboard(false); }} style={{ color: currentPage === 'home' && !showAdvertiserDashboard ? 'var(--primary-red)' : 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>🚨 {language === 'telugu' ? 'ప్రధాన వార్తలు' : 'Headlines'}</span>
-              <span onClick={() => { setCurrentPage('elections'); setShowAdvertiserDashboard(false); }} style={{ color: currentPage === 'elections' ? 'var(--primary-red)' : 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>🗳️ {language === 'telugu' ? 'ఎన్నికల కేంద్రం' : 'Election Mega Center'}</span>
-              <span onClick={() => { setCurrentPage('spiritual'); setShowAdvertiserDashboard(false); }} style={{ color: currentPage === 'spiritual' ? 'var(--primary-red)' : 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>🕉️ {language === 'telugu' ? 'తిరుమల లైవ్' : 'Spiritual Specials'}</span>
-              <span onClick={() => { setCurrentPage('epaper'); setShowAdvertiserDashboard(false); }} style={{ color: currentPage === 'epaper' ? 'var(--primary-red)' : 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>📰 {language === 'telugu' ? 'ఈ-పేపర్' : 'Daily Digest'}</span>
-              <span onClick={() => { setShowAdvertiserDashboard(true); setCurrentPage('advertise'); }} style={{ color: showAdvertiserDashboard ? 'var(--primary-red)' : 'var(--text-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>💼 {language === 'telugu' ? 'ప్రకటనల డ్యాష్‌బోర్డ్' : 'Advertiser Portal'}</span>
-              <span onClick={() => setShowPremiumCheckout(true)} style={{ color: 'gold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', animation: 'pulse 1.5s infinite alternate' }}>⭐ {premiumPlan === 'premium' ? 'GOLD MEMBER (Ad-Free)' : (language === 'telugu' ? 'గోల్డ్ ప్రీమియం' : 'Go Ad-Free')}</span>
-            </div>
-          </nav>
-
-          {/* Mobile UX: Sticky Category Tabs */}
-          <div className="sticky-tabs-container">
-            {['Breaking', 'Andhra Pradesh', 'Telangana', 'Politics', 'Sports', 'Business', 'Cinema', 'Technology', 'Jobs', 'Spiritual', 'Live', 'Reels'].map((tab, idx) => {
-              const tabId = tab.toLowerCase().replace(/\s+/g, '-');
-              return (
-                <div 
-                  key={tab} 
-                  id={`tab-${tabId}`}
-                  className={`sticky-tab ${activeCategoryTab === tab ? 'active' : ''}`}
-                  onClick={() => handleCategoryClick(tab)}
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleCategoryClick(tab); }}
-                >
-                  {tab}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Mobile UX: Sticky Breaking News Ticker */}
-          <div className="sticky-ticker-bar mobile-only" onClick={() => setCurrentPage('home')}>
-            <div className="dot"></div>
-            <div className="sticky-ticker-scroll">
-              {tickerItems.join(' • ')}
-            </div>
-          </div>
-
-          {/* Desktop Scrolling ticker */}
-          <div className="ticker-wrap desktop-only">
-            <div className="ticker-header">
-              <Flame size={16} />
-              <span>{language === 'telugu' ? 'ఆప్టాప్ ఫ్లాష్' : 'FLASH NEWS'}</span>
-            </div>
-            <div className="ticker-content">
-              {tickerItems.map((tick, index) => (
-                <span className="ticker-item" key={index}>{tick}</span>
-              ))}
-            </div>
-          </div>
-
-          <main className="container" style={{ padding: '32px 16px' }}>
-
-            {/* AD PLACEMENT: HEADER BANNER (Hidden for premium VIP members) */}
-            {ads.length > 0 && ads[0].active && premiumPlan !== 'premium' && (
-              <div 
-                onClick={() => handleAdClick(ads[0].id)}
-                style={{ 
-                  backgroundColor: 'rgba(255, 213, 74, 0.05)', 
-                  border: '1px dashed var(--accent-yellow)', 
-                  borderRadius: '8px', 
-                  padding: '12px', 
-                  textAlign: 'center', 
-                  marginBottom: '24px', 
-                  cursor: 'pointer',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  gap: '12px'
-                }}
-              >
-                <span style={{ backgroundColor: 'var(--accent-yellow)', color: '#111', fontSize: '0.65rem', fontWeight: 'bold', padding: '2px 6px', borderRadius: '4px' }}>SPONSORED AD</span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{ads[0].advertiser || 'Aptop Sponsored Services'} • గృహాల కొనుగోలుపై అద్భుతమైన ఆఫర్లు! 0% డౌన్ పేమెంట్. క్లిక్ చేయండి!</span>
-              </div>
-            )}
-
-            {/* 1. SPECIAL PAGE: EPAPER DAILY DIGEST */}
-            {currentPage === 'epaper' && (
-              <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px' }}>
-                  <div>
-                    <h2 style={{ fontSize: '2rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>📰 ఆప్టాప్ దినపత్రిక (Aptop Daily E-Paper)</h2>
-                    <p style={{ color: 'var(--text-secondary)' }}>AP & Telangana Daily Digital Morning Editions</p>
-                  </div>
-                  <button 
-                    onClick={() => alert('ఆప్టాప్ ఉదయపు సంచిక PDF విజయవంతంగా డౌన్‌లోడ్ చేయబడింది! (Printed morning newspaper downloaded successfully in PDF format.)')}
-                    style={{ backgroundColor: 'var(--primary-red)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
-                  >
-                    Download Printable PDF Edition
-                  </button>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '32px' }} className="epaper-layout">
-                  {/* Left Side: Edition selector */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <h4 style={{ fontSize: '1rem', fontWeight: 'bold', borderLeft: '3px solid var(--primary-red)', paddingLeft: '8px' }}>Select Edition</h4>
-                    {['ఆంధ్రప్రదేశ్ ప్రధాన సంచిక (AP Main)', 'తెలంగాణ ప్రధాన సంచిక (TS Main)', 'హైదరాబాద్ సిటీ పుల్-అవుట్ (City Special)', 'ఆధ్యాత్మిక ప్రత్యేక అనుబంధం (Spiritual supplement)'].map((ed, idx) => (
-                      <div key={idx} style={{ padding: '12px', backgroundColor: idx === 0 ? 'rgba(214, 31, 38, 0.05)' : 'var(--card-bg)', border: idx === 0 ? '1px solid var(--primary-red)' : '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
-                        {ed}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Right Side: Newspaper layout preview mockup */}
-                  <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '32px', boxShadow: 'var(--shadow-md)', position: 'relative' }}>
-                    <div style={{ textAlign: 'center', borderBottom: '2px double var(--border-color)', paddingBottom: '16px', marginBottom: '20px' }}>
-                      <h1 style={{ fontSize: '3rem', fontWeight: 900, color: 'var(--primary-red)', fontFamily: 'var(--font-telugu)', margin: 0 }}>ఆప్టాప్ న్యూస్</h1>
-                      <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-secondary)' }}>వేగంగా • నిజంగా • తెలుగు రాష్ట్రాల నంబర్ వన్ దినపత్రిక</span>
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
-                      <div style={{ textAlign: 'left', borderRight: '1px solid var(--border-color)', paddingRight: '20px' }}>
-                        <span style={{ color: 'var(--primary-red)', fontSize: '0.8rem', fontWeight: 'bold' }}>ముఖ్య వార్త (Front Page Lead Story)</span>
-                        <h2 style={{ fontSize: '1.8rem', fontWeight: 'bold', fontFamily: 'var(--font-telugu)', marginTop: '8px', marginBottom: '12px', lineHeight: '1.3' }}>ఆంధ్రప్రదేశ్‌కు సరికొత్త నిధుల వెల్లువ! కేంద్రం కీలక ప్రకటన.</h2>
-                        <p style={{ fontSize: '0.95rem', lineHeight: '1.7', fontFamily: 'var(--font-telugu)', color: 'var(--text-secondary)' }}>
-                          రాష్ట్రానికి రోడ్డు రవాణా, పారిశ్రామిక కారిడార్ల అభివృద్ధి కొరకై కేంద్ర ప్రభుత్వం ప్రత్యేక ప్యాకేజీ మంజూరు చేసింది. దీని వల్ల వచ్చే మూడేళ్లలో వేలాది మంది యువతకు ఉపాధి అవకాశాలు లభిస్తాయని సీఎం ధీమా వ్యక్తం చేశారు.
-                        </p>
-                      </div>
-                      <div>
-                        {/* Newspaper Column */}
-                        <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '12px', textAlign: 'left' }}>
-                          <span style={{ color: '#F59E0B', fontSize: '0.75rem', fontWeight: 'bold' }}>తెలంగాణ అప్డేట్ (Telangana Core)</span>
-                          <h4 style={{ fontSize: '1rem', fontWeight: 'bold', fontFamily: 'var(--font-telugu)', margin: '4px 0' }}>హైదరాబాద్ మెట్రో విస్తరణ పనులకు ఆమోదం!</h4>
-                        </div>
-                        <div style={{ textAlign: 'left' }}>
-                          <span style={{ color: '#10B981', fontSize: '0.75rem', fontWeight: 'bold' }}>వాణిజ్యం (Business Pullout)</span>
-                          <h4 style={{ fontSize: '1rem', fontWeight: 'bold', fontFamily: 'var(--font-telugu)', margin: '4px 0' }}>బంగారం ధరల్లో భారీ క్షీణత! కొనుగోలుదారుల హర్షం.</h4>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* 2. SPECIAL PAGE: ELECTION MEGA CENTER */}
-            {currentPage === 'elections' && (
-              <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
-                <div style={{ borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px', textAlign: 'left' }}>
-                  <h2 style={{ fontSize: '2rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>🗳️ ఆప్టాప్ ఎన్నికల కేంద్రం (AP/TS Election Mega Center)</h2>
-                  <p style={{ color: 'var(--text-secondary)' }}>Real-Time Legislative Seat Count & Candidate Analysis</p>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginBottom: '32px' }} className="election-results-grid">
-                  {/* AP Results */}
-                  <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px', marginBottom: '16px' }}>
-                      <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Andhra Pradesh (175/175 Assemblies)</h3>
-                      <span style={{ backgroundColor: '#10B981', color: 'white', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 'bold' }}>Results Declared</span>
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px', fontWeight: 'bold' }}>
-                          <span>కూటమి పక్షాలు (Alliance Party)</span>
-                          <span>102 Lead / Won (Magic mark: 88)</span>
-                        </div>
-                        <div style={{ height: '12px', backgroundColor: 'var(--bg-color)', borderRadius: '6px', overflow: 'hidden' }}>
-                          <div style={{ width: '58.2%', height: '100%', backgroundColor: '#F59E0B' }}></div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px', fontWeight: 'bold' }}>
-                          <span>వైసీపీ (YCP Block)</span>
-                          <span>68 seats</span>
-                        </div>
-                        <div style={{ height: '12px', backgroundColor: 'var(--bg-color)', borderRadius: '6px', overflow: 'hidden' }}>
-                          <div style={{ width: '38.8%', height: '100%', backgroundColor: '#3B82F6' }}></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* TS Results */}
-                  <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px', marginBottom: '16px' }}>
-                      <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Telangana (119/119 Assemblies)</h3>
-                      <span style={{ backgroundColor: '#10B981', color: 'white', padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 'bold' }}>Results Declared</span>
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px', fontWeight: 'bold' }}>
-                          <span>కాంగ్రెస్ (INC Block)</span>
-                          <span>64 Lead / Won (Magic mark: 60)</span>
-                        </div>
-                        <div style={{ height: '12px', backgroundColor: 'var(--bg-color)', borderRadius: '6px', overflow: 'hidden' }}>
-                          <div style={{ width: '53.7%', height: '100%', backgroundColor: '#DC2626' }}></div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '4px', fontWeight: 'bold' }}>
-                          <span>బీఆర్ఎస్ (BRS Block)</span>
-                          <span>48 seats</span>
-                        </div>
-                        <div style={{ height: '12px', backgroundColor: 'var(--bg-color)', borderRadius: '6px', overflow: 'hidden' }}>
-                          <div style={{ width: '40.3%', height: '100%', backgroundColor: '#F472B6' }}></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* 3. SPECIAL PAGE: SPIRITUAL POOJA SCHEDULER */}
-            {currentPage === 'spiritual' && (
-              <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
-                <div style={{ borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px', textAlign: 'left' }}>
-                  <h2 style={{ fontSize: '2rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>🕉️ ఆప్టాప్ ఆధ్యాత్మిక సేవలు: తిరుమల ప్రత్యక్ష ప్రసారం (Tirumala Live Poojas)</h2>
-                  <p style={{ color: 'var(--text-secondary)' }}>Daily Temple Pooja Schedules & Virtual Seva Booking</p>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }} className="spiritual-page-grid">
-                  {/* Temple video player & active schedules */}
-                  <div>
-                    <div style={{ border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden', marginBottom: '24px' }}>
-                      <div className="responsive-iframe-wrap">
-                        <iframe 
-                          src="https://www.youtube.com/embed/S-Bw-BvJb8Q" 
-                          title="Tirumala Live Poojas" 
-                          frameBorder="0" 
-                          allowFullScreen
-                        ></iframe>
-                      </div>
-                      <div style={{ backgroundColor: 'var(--primary-red)', color: 'white', padding: '12px', display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', flexWrap: 'wrap', gap: '4px' }}>
-                        <span>📺 తిరుమల తిరుపతి దేవస్థానం ప్రత్యక్ష పూజా కార్యక్రమాలు</span>
-                        <span style={{ fontWeight: 'bold' }}>🔴 TT LIVE STREAM ACTIVE</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Pooja scheduler card and virtual ticket booking */}
-                  <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)', textAlign: 'left' }}>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>Daily Seva Timings</h3>
-                    
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.85rem', marginBottom: '20px' }}>
-                      <div style={{ borderBottom: '1px dashed var(--border-color)', paddingBottom: '6px' }}>🌅 <strong>03:00 AM - 04:00 AM:</strong> <span style={{ fontFamily: 'var(--font-telugu)' }}>సుప్రభాత సేవ (Suprabhatam)</span></div>
-                      <div style={{ borderBottom: '1px dashed var(--border-color)', paddingBottom: '6px' }}>☀️ <strong>06:00 AM - 07:00 AM:</strong> <span style={{ fontFamily: 'var(--font-telugu)' }}>తోమాల సేవ (Thomala Seva)</span></div>
-                      <div style={{ borderBottom: '1px dashed var(--border-color)', paddingBottom: '6px' }}>☀️ <strong>12:00 PM - 01:00 PM:</strong> <span style={{ fontFamily: 'var(--font-telugu)' }}>కల్యాణోత్సవం (Kalyanotsavam)</span></div>
-                    </div>
-
-                    <div style={{ backgroundColor: 'rgba(255, 213, 74, 0.1)', border: '1px solid var(--accent-yellow)', borderRadius: '8px', padding: '16px' }}>
-                      <h4 style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '8px' }}>🎫 Virtual Pooja Ticket Booking</h4>
-                      <button 
-                        onClick={() => {
-                          const passNum = Math.floor(100000 + Math.random() * 900000);
-                          alert(`తిరుమల వర్చువల్ దర్శన టికెట్ విజయవంతంగా కేటాయించబడింది! \n\n🔒 Pass Code: TTD-${passNum}\n📲 SMS confirmation sent!`);
-                        }}
-                        style={{ width: '100%', backgroundColor: 'var(--primary-red)', color: 'white', border: 'none', padding: '8px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-                      >
-                        Book Virtual Seva Ticket
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* 4. SPECIAL PAGE: ADVERTISER SELF-SERVICE DASHBOARD */}
-            {currentPage === 'advertise' && (
-              <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
-                <div style={{ borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px', textAlign: 'left' }}>
-                  <h2 style={{ fontSize: '2rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>💼 ఆప్టాప్ ప్రకటనకర్తల స్వయం-సేవ డ్యాష్‌బోర్డ్ (Advertiser Portal)</h2>
-                  <p style={{ color: 'var(--text-secondary)' }}>Launch Target CPC Ads & Monitor Real-Time Impression Ledger Metrics</p>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '32px' }} className="advertiser-portal-grid">
-                  {/* Advertiser creation form */}
-                  <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)', textAlign: 'left' }}>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>Launch CPC Ad Campaign</h3>
-                    
-                    <form onSubmit={async (e) => {
-                      e.preventDefault();
-                      if (!advCompany || !advBudget) return;
-
-                      try {
-                        const res = await fetch(`${BACKEND_URL}/api/ads`, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            advertiser: advCompany,
-                            placement: advType,
-                            budget: parseFloat(advBudget),
-                            clicks: 0,
-                            revenue: 0,
-                            active: true
-                          })
-                        });
-                        if (res.ok) {
-                          const updatedAds = await res.json();
-                          setAds(updatedAds);
-                          setAdvCompany('');
-                          setAdvBudget('');
-                          alert('ప్రకటన క్యాంపెయిన్ విజయవంతంగా జోడించబడింది! (Advertiser CPC campaign launched live!)');
-                        }
-                      } catch (err) {
-                        alert('Failed to register advertiser slot on server backend.');
-                      }
-                    }} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Company / Sponsor Name:</label>
-                        <input type="text" className="form-control" value={advCompany} onChange={(e) => setAdvCompany(e.target.value)} placeholder="TATA Motors AP" required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border-color)' }} />
-                      </div>
-                      <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Campaign Budget Target ($):</label>
-                        <input type="number" className="form-control" value={advBudget} onChange={(e) => setAdvBudget(e.target.value)} placeholder="150" required style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border-color)' }} />
-                      </div>
-                      <div className="form-group">
-                        <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Ad Slot Placement Type:</label>
-                        <select className="form-control" value={advType} onChange={(e) => setAdvType(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
-                          <option value="Header Banner">Header Banner Placement</option>
-                          <option value="Sidebar widget">Sidebar Widget Placement</option>
-                          <option value="Mobile feed banner">Mobile Feed Banner Placement</option>
-                        </select>
-                      </div>
-
-                      <button type="submit" style={{ backgroundColor: 'var(--primary-red)', color: 'white', border: 'none', padding: '10px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Launch CPC Campaign</button>
-                    </form>
-                  </div>
-
-                  {/* Active campaigns ledger */}
-                  <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)' }}>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', textAlign: 'left' }}>Real-Time Campaign Productivity Ledger</h3>
-                    
-                    <div style={{ overflowX: 'auto' }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                        <thead>
-                          <tr style={{ borderBottom: '2px solid var(--border-color)', color: 'var(--text-secondary)' }}>
-                            <th style={{ padding: '10px', textAlign: 'left' }}>Sponsor</th>
-                            <th style={{ padding: '10px', textAlign: 'left' }}>Placement</th>
-                            <th style={{ padding: '10px', textAlign: 'right' }}>Budget</th>
-                            <th style={{ padding: '10px', textAlign: 'right' }}>Clicks</th>
-                            <th style={{ padding: '10px', textAlign: 'right' }}>CTR</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {ads.map(ad => (
-                            <tr key={ad.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                              <td style={{ padding: '10px', fontWeight: 'bold', textAlign: 'left' }}>{ad.advertiser}</td>
-                              <td style={{ padding: '10px', textAlign: 'left' }}>{ad.placement}</td>
-                              <td style={{ padding: '10px', textAlign: 'right', fontWeight: 'bold' }}>${ad.budget || ad.revenue}</td>
-                              <td style={{ padding: '10px', textAlign: 'right' }}>{ad.clicks} clicks</td>
-                              <td style={{ padding: '10px', textAlign: 'right', color: '#10B981', fontWeight: 'bold' }}>4.82% CTR</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ─── PAGE: BUSINESS DIRECTORY ─── */}
-            {currentPage === 'business' && (
-              <div style={{ animation: 'fadeIn 0.4s' }}>
-                <div style={{ borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-                  <div>
-                    <h2 style={{ fontSize: '1.8rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>🏢 AP/TS Business Directory</h2>
-                    <p style={{ color: 'var(--text-secondary)' }}>District-wise listings — Hospitals, Colleges, Temples & more</p>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    <input type="text" placeholder="Search business..." value={bizSearchQuery} onChange={e => setBizSearchQuery(e.target.value)} style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.85rem' }} />
-                    <select value={bizCategory} onChange={e => setBizCategory(e.target.value)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}>
-                      {['All','hospitals','colleges','coaching','temples','real_estate'].map(c => <option key={c} value={c}>{c === 'All' ? '🏢 All Categories' : { hospitals: '🏥 Hospitals', colleges: '🎓 Colleges', coaching: '📚 Coaching', temples: '🕉️ Temples', real_estate: '🏘️ Real Estate' }[c]}</option>)}
-                    </select>
-                    <select value={bizDistrict} onChange={e => setBizDistrict(e.target.value)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}>
-                      {['All','Visakhapatnam','Hyderabad','Vijayawada','Tirupati'].map(d => <option key={d}>{d}</option>)}
-                    </select>
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
-                  {businesses.filter(b =>
-                    (bizCategory === 'All' || b.category === bizCategory) &&
-                    (bizDistrict === 'All' || b.district === bizDistrict) &&
-                    (bizSearchQuery === '' || b.name.toLowerCase().includes(bizSearchQuery.toLowerCase()))
-                  ).map(biz => (
-                    <div key={biz.id} style={{ backgroundColor: 'var(--card-bg)', border: `1px solid ${biz.sponsored ? 'var(--accent-yellow)' : 'var(--border-color)'}`, borderRadius: '12px', padding: '20px', boxShadow: 'var(--shadow-sm)', position: 'relative' }}>
-                      {biz.sponsored && <span style={{ position: 'absolute', top: '12px', right: '12px', backgroundColor: 'var(--accent-yellow)', color: '#111', fontSize: '0.65rem', fontWeight: 'bold', padding: '2px 8px', borderRadius: '10px' }}>⭐ SPONSORED</span>}
-                      <div style={{ marginBottom: '8px' }}>
-                        <span style={{ fontSize: '1.5rem' }}>{{ hospitals: '🏥', colleges: '🎓', coaching: '📚', temples: '🕉️', real_estate: '🏘️' }[biz.category]}</span>
-                      </div>
-                      <h3 style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '4px' }}>{biz.name}</h3>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>{biz.desc}</p>
-                      <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>📍 {biz.district} • 📞 {biz.phone}</p>
-                      <div style={{ display: 'flex', gap: '4px' }}>{[1,2,3,4,5].map(s => <span key={s} style={{ color: s <= Math.floor(biz.rating) ? '#F59E0B' : '#D1D5DB', fontSize: '0.9rem' }}>★</span>)} <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginLeft: '4px' }}>{biz.rating}/5</span></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* ─── PAGE: CITIZEN REPORTER ─── */}
-            {currentPage === 'citizen_report' && (
-              <div style={{ animation: 'fadeIn 0.4s', maxWidth: '700px', margin: '0 auto' }}>
-                <div style={{ borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px' }}>
-                  <h2 style={{ fontSize: '1.8rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>📸 సిటిజన్ రిపోర్టర్ — మీ వార్త పంపండి</h2>
-                  <p style={{ color: 'var(--text-secondary)' }}>Send your local incident photo, video or report. Admin review required before publishing.</p>
-                </div>
-                {citizenSubmitted ? (
-                  <div style={{ backgroundColor: '#D1FAE5', border: '2px solid #86EFAC', borderRadius: '12px', padding: '32px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '3rem', marginBottom: '12px' }}>✅</div>
-                    <h3 style={{ color: '#065F46', fontWeight: 'bold', marginBottom: '8px' }}>మీ నివేదిక విజయవంతంగా నమోదైంది!</h3>
-                    <p style={{ color: '#065F46', fontSize: '0.9rem', marginBottom: '16px' }}>Your report is under review. We'll publish after verification. (24–48 hours)</p>
-                    <button onClick={() => setCitizenSubmitted(false)} style={{ backgroundColor: '#D61F26', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>Submit Another Report</button>
-                  </div>
-                ) : (
-                  <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '32px', boxShadow: 'var(--shadow-md)' }}>
-                    <form onSubmit={e => { e.preventDefault(); if (!citizenName || !citizenTitle) return; setCitizenReports(prev => [{ id: Date.now(), name: citizenName, district: citizenDistrict, title: citizenTitle, status: 'Pending Review', time: 'Just now' }, ...prev]); setCitizenSubmitted(true); setCitizenName(''); setCitizenTitle(''); setCitizenDesc(''); }} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }} className="news-grid-2">
-                        <div><label style={{ fontSize: '0.8rem', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>మీ పేరు (Your Name):</label><input type="text" required value={citizenName} onChange={e => setCitizenName(e.target.value)} placeholder="Ramaiah Goud" style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }} /></div>
-                        <div><label style={{ fontSize: '0.8rem', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>జిల్లా (District):</label><select value={citizenDistrict} onChange={e => setCitizenDistrict(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}>{['Visakhapatnam','Vijayawada','Tirupati','Hyderabad','Guntur','Kurnool','Nellore'].map(d => <option key={d}>{d}</option>)}</select></div>
-                      </div>
-                      <div><label style={{ fontSize: '0.8rem', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>సంఘటన శీర్షిక (Incident Title):</label><input type="text" required value={citizenTitle} onChange={e => setCitizenTitle(e.target.value)} placeholder="What happened? Be specific..." style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }} /></div>
-                      <div><label style={{ fontSize: '0.8rem', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>వివరాలు (Details):</label><textarea rows={4} value={citizenDesc} onChange={e => setCitizenDesc(e.target.value)} placeholder="Describe what you saw, when, where..." style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)', resize: 'vertical' }}></textarea></div>
-                      <div style={{ backgroundColor: 'rgba(214,31,38,0.05)', border: '1px dashed var(--primary-red)', borderRadius: '8px', padding: '20px', textAlign: 'center', cursor: 'pointer' }}>
-                        <p style={{ fontWeight: 'bold', margin: '0 0 4px' }}>📷 Upload Photo / Video (optional)</p>
-                        <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: 0 }}>JPG, PNG, MP4 • Max 10MB</p>
-                      </div>
-                      <button type="submit" style={{ backgroundColor: 'var(--primary-red)', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>📤 Submit for Review</button>
-                    </form>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ─── PAGE: SEARCH ARCHIVE ─── */}
-            {currentPage === 'search_archive' && (
-              <div style={{ animation: 'fadeIn 0.4s' }}>
-                <div style={{ borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px' }}>
-                  <h2 style={{ fontSize: '1.8rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>🔎 వార్తా ఆర్కైవ్ (News Search Archive)</h2>
-                  <p style={{ color: 'var(--text-secondary)' }}>Filter by district, date, category, or keyword</p>
-                </div>
-                <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)', marginBottom: '24px' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '16px' }}>
-                    <input type="text" value={archiveQuery} onChange={e => setArchiveQuery(e.target.value)} placeholder="Search keyword..." style={{ padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }} />
-                    <select value={archiveDistrict} onChange={e => setArchiveDistrict(e.target.value)} style={{ padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}>
-                      {['All','Visakhapatnam','Vijayawada','Tirupati','Hyderabad'].map(d => <option key={d}>{d}</option>)}
-                    </select>
-                    <select value={archiveCategory} onChange={e => setArchiveCategory(e.target.value)} style={{ padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}>
-                      {['All','Politics','Crime','Business','Cinema','Sports','Spiritual'].map(c => <option key={c}>{c}</option>)}
-                    </select>
-                    <input type="date" value={archiveDate} onChange={e => setArchiveDate(e.target.value)} style={{ padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }} />
-                  </div>
-                  <button onClick={() => { const results = articles.filter(a => (archiveQuery === '' || (a.title || '').toLowerCase().includes(archiveQuery.toLowerCase())) && (archiveDistrict === 'All' || (a.district || '') === archiveDistrict) && (archiveCategory === 'All' || (a.category || '') === archiveCategory)); setArchiveResults(results); setArchiveSearched(true); }} style={{ backgroundColor: 'var(--primary-red)', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>🔍 Search Archive</button>
-                </div>
-                {archiveSearched && (
-                  <div>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>{archiveResults.length} results found</p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      {archiveResults.length === 0 ? <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '40px' }}>No articles found matching your filters.</p> : archiveResults.map(art => (
-                        <div key={art.id} onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }} style={{ display: 'flex', gap: '16px', backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '16px', cursor: 'pointer', transition: 'var(--transition)' }}>
-                          <img src={art.image} alt="" style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0 }} loading="lazy" />
-                          <div>
-                            <span style={{ backgroundColor: 'var(--primary-red)', color: 'white', fontSize: '0.65rem', fontWeight: 'bold', padding: '2px 6px', borderRadius: '3px', marginBottom: '4px', display: 'inline-block' }}>{art.category}</span>
-                            <p style={{ fontWeight: 'bold', margin: '4px 0 2px', fontFamily: 'var(--font-telugu)', fontSize: '0.9rem' }}>{language === 'telugu' ? art.title : art.titleEn}</p>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>📍 {art.district} • {art.date}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ─── PAGE: VOICE BULLETIN STUDIO (Public) ─── */}
-            {currentPage === 'voice_bulletin' && (
-              <div style={{ animation: 'fadeIn 0.4s', maxWidth: '800px', margin: '0 auto' }}>
-                <div style={{ borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px' }}>
-                  <h2 style={{ fontSize: '1.8rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>🎙️ ఆప్టాప్ వాయిస్ బులెటిన్ స్టూడియో</h2>
-                  <p style={{ color: 'var(--text-secondary)' }}>AI-generated Telugu news bulletins — Morning, Evening & Election Flash</p>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-                  {[{ type: 'morning', label: '🌅 Morning Headlines', desc: 'ఉదయం 6:00 AM బులెటిన్' }, { type: 'evening', label: '🌆 Evening Headlines', desc: 'సాయంత్రం 6:00 PM బులెటిన్' }, { type: 'election', label: '🗳️ Election Flash', desc: 'ఎన్నికల ఫ్లాష్ అప్డేట్' }].map(b => (
-                    <div key={b.type} onClick={() => setBulletinType(b.type)} style={{ backgroundColor: 'var(--card-bg)', border: `2px solid ${bulletinType === b.type ? 'var(--primary-red)' : 'var(--border-color)'}`, borderRadius: '10px', padding: '20px', cursor: 'pointer', textAlign: 'center', transition: 'var(--transition)' }}>
-                      <p style={{ fontWeight: 'bold', fontSize: '1.1rem', margin: '0 0 4px' }}>{b.label}</p>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0, fontFamily: 'var(--font-telugu)' }}>{b.desc}</p>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '32px', boxShadow: 'var(--shadow-md)', textAlign: 'center' }}>
-                  <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: bulletinPlaying ? 'var(--primary-red)' : 'rgba(214,31,38,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', cursor: 'pointer', animation: bulletinPlaying ? 'pulse 0.8s infinite alternate' : 'none' }} onClick={() => {
-                    if (bulletinPlaying) { window.speechSynthesis.cancel(); setBulletinPlaying(false); return; }
-                    const text = morningBulletins.join(' ');
-                    setBulletinText(text);
-                    setBulletinPlaying(true);
-                    const utt = new SpeechSynthesisUtterance(text);
-                    utt.lang = 'te-IN';
-                    utt.rate = 0.85;
-                    utt.onend = () => setBulletinPlaying(false);
-                    window.speechSynthesis.cancel();
-                    window.speechSynthesis.speak(utt);
-                  }}>
-                    {bulletinPlaying ? <span style={{ fontSize: '2rem', color: 'white' }}>⏹</span> : <span style={{ fontSize: '2rem', color: 'var(--primary-red)' }}>▶</span>}
-                  </div>
-                  <h3 style={{ fontWeight: 'bold', marginBottom: '4px' }}>{bulletinPlaying ? '🔊 AI Telugu Voice Bulletin Playing...' : `▶ Play ${bulletinType === 'morning' ? 'Morning' : bulletinType === 'evening' ? 'Evening' : 'Election Flash'} Bulletin`}</h3>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '16px' }}>Powered by AI Telugu Speech Synthesis (Browser Native TTS)</p>
-                  {bulletinPlaying && <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', alignItems: 'center', height: '30px' }}>{[8,14,10,16,6,12,18,8,10,14].map((h,i) => <div key={i} style={{ width: '4px', height: `${h}px`, backgroundColor: 'var(--primary-red)', borderRadius: '2px', animation: `pulse ${0.3 + i*0.05}s infinite alternate` }}></div>)}</div>}
-                  <div style={{ marginTop: '20px', padding: '16px', backgroundColor: 'var(--bg-color)', borderRadius: '8px', textAlign: 'left', fontFamily: 'var(--font-telugu)', lineHeight: '1.8', fontSize: '0.9rem' }}>
-                    {morningBulletins.map((line, i) => <p key={i} style={{ margin: '4px 0' }}>{line}</p>)}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ─── PAGE: WHATSAPP GROWTH ENGINE ─── */}
-            {currentPage === 'whatsapp' && (
-              <div style={{ animation: 'fadeIn 0.4s' }}>
-                <div style={{ borderBottom: '3px solid var(--primary-red)', paddingBottom: '16px', marginBottom: '24px' }}>
-                  <h2 style={{ fontSize: '1.8rem', fontWeight: 900, fontFamily: 'var(--font-telugu)' }}>📲 ఆప్టాప్ WhatsApp గ్రోత్ ఇంజిన్</h2>
-                  <p style={{ color: 'var(--text-secondary)' }}>District channels — auto-share latest breaking news & election updates</p>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '32px' }}>
-                  {whatsappChannels.map((ch, i) => (
-                    <a key={i} href={ch.link} target="_blank" rel="noopener noreferrer" style={{ backgroundColor: ch.color, color: 'white', borderRadius: '12px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '8px', textDecoration: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', transition: 'var(--transition)', transform: 'translateY(0)' }}>
-                      <span style={{ fontSize: '1.8rem' }}>💬</span>
-                      <h3 style={{ fontWeight: 'bold', margin: 0, fontFamily: 'var(--font-telugu)' }}>{ch.district} వార్తలు</h3>
-                      <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.9 }}>{ch.members} subscribers</p>
-                      <span style={{ backgroundColor: 'rgba(255,255,255,0.2)', padding: '6px 14px', borderRadius: '20px', fontWeight: 'bold', fontSize: '0.85rem', display: 'inline-block', marginTop: '4px', textAlign: 'center' }}>Join Channel →</span>
-                    </a>
-                  ))}
-                </div>
-                <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px' }}>
-                  <h3 style={{ fontWeight: 'bold', marginBottom: '12px' }}>📤 Auto-Share Latest Headlines</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {articles.slice(0, 3).map((art, i) => (
-                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', border: '1px solid var(--border-color)', borderRadius: '8px', flexWrap: 'wrap', gap: '8px' }}>
-                        <div style={{ flex: 1, minWidth: '200px' }}>
-                          <p style={{ fontWeight: 'bold', fontFamily: 'var(--font-telugu)', margin: 0, fontSize: '0.85rem' }}>{art.title}</p>
-                          <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', margin: 0 }}>📍 {art.district}</p>
-                        </div>
-                        <a href={`https://wa.me/?text=${encodeURIComponent(`📰 ఆప్టాప్ న్యూస్ | ${art.title}\n\nచదవండి: https://aptop-news.vercel.app`)}`} target="_blank" rel="noopener noreferrer" style={{ backgroundColor: '#25D366', color: 'white', border: 'none', padding: '6px 14px', borderRadius: '6px', fontWeight: 'bold', fontSize: '0.78rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>💬 Share</a>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {currentPage === 'home' && (
-              <>
-                {/* Mobile UX: Hero Story Carousel */}
-                <div className="hero-carousel-container" id="breaking-news">
-                  {articles.slice(0, 3).map((art, idx) => (
-                    <div className="hero-carousel-slide" key={art.id}>
-                      <section className="hero-featured-story" style={{ marginBottom: 0 }}>
-                        <div className="hero-img-wrap" onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
-                          <img src={art.image} loading="lazy" alt="" />
-                          <div style={{ position: 'absolute', top: '16px', left: '16px' }} className="badge badge-red">
-                            <Flame size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                            {language === 'telugu' ? 'బ్రేకింగ్ వార్త' : 'BREAKING NEWS'}
-                          </div>
-                        </div>
-                        <div className="hero-text-wrap">
-                          <span className="category-badge">{language === 'telugu' ? art.categoryTe : art.category}</span>
-                          <h2 className="hero-title" onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>{language === 'telugu' ? art.title : art.titleEn}</h2>
-                          
-                          <div className="hero-meta" style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between', marginTop: '12px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <Calendar size={14} />
-                              <span>{art.date}</span>
-                            </div>
-                            <Bookmark size={18} style={{ color: 'var(--text-secondary)' }} onClick={(e) => {
-                              e.stopPropagation();
-                              if (!bookmarks.includes(art.id)) setBookmarks([...bookmarks, art.id]);
-                            }} />
-                          </div>
-                        </div>
-                      </section>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginBottom: '24px' }}>
-                  {[0,1,2].map(dot => (
-                    <div key={dot} style={{ width: dot === 0 ? '16px' : '6px', height: '6px', borderRadius: '3px', backgroundColor: dot === 0 ? 'var(--primary-red)' : 'var(--border-color)' }}></div>
-                  ))}
-                </div>
-
-                {/* Mobile UX: Latest Updates Live Feed */}
-                <h3 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px', padding: '0 16px' }}>
-                  <Radio size={20} style={{ color: 'var(--primary-red)' }} />
-                  {language === 'telugu' ? 'తాజా అప్డేట్స్' : 'Latest Updates'}
-                </h3>
-                <div className="live-updates-timeline">
-                  {articles.slice(3, 7).map((art, idx) => (
-                    <div className="timeline-item" key={art.id} onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
-                      <div className="timeline-time">
-                        {idx === 0 ? 'Just now' : idx === 1 ? '10 mins ago' : idx === 2 ? '30 mins ago' : '1 hour ago'}
-                      </div>
-                      <div className="timeline-headline" style={{ color: 'var(--text-primary)' }}>
-                        {language === 'telugu' ? art.title : art.titleEn}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Mobile UX: Trending Stories */}
-                <h3 style={{ fontSize: '1.25rem', padding: '0 16px', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                  <TrendingUp size={20} style={{ color: 'var(--primary-red)' }} />
-                  {language === 'telugu' ? 'ట్రెండింగ్ 🔥' : 'Trending 🔥'}
-                </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 16px', marginBottom: '32px' }}>
-                  {articles.slice(0, 5).sort((a,b) => b.id - a.id).map((art, idx) => (
-                    <div key={art.id} style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: 'var(--card-bg)', padding: '12px', borderRadius: '12px', border: '1px solid var(--border-color)', cursor: 'pointer' }} onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--border-color)', minWidth: '24px', textAlign: 'center' }}>{idx + 1}</div>
-                      <div style={{ flex: 1 }}>
-                        <h4 style={{ fontSize: '0.9rem', margin: '0 0 4px 0', fontFamily: 'var(--font-telugu)', color: 'var(--text-primary)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{language === 'telugu' ? art.title : art.titleEn}</h4>
-                        <div className="trending-views"><Eye size={12} /> {Math.floor(Math.random() * 50 + 10)}K Views • {language === 'telugu' ? art.categoryTe : art.category}</div>
-                      </div>
-                      <img src={art.image} loading="lazy" style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} alt="" />
-                    </div>
-                  ))}
-                </div>
-
-                {/* DOWNTOWN VERTICAL REELS SLIDER */}
-                <section id="reels" style={{ marginBottom: '32px' }}>
-                  <h3 style={{ fontSize: '1.25rem', color: 'var(--primary-red)', borderBottom: '2px solid var(--primary-red)', paddingBottom: '6px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}><Film size={20} /> {language === 'telugu' ? 'ఆప్టాప్ క్లిప్స్ & రీల్స్' : 'Aptop Media Reels'}</h3>
-                  <div style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '12px' }}>
-                    {mediaLibrary.filter(m => m.type === 'reels' || m.type === 'image').map(media => (
-                      <div key={media.id} style={{ minWidth: '160px', height: '220px', borderRadius: '12px', overflow: 'hidden', position: 'relative', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
-                        <img src={media.url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
-                        <div style={{ position: 'absolute', bottom: '0', left: '0', right: '0', background: 'linear-gradient(transparent, rgba(0,0,0,0.85))', padding: '12px 8px', color: 'white' }}>
-                          <span style={{ fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: '4px' }}><Play size={10} /> 3.2K views</span>
-                          <h4 style={{ fontSize: '0.75rem', marginTop: '4px', fontFamily: 'var(--font-telugu)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{media.caption}</h4>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                {/* ELECTION LIVE COUNTING CORNER */}
-                {livePoll && (
-                  <section className="election-dashboard">
-                    <div className="news-grid news-grid-2">
-                      {/* Election column */}
-                      <div>
-                        <div style={{ display: 'flex', justifyItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid var(--border-color)', paddingBottom: '8px', marginBottom: '12px' }}>
-                          <h4 style={{ fontSize: '1rem', color: 'var(--primary-red)', display: 'flex', alignItems: 'center', gap: '6px' }}><Landmark size={18} /> {language === 'telugu' ? 'లైవ్ ఎన్నికల ఫలితాలు 2026' : 'Live Assembly Lead Counts'}</h4>
-                          <div style={{ display: 'flex', gap: '4px' }}>
-                            <button onClick={() => setElectionState('ap')} style={{ padding: '2px 8px', fontSize: '0.7rem', borderRadius: '4px', border: '1px solid var(--border-color)' }}>AP</button>
-                            <button onClick={() => setElectionState('ts')} style={{ padding: '2px 8px', fontSize: '0.7rem', borderRadius: '4px', border: '1px solid var(--border-color)' }}>TS</button>
-                          </div>
-                        </div>
-
-                        {electionState === 'ap' ? (
-                          <>
-                            <div className="party-row">
-                              <span className="party-name">TDP+</span>
-                              <div className="party-bar-container"><div className="party-bar" style={{ width: '77%', backgroundColor: '#FFD54A' }}></div></div>
-                              <span className="party-seats">135 (Won/Lead)</span>
-                            </div>
-                            <div className="party-row">
-                              <span className="party-name">YSRCP</span>
-                              <div className="party-bar-container"><div className="party-bar" style={{ width: '22%', backgroundColor: '#1877F2' }}></div></div>
-                              <span className="party-seats">38 (Won/Lead)</span>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div className="party-row">
-                              <span className="party-name">INC</span>
-                              <div className="party-bar-container"><div className="party-bar" style={{ width: '58%', backgroundColor: '#25D366' }}></div></div>
-                              <span className="party-seats">70 (Won/Lead)</span>
-                            </div>
-                            <div className="party-row">
-                              <span className="party-name">BRS</span>
-                              <div className="party-bar-container"><div className="party-bar" style={{ width: '35%', backgroundColor: '#E0115F' }}></div></div>
-                              <span className="party-seats">42 (Won/Lead)</span>
-                            </div>
-                          </>
-                        )}
-                      </div>
-
-                      {/* Interactive opinion poll */}
-                      <div style={{ backgroundColor: 'var(--card-bg)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                        <span style={{ fontSize: '0.65rem', backgroundColor: 'var(--primary-red)', color: 'white', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>OPINION POLL</span>
-                        <h4 style={{ margin: '8px 0', fontFamily: 'var(--font-telugu)', fontSize: '0.95rem' }}>{livePoll.question}</h4>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          {livePoll.options.map(opt => (
-                            <button 
-                              key={opt.id}
-                              onClick={() => handlePollVote(opt.id)}
-                              disabled={hasVoted}
-                              style={{ width: '100%', textAlign: 'left', padding: '8px 12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                            >
-                              <span style={{ fontFamily: 'var(--font-telugu)' }}>{opt.text}</span>
-                              <span style={{ fontWeight: 'bold', color: 'var(--primary-red)' }}>{opt.votes} votes</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-                )}
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '32px' }} className="news-grid-3">
-                  
-                  {/* Left articles feed */}
-                  <div style={{ gridColumn: 'span 2' }}>
-                    
-                    {/* ADVERTISER LEADS BIND FORM */}
-                    <div style={{ backgroundColor: 'rgba(214, 31, 38, 0.02)', border: '1px dashed var(--primary-red)', padding: '20px', borderRadius: '8px', marginBottom: '32px' }}>
-                      <h4 style={{ color: 'var(--primary-red)', fontSize: '1.05rem', fontWeight: 'bold', marginBottom: '4px' }}>📢 Advertise with Aptop News</h4>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>Onboard your hospital, college, coaching, or real estate campaign today! Submissions automatically spawn active advertiser grids.</p>
-                      
-                      {onboardSuccess && (
-                        <div style={{ backgroundColor: '#D1FAE5', color: '#065F46', padding: '12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '16px' }}>
-                          {onboardSuccess}
-                        </div>
-                      )}
-
-                      <form onSubmit={handleOnboardAdvertiser} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                        <input type="text" placeholder="Company/Institution Name" value={advCompany} onChange={(e) => setAdvCompany(e.target.value)} required style={{ padding: '8px', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.8rem' }} />
-                        <input type="text" placeholder="Contact Mobile/Email" value={advContact} onChange={(e) => setAdvContact(e.target.value)} required style={{ padding: '8px', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.8rem' }} />
-                        <select value={advType} onChange={(e) => setAdvType(e.target.value)} style={{ padding: '8px', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.8rem' }}>
-                          <option value="Homepage inline">Homepage inline Banner ($300)</option>
-                          <option value="Header banner">Header Premium Banner ($500)</option>
-                          <option value="Sidebar sticky">Sticky Sidebar Spot ($1000)</option>
-                        </select>
-                        <button type="submit" style={{ backgroundColor: 'var(--primary-red)', color: 'white', border: 'none', borderRadius: '4px', padding: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.8rem' }}>Onboard Campaign Bids</button>
-                      </form>
-                    </div>
-
-                    {/* DYNAMIC REFERENCE STYLE CATEGORY SECTIONS */}
-                    {Array.from(new Set(filteredArticles.map(a => a.category))).map(cat => {
-                      const catArts = filteredArticles.filter(a => a.category === cat);
-                      if (catArts.length === 0) return null;
-                      return (
-                        <section id={cat.toLowerCase().replace(/\s+/g, '-')} key={cat} style={{ marginBottom: '16px' }}>
-                          <div className="mobile-section-header">
-                            <h3>{language === 'telugu' ? catArts[0].categoryTe : cat}</h3>
-                            <span className="red-slashes">//</span>
-                          </div>
-                          {['Sports', 'Business', 'Cinema', 'Technology', 'క్రీడలు', 'వ్యాపారం', 'సినిమా', 'సాంకేతికం', 'Lifestyle'].includes(cat) || (catArts[0] && ['Sports', 'Business', 'Cinema', 'Technology'].includes(catArts[0].category)) ? (
-                            <div className="swipeable-cards-row">
-                              {catArts.map(art => (
-                                <article className="swipeable-card" key={art.id} onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
-                                  <img src={art.image} loading="lazy" style={{ width: '100%', height: '140px', objectFit: 'cover' }} alt="" />
-                                  <div style={{ padding: '12px' }}>
-                                    <span className="card-category" style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--primary-red)', textTransform: 'uppercase' }}>{language === 'telugu' ? art.categoryTe : art.category}</span>
-                                    <h4 className="card-title" style={{ fontSize: '0.9rem', margin: '4px 0 0 0', fontFamily: 'var(--font-telugu)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                                      {language === 'telugu' ? art.title : art.titleEn}
-                                    </h4>
-                                  </div>
-                                </article>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="mobile-reference-grid">
-                              {catArts.map(art => (
-                                <article className="mobile-list-card" key={art.id}>
-                                  <div className="card-img-container" onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
-                                    <img src={art.image} loading="lazy" className="card-img" alt="" />
-                                  </div>
-                                  <div className="card-content">
-                                    <span className="card-category">{language === 'telugu' ? art.categoryTe : art.category}</span>
-                                    <h4 className="card-title" onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
-                                      {language === 'telugu' ? art.title : art.titleEn}
-                                    </h4>
-                                  </div>
-                                  <Bookmark className="bookmark-icon" size={16} onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (!bookmarks.includes(art.id)) setBookmarks([...bookmarks, art.id]);
-                                  }} />
-                                </article>
-                              ))}
-                            </div>
-                          )}
-                        </section>
-                      );
-                    })}
-
-                    {/* PUBLIC REPORTER BUREAU PROFILE MATRIX */}
-                    <div style={{ marginTop: '48px' }}>
-                      <h3 style={{ fontSize: '1.25rem', borderBottom: '2px solid var(--primary-red)', paddingBottom: '6px', marginBottom: '16px' }}>✍️ Aptop Newsroom Bureau Journalists</h3>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-                        {reporters.map(rep => (
-                          <div key={rep.id} style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '16px', display: 'flex', gap: '12px', cursor: 'pointer' }} onClick={() => setSelectedReporter(rep)}>
-                            <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'var(--primary-red)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>{rep.nameEn.slice(0, 2)}</div>
-                            <div>
-                              <h4 style={{ fontSize: '0.9rem', fontWeight: 'bold', fontFamily: 'var(--font-telugu)' }}>{rep.name}</h4>
-                              <span style={{ fontSize: '0.7rem', color: 'var(--primary-red)', fontWeight: 'bold' }}>{rep.district} Bureau</span>
-                              <p style={{ fontSize: '0.75rem', color: '#6B7280', marginTop: '4px' }}>Published: {rep.stories} articles</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                  </div>
-
-                  {/* Right Side Timelines */}
-                  <div>
-                    {/* Live telecast schedule */}
-                    <section id="live-tv" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px', marginBottom: '32px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px', marginBottom: '16px' }}>
-                        <Radio size={20} className="live-dot" style={{ color: 'var(--primary-red)' }} />
-                        <h3 style={{ fontSize: '1.15rem' }}>{language === 'telugu' ? 'ప్రత్యక్ష టెలికాస్ట్ స్టూడియో' : 'Aptop Live TV Center'}</h3>
-                      </div>
-                      
-                      {liveTelecasts.filter(s => s.active).map(stream => (
-                        <div key={stream.id}>
-                          <iframe 
-                            width="100%" 
-                            height="180" 
-                            src={stream.embedUrl} 
-                            title="Aptop News Live Stream" 
-                            frameBorder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                            allowFullScreen
-                            style={{ borderRadius: '6px' }}
-                          ></iframe>
-                          <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ backgroundColor: 'var(--primary-red)', color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>LIVE 🔴</span>
-                            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Viewers: {stream.viewers}</span>
-                          </div>
-                          <h4 style={{ fontSize: '0.85rem', marginTop: '6px', fontFamily: 'var(--font-telugu)', fontWeight: 'bold' }}>{language === 'telugu' ? stream.titleTe : stream.titleEn}</h4>
-                        </div>
-                      ))}
-                    </section>
-
-                    {/* District Filter News */}
-                    <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px', marginBottom: '32px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--border-color)', paddingBottom: '10px', marginBottom: '16px' }}>
-                        <h3 style={{ fontSize: '1.15rem' }}>{language === 'telugu' ? 'జిల్లా బ్యూరో' : 'District News'}</h3>
-                        <select 
-                          value={districtFilter}
-                          onChange={(e) => setDistrictFilter(e.target.value)}
-                          style={{ padding: '4px', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.8rem', fontFamily: 'var(--font-telugu)' }}
-                        >
-                          <option value="Visakhapatnam">విశాఖ</option>
-                          <option value="Tirupati">తిరుపతి</option>
-                          <option value="Vijayawada">విజయవాడ</option>
-                        </select>
-                      </div>
-                      <div style={{ fontSize: '0.85rem' }}>
-                        <span style={{ color: 'var(--primary-red)', fontWeight: 'bold' }}>📍 {getDistrictAddress(districtFilter).name}</span>
-                        <h4 style={{ marginTop: '6px', fontFamily: 'var(--font-telugu)' }}>
-                          {articles.filter(a => a.district === districtFilter).length > 0 
-                            ? (language === 'telugu' ? articles.filter(a => a.district === districtFilter)[0].title : articles.filter(a => a.district === districtFilter)[0].titleEn)
-                            : 'తాజా లోకల్ వార్తలు త్వరలోనే ప్రచురించబడును.'}
-                        </h4>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </>
-            )}
-
-            {currentPage === 'article' && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '32px' }} className="news-grid-3">
-                <div style={{ gridColumn: 'span 2' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <button onClick={() => setCurrentPage('home')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'none', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}>
-                      <ArrowLeft size={16} /> <span>Back to Home</span>
-                    </button>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', backgroundColor: '#D1FAE5', color: '#065F46', padding: '6px 12px', borderRadius: '20px', fontWeight: 'bold' }}>
-                      <Globe size={12} />
-                      <span>Discover Indexing Schemas Activated</span>
-                    </div>
-                  </div>
-
-                  <article style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px' }}>
-                    <span className="category-badge">{language === 'telugu' ? selectedArticle.categoryTe : selectedArticle.category}</span>
-                    <h1 style={{ fontSize: '2rem', margin: '16px 0', textAlign: 'left', fontFamily: 'var(--font-telugu)' }}>
-                      {language === 'telugu' ? selectedArticle.title : selectedArticle.titleEn}
-                    </h1>
-                    <img src={selectedArticle.image} style={{ width: '100%', borderRadius: '8px', marginBottom: '24px' }} alt="" />
-                    <p style={{ fontSize: '1.05rem', lineHeight: '1.8', fontFamily: 'var(--font-telugu)', textAlign: 'left', marginBottom: '20px' }}>
-                      {selectedArticle.desc}
-                    </p>
-
-                    {/* DYNAMIC PUBLIC EMOJI REACTION ZONE */}
-                    <div style={{ display: 'flex', gap: '8px', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '16px 0', margin: '24px 0', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>React to this article:</span>
-                      <button onClick={() => handleReactToArticle('like')} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '6px 12px', borderRadius: '20px', border: '1px solid var(--border-color)', cursor: 'pointer', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}><ThumbsUp size={14} /> <span>Like ({selectedArticle.reactions ? selectedArticle.reactions.like : 0})</span></button>
-                      <button onClick={() => handleReactToArticle('love')} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '6px 12px', borderRadius: '20px', border: '1px solid var(--border-color)', cursor: 'pointer', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}><Smile size={14} style={{ color: 'red' }} /> <span>Love ({selectedArticle.reactions ? selectedArticle.reactions.love : 0})</span></button>
-                    </div>
-
-                    {/* WhatsApp share */}
-                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', backgroundColor: 'rgba(37, 211, 102, 0.05)', border: '1px solid rgba(37, 211, 102, 0.2)', padding: '16px', borderRadius: '8px', marginBottom: '32px' }}>
-                      <div style={{ flexGrow: 1 }}>
-                        <h4 style={{ color: '#075E54', fontSize: '0.95rem', fontWeight: 'bold' }}>ఆప్టాప్ వాట్సాప్ ఛానెల్ సబ్‌స్క్రైబ్ చేయండి!</h4>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ప్రతి రోజూ అత్యంత వేగవంతమైన తెలుగు బ్రేకింగ్ వార్తలు నేరుగా మీ మొబైల్ లో పొందండి.</p>
-                      </div>
-                      <a 
-                        href={`https://api.whatsapp.com/send?text=Read this urgent Aptop News story: ${selectedArticle.titleEn} - http://localhost:5173/`}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{ backgroundColor: '#25D366', color: 'white', padding: '10px 18px', borderRadius: '25px', display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.85rem' }}
-                      >
-                        <Share2 size={16} />
-                        <span>Share on WhatsApp</span>
-                      </a>
-                    </div>
-
-                    {/* Comments */}
-                    <div style={{ marginTop: '48px', borderTop: '2px solid var(--border-color)', paddingTop: '32px' }}>
-                      <h3 style={{ fontSize: '1.25rem', marginBottom: '20px' }}>Reader Engagement Comments ({selectedArticle.comments ? selectedArticle.comments.length : 0})</h3>
-                      <form onSubmit={(e) => handleAddComment(e, selectedArticle.id)} style={{ marginBottom: '24px' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
-                          <input type="text" placeholder="Your Name" value={newCommentName} onChange={(e) => setNewCommentName(e.target.value)} required style={{ padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }} />
-                        </div>
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                          <textarea placeholder="Type your comment here..." value={newCommentText} onChange={(e) => setNewCommentText(e.target.value)} required rows="2" style={{ flexGrow: 1, padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)' }}></textarea>
-                          <button type="submit" style={{ backgroundColor: 'var(--primary-red)', color: 'white', border: 'none', padding: '0 20px', borderRadius: '6px', cursor: 'pointer' }}><Send size={16} /></button>
-                        </div>
-                      </form>
-
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        {selectedArticle.comments && selectedArticle.comments.map((comm, idx) => (
-                          <div key={idx} style={{ backgroundColor: 'rgba(0,0,0,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', textAlign: 'left' }}>
-                            <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>{comm.name}</span>
-                            <p style={{ fontSize: '0.9rem', fontFamily: 'var(--font-telugu)', marginTop: '4px' }}>{comm.text}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                  </article>
-                </div>
-              </div>
-            )}
-
-            {/* BOOKMARKS PAGE */}
-            {currentPage === 'bookmarks' && (
-              <div style={{ minHeight: '60vh', marginTop: '20px' }}>
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '24px', fontFamily: 'var(--font-telugu)' }}>
-                  <Bookmark size={24} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px' }} />
-                  {language === 'telugu' ? 'సేవ్ చేసిన వార్తలు' : 'Saved Stories'}
-                </h2>
-                <div className="mobile-reference-grid">
-                  {articles.filter(a => bookmarks.includes(a.id)).map(art => (
-                    <article className="mobile-list-card" key={art.id}>
-                      <div className="card-img-container" onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
-                        <img src={art.image} loading="lazy" className="card-img" alt="" />
-                      </div>
-                      <div className="card-content">
-                        <span className="card-category">{language === 'telugu' ? art.categoryTe : art.category}</span>
-                        <h4 className="card-title" onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
-                          {language === 'telugu' ? art.title : art.titleEn}
-                        </h4>
-                      </div>
-                      <Bookmark className="bookmark-icon" size={16} style={{ color: 'var(--primary-red)', fill: 'var(--primary-red)' }} onClick={(e) => {
-                        e.stopPropagation();
-                        setBookmarks(bookmarks.filter(b => b !== art.id));
-                      }} />
-                    </article>
-                  ))}
-                  {articles.filter(a => bookmarks.includes(a.id)).length === 0 && (
-                    <p style={{ color: 'var(--text-secondary)' }}>No saved stories found.</p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Floating Live TV Button */}
-            {currentPage !== 'live' && (
-              <div className="floating-live-btn mobile-only" onClick={() => setCurrentPage('live')}>
-                <Radio size={16} /> LIVE
-              </div>
-            )}
-
-          </main>
-
-          {/* Polished Footer */}
-          <footer className="polished-footer">
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0 0 16px 0' }}>Aptop News</h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '400px', margin: '0 auto' }}>
-              {language === 'telugu' ? 'ఆంధ్రప్రదేశ్ మరియు తెలంగాణ ప్రజలకు అత్యంత వేగవంతమైన వార్తా డిజిటల్ ఛానెల్.' : 'Fast • Trusted • Telugu First. Providing authentic and unbiased media services.'}
-            </p>
-            <div className="footer-links">
-              <span onClick={() => setCurrentPage('home')} style={{ cursor: 'pointer' }}>About Us</span>
-              <span onClick={() => setCurrentPage('home')} style={{ cursor: 'pointer' }}>Contact</span>
-              <span onClick={() => { setCurrentPage('advertise'); setShowAdvertiserDashboard(true); }} style={{ cursor: 'pointer' }}>Advertise</span>
-              <span onClick={() => setCurrentPage('home')} style={{ cursor: 'pointer' }}>Privacy Policy</span>
-              <span onClick={() => setCurrentPage('home')} style={{ cursor: 'pointer' }}>Terms</span>
-            </div>
-            <div className="footer-socials">
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'var(--primary-red)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer' }}><Globe size={18} /></div>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer' }}><Share2 size={18} /></div>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#1877F2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer' }}><ThumbsUp size={18} /></div>
-            </div>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '32px' }}>© 2026 Aptop News Media Network. All rights reserved.</p>
-          </footer>
-
+{/* TOP BAR */}
+<div className="top-bar">
+  <div className="top-bar-inner">
+    <div className="top-bar-date" id="topDate"></div>
+    <div className="top-ticker">
+      <div className="top-ticker-inner">
+        🔴 TDP wins major victory in local body elections &nbsp;|&nbsp; 🎬 Allu Arjun's next film title revealed &nbsp;|&nbsp; 💰 Hyderabad property rates surge 18% this year &nbsp;|&nbsp; 🏏 India beat Australia by 6 wickets in 2nd ODI &nbsp;|&nbsp; 🌧️ IMD predicts heavy rains in Andhra, Telangana this week &nbsp;|&nbsp; 📱 Jio launches new plan at Rs 99 for 30 days
+      </div>
+    </div>
+    <div className="top-socials">
+      <a href="#">FB</a><a href="#">TW</a><a href="#">YT</a>
+    </div>
+  </div>
+</div>
+
+{/* HEADER */}
+<header>
+  <div className="header-inner">
+        <div className="logo-area" style={{ cursor: 'pointer' }} onClick={() => setCurrentPage('home')}>
+      <img src="/logo.png" alt="TeluguFirst Logo" style={{ maxHeight: '80px', width: 'auto' }} />
+    </div>
+    <div className="header-ad">Advertisement 728×90</div>
+    <div className="header-right">
+      <div className="header-search">
+        <input type="text" placeholder="Search news..." />
+        <button>🔍</button>
+      </div>
+      <a href="#" className="epaper-btn">📰 ePaper</a>
+    </div>
+  </div>
+</header>
+
+{/* NAV */}
+<nav>
+  <div className="nav-inner">
+    <div className="nav-item"><a href="#" className="nav-link active" onClick={(e) => { e.preventDefault(); setCurrentPage('home'); }}>Home</a></div>
+    <div className="nav-item">
+      <a href="#" className="nav-link" onClick={(e) => e.preventDefault()}>Latest ▾</a>
+      <div className="dropdown">
+        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('home'); }}>Breaking News</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('home'); }}>Top Stories</a>
+      </div>
+    </div>
+    <div className="nav-item">
+      <a href="#" className="nav-link" onClick={(e) => e.preventDefault()}>Politics ▾</a>
+      <div className="dropdown">
+        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('home'); }}>Andhra Pradesh</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('home'); }}>Telangana</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('elections'); }}>🗳️ Elections 2026</a>
+      </div>
+    </div>
+    <div className="nav-item">
+      <a href="#" className="nav-link" onClick={(e) => e.preventDefault()}>Movies ▾</a>
+      <div className="dropdown">
+        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('home'); }}>Tollywood</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('home'); }}>Box Office</a>
+      </div>
+    </div>
+    <div className="nav-item">
+      <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); setCurrentPage('business'); }}>Business ▾</a>
+      <div className="dropdown">
+        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('business'); }}>Directory</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('business'); }}>Markets</a>
+      </div>
+    </div>
+    <div className="nav-item">
+      <a href="#" className="nav-link" onClick={(e) => e.preventDefault()}>Specials ▾</a>
+      <div className="dropdown">
+        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('spiritual'); }}>🕉️ Spiritual Live</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('citizen_report'); }}>📸 Citizen Report</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('voice_bulletin'); }}>🎙️ AI Voice News</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('whatsapp'); }}>📲 WhatsApp Groups</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('search_archive'); }}>🔎 Search Archive</a>
+      </div>
+    </div>
+    <div className="nav-item"><a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); setCurrentPage('home'); }}>Sports</a></div>
+    <div className="nav-item"><a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); setCurrentPage('home'); }}>Tech</a></div>
+    <div className="nav-item" ><a href="#" className="nav-link nav-telugu" onClick={(e) => { e.preventDefault(); setLanguage(language === 'telugu' ? 'english' : 'telugu'); }}>{language === 'telugu' ? 'ENGLISH' : 'తెలుగు'}</a></div>
+  </div>
+</nav>
+
+{/* BREAKING NEWS */}
+<div className="breaking">
+  <div className="breaking-inner">
+    <span className="breaking-label">Breaking</span>
+    <div className="breaking-scroll">
+      <div className="breaking-text">{tickerItems.join(' | ')}</div>
+    </div>
+  </div>
+</div>
+
+{/* MAIN CONTENT */}
+<div className="container">
+  <div className="main-layout">
+
+    {/* LEFT CONTENT */}
+    <div className="content-area">
+
+      {/* BIG STORY / HERO */}
+      <div >
+        <div className="section-header">
+          <div className="section-title">Big Story</div>
+          <a href="#" className="view-all">View All</a>
         </div>
+      </div>
+
+      <div className="hero-grid">
+        {articles.length > 0 && (
+          <div className="hero-main" style={{ cursor: 'pointer', overflow: 'hidden' }} onClick={() => { setSelectedArticleId(articles[0].id); setCurrentPage('article'); }}>
+            <img src={articles[0].image} alt={articles[0].title} style={{width:'100%', height:'100%', objectFit:'cover', position:'absolute', top:0, left:0}} />
+            <div className="hero-overlay" style={{ zIndex: 10 }}>
+              <span className="hero-cat">{language === 'telugu' ? articles[0].categoryTe : articles[0].category}</span>
+              <div className="hero-title">{language === 'telugu' ? articles[0].title : articles[0].titleEn}</div>
+              <div className="hero-meta">{articles[0].date}</div>
+            </div>
+          </div>
+        )}
+        {articles.length > 1 && (
+          <div className="hero-side" style={{ cursor: 'pointer', overflow: 'hidden' }} onClick={() => { setSelectedArticleId(articles[1].id); setCurrentPage('article'); }}>
+            <img src={articles[1].image} alt={articles[1].title} style={{width:'100%', height:'100%', objectFit:'cover', position:'absolute', top:0, left:0}} />
+            <div className="hero-overlay" style={{ zIndex: 10 }}>
+              <span className="hero-cat">{language === 'telugu' ? articles[1].categoryTe : articles[1].category}</span>
+              <div className="hero-title">{language === 'telugu' ? articles[1].title : articles[1].titleEn}</div>
+              <div className="hero-meta">{articles[1].date}</div>
+            </div>
+          </div>
+        )}
+        {articles.length > 2 && (
+          <div className="hero-side" style={{ cursor: 'pointer', overflow: 'hidden' }} onClick={() => { setSelectedArticleId(articles[2].id); setCurrentPage('article'); }}>
+            <img src={articles[2].image} alt={articles[2].title} style={{width:'100%', height:'100%', objectFit:'cover', position:'absolute', top:0, left:0}} />
+            <div className="hero-overlay" style={{ zIndex: 10 }}>
+              <span className="hero-cat">{language === 'telugu' ? articles[2].categoryTe : articles[2].category}</span>
+              <div className="hero-title">{language === 'telugu' ? articles[2].title : articles[2].titleEn}</div>
+              <div className="hero-meta">{articles[2].date}</div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* AD */}
+      <div className="ad-banner">Advertisement · 728×90</div>
+
+      {/* LATEST NEWS GRID */}
+      <div className="section-header">
+        <div className="section-title">Latest News</div>
+        <a href="#" className="view-all">View All</a>
+      </div>
+            <div className="news-grid">
+        {articles.slice(3, 6).map((art) => (
+          <div className="news-card" key={art.id} style={{ cursor: 'pointer' }} onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
+            <div className="news-card-img" style={{ position: 'relative', height: '180px' }}>
+              <img src={art.image} alt={art.title} style={{width:'100%', height:'100%', objectFit:'cover', position:'absolute', top:0, left:0}} />
+            </div>
+            <div className="news-card-body">
+              <div className="news-cat">{language === 'telugu' ? art.categoryTe : art.category}</div>
+              <div className="news-title">{language === 'telugu' ? art.title : art.titleEn}</div>
+              <div className="news-excerpt">{language === 'telugu' ? art.desc?.substring(0, 100) + '...' : art.descEn?.substring(0, 100) + '...'}</div>
+              <div className="news-meta"><span>{art.date}</span></div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* POLITICS SECTION */}
+      <div className="section-header">
+        <div className="section-title">Politics</div>
+        <a href="#" className="view-all">View All</a>
+      </div>
+            <div className="politics-grid">
+        {articles.filter(a => a.category === 'Politics').slice(0, 4).map((art) => (
+          <div className="politics-card" key={art.id} style={{ cursor: 'pointer' }} onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
+            <div className="politics-thumb" style={{ position: 'relative', width: '80px', height: '80px', flexShrink: 0 }}>
+              <img src={art.image} alt={art.title} style={{width:'100%', height:'100%', objectFit:'cover', position:'absolute', top:0, left:0, borderRadius: '4px'}} />
+            </div>
+            <div className="politics-body">
+              <div className="news-cat">{language === 'telugu' ? art.categoryTe : art.category}</div>
+              <div className="politics-title">{language === 'telugu' ? art.title : art.titleEn}</div>
+              <div className="politics-meta">{art.date}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* MOVIES SECTION */}
+      <div className="section-header">
+        <div className="section-title">Movies</div>
+        <a href="#" className="view-all">View All</a>
+      </div>
+            <div className="movies-scroll">
+        {articles.filter(a => a.category === 'Cinema').slice(0, 4).map((art) => (
+          <div className="movie-card" key={art.id} style={{ cursor: 'pointer' }} onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
+            <div className="movie-poster" style={{ position: 'relative', height: '240px' }}>
+              <img src={art.image} alt={art.title} style={{width:'100%', height:'100%', objectFit:'cover', position:'absolute', top:0, left:0}} />
+              <div className="movie-rating" style={{ zIndex: 10 }}>★ {(Math.random() * 2 + 3).toFixed(1)}</div>
+            </div>
+            <div className="movie-body">
+              <div className="movie-title">{language === 'telugu' ? art.title : art.titleEn}</div>
+              <div className="movie-info">{language === 'telugu' ? art.categoryTe : art.category} · {art.date}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* MORE NEWS LIST */}
+      <div className="section-header">
+        <div className="section-title">More Stories</div>
+        <a href="#" className="view-all">View All</a>
+      </div>
+            <div className="news-list">
+        {articles.slice(6, 10).map((art) => (
+          <div className="list-item" key={art.id} style={{ cursor: 'pointer' }} onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
+            <div className="list-thumb" style={{ position: 'relative', width: '120px', height: '80px', flexShrink: 0 }}>
+              <img src={art.image} alt={art.title} style={{width:'100%', height:'100%', objectFit:'cover', position:'absolute', top:0, left:0, borderRadius: '4px'}} />
+            </div>
+            <div className="list-body">
+              <div className="news-cat">{language === 'telugu' ? art.categoryTe : art.category}</div>
+              <div className="list-title">{language === 'telugu' ? art.title : art.titleEn}</div>
+              <div className="list-meta">{art.date}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* TAGS */}
+      <div className="tags-section">
+        <div className="section-header">
+          <div className="section-title">Trending Tags</div>
+        </div>
+        <div className="tags-wrap">
+          <span className="tag-pill">#TDP</span>
+          <span className="tag-pill">#Amaravati</span>
+          <span className="tag-pill">#Tollywood</span>
+          <span className="tag-pill">#AlluArjun</span>
+          <span className="tag-pill">#Prabhas</span>
+          <span className="tag-pill">#Hyderabad</span>
+          <span className="tag-pill">#AndhraPradesh</span>
+          <span className="tag-pill">#Telangana</span>
+          <span className="tag-pill">#RRR2</span>
+          <span className="tag-pill">#ChandrababuNaidu</span>
+          <span className="tag-pill">#IPL</span>
+          <span className="tag-pill">#Cricket</span>
+          <span className="tag-pill">#India</span>
+          <span className="tag-pill">#Movies</span>
+        </div>
+      </div>
+
+    </div>{/* /content-area */}
+
+    {/* SIDEBAR */}
+    <div className="sidebar">
+
+      {/* AD */}
+      <div >
+        Advertisement<br />300×250
+      </div>
+
+      {/* TRENDING */}
+            <div className="sidebar-widget">
+        <div className="widget-header">🔥 Trending Now</div>
+        <div className="widget-body">
+          {articles.slice(0, 6).sort((a,b) => b.id - a.id).map((art, idx) => (
+            <div className="trending-item" key={art.id} style={{ cursor: 'pointer' }} onClick={() => { setSelectedArticleId(art.id); setCurrentPage('article'); }}>
+              <div className="trend-num">0{idx + 1}</div>
+              <div className="trend-title">{language === 'telugu' ? art.title : art.titleEn}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* POLL */}
+      <div className="sidebar-widget">
+        <div className="widget-header">📊 Today's Poll</div>
+        <div className="widget-body">
+          <div className="poll-widget">
+            <div className="poll-question">Who is performing better as Chief Minister?</div>
+            <div className="poll-option">
+              <div className="poll-option-label"><span>Chandrababu Naidu (AP)</span><span>62%</span></div>
+              <div className="poll-bar-bg"><div className="poll-bar" ></div></div>
+            </div>
+            <div className="poll-option">
+              <div className="poll-option-label"><span>Revanth Reddy (TS)</span><span>38%</span></div>
+              <div className="poll-bar-bg"><div className="poll-bar" ></div></div>
+            </div>
+            <button className="poll-vote-btn" onClick="alert('Vote recorded! Thank you.')">Vote Now</button>
+          </div>
+        </div>
+      </div>
+
+      {/* AD */}
+      <div >
+        Advertisement<br />300×250
+      </div>
+
+      {/* GOSSIP */}
+      <div className="sidebar-widget">
+        <div className="widget-header">🌟 Gossip</div>
+        <div className="widget-body">
+          <div className="trending-item">
+            <div className="trend-num">—</div>
+            <a href="#"><div className="trend-title">Which top heroine is dating a famous cricketer? Industry's worst-kept secret</div></a>
+          </div>
+          <div className="trending-item">
+            <div className="trend-num">—</div>
+            <a href="#"><div className="trend-title">Big hero to quit Tollywood after next film? Sources say talks underway</div></a>
+          </div>
+          <div className="trending-item">
+            <div className="trend-num">—</div>
+            <a href="#"><div className="trend-title">Two top production houses feud over OTT rights; legal notices exchanged</div></a>
+          </div>
+        </div>
+      </div>
+
+      {/* WEATHER */}
+      <div className="sidebar-widget">
+        <div className="widget-header">🌦️ Weather</div>
+        <div className="widget-body" >
+          <div >⛈️</div>
+          <div >32°C</div>
+          <div >Hyderabad, Telangana</div>
+          <div >Heavy Rain Warning</div>
+          <div >
+            <span>H: 35°</span><span>L: 27°</span><span>Rain: 80%</span>
+          </div>
+        </div>
+      </div>
+
+    </div>{/* /sidebar */}
+  </div>
+</div>
+
+{/* FOOTER */}
+<footer>
+  <div className="container">
+    <div className="footer-grid">
+      <div>
+        <div className="footer-logo">Aptop<span>News</span></div>
+        <div className="footer-desc">Aptop News is Andhra Pradesh and Telangana's most trusted news source, delivering round-the-clock coverage of politics, movies, business, sports and more.</div>
+        <div className="footer-social">
+          <a href="#">Facebook</a>
+          <a href="#">Twitter</a>
+          <a href="#">YouTube</a>
+          <a href="#">Instagram</a>
+        </div>
+      </div>
+      <div>
+        <div className="footer-col-title">Categories</div>
+        <ul className="footer-links">
+          <li><a href="#">Politics</a></li>
+          <li><a href="#">Movies</a></li>
+          <li><a href="#">Business</a></li>
+          <li><a href="#">Sports</a></li>
+          <li><a href="#">Technology</a></li>
+          <li><a href="#">Health</a></li>
+        </ul>
+      </div>
+      <div>
+        <div className="footer-col-title">Regions</div>
+        <ul className="footer-links">
+          <li><a href="#">Andhra Pradesh</a></li>
+          <li><a href="#">Telangana</a></li>
+          <li><a href="#">Hyderabad</a></li>
+          <li><a href="#">Vijayawada</a></li>
+          <li><a href="#">Visakhapatnam</a></li>
+          <li><a href="#">Warangal</a></li>
+        </ul>
+      </div>
+      <div>
+        <div className="footer-col-title">About</div>
+        <ul className="footer-links">
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Advertise</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Sitemap</a></li>
+        </ul>
+      </div>
+    </div>
+    <div className="footer-bottom">
+      <span>© 2026 Aptop News. All Rights Reserved.</span>
+      <span>ఆప్టాప్ న్యూస్ వెబ్సైట్</span>
+    </div>
+  </div>
+</footer>
+</div>
           </>
         } />
 

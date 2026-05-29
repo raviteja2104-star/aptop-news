@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aptop News — No.1 Telugu News Website</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600;700&family=Tiro+Telugu&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #007A74; /* Aptop News Teal */
+  --red-dark: #005f5a;
+  --red-light: #00968f;
+  --gold: #F27A00; /* Aptop News Sun Orange */
+  --black: #022B3A; /* Aptop Navy */
+  --dark: #1a1a1a;
+  --gray: #444;
+  --mid: #777;
+  --light: #f4f4f4;
+  --white: #fff;
+  --border: #ddd;
+  --bg: #f8f6f3;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Source Sans 3', sans-serif;
+  background: var(--bg);
+  color: var(--dark);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+a { text-decoration: none; color: inherit; }
+img { max-width: 100%; display: block; }
+
+/* ── TOP BAR ── */
+.top-bar {
+  background: var(--black);
+  color: #ccc;
+  font-size: 12px;
+  padding: 6px 0;
+  border-bottom: 2px solid var(--red);
+}
+.top-bar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.top-bar-date { color: #888; }
+.top-ticker {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+.top-ticker-inner {
+  white-space: nowrap;
+  animation: ticker 40s linear infinite;
+  color: #ffcc00;
+  font-size: 12px;
+}
+@keyframes ticker { 0%{transform:translateX(100%)} 100%{transform:translateX(-100%)} }
+.top-socials { display: flex; gap: 10px; }
+.top-socials a {
+  color: #aaa;
+  font-size: 12px;
+  padding: 2px 6px;
+  border: 1px solid #333;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+.top-socials a:hover { background: var(--red); border-color: var(--red); color: #fff; }
+
+/* ── HEADER ── */
+header {
+  background: var(--white);
+  border-bottom: 3px solid var(--red);
+  padding: 14px 0 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.logo-area { display: flex; flex-direction: column; }
+.logo-main {
+  font-family: 'Playfair Display', serif;
+  font-size: 42px;
+  font-weight: 900;
+  color: var(--black);
+  line-height: 1;
+  letter-spacing: -2px;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+}
+.logo-main span { 
+  color: var(--red); 
+  font-style: normal; 
+  font-size: 36px;
+  letter-spacing: -1px;
+  margin-left: 8px;
+}
+.logo-sub {
+  font-size: 10px;
+  color: var(--black);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-top: 4px;
+  padding: 3px 0;
+  border-top: 1px solid var(--red);
+  border-bottom: 1px solid var(--red);
+  text-align: center;
+}
+.logo-telugu {
+  display: none;
+}
+.header-ad {
+  flex: 1;
+  max-width: 460px;
+  height: 80px;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 1px solid #2a2a4e;
+}
+.header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.header-search {
+  display: flex;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.header-search input {
+  border: none;
+  outline: none;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  width: 200px;
+  background: var(--light);
+}
+.header-search button {
+  background: var(--red);
+  border: none;
+  color: #fff;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.epaper-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--red);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: background 0.2s;
+}
+.epaper-btn:hover { background: var(--red-dark); }
+
+/* ── NAV ── */
+nav {
+  background: var(--red);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+}
+.nav-item {
+  position: relative;
+  display: inline-block;
+}
+.nav-link {
+  display: block;
+  padding: 12px 16px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.nav-link:hover, .nav-link.active { background: rgba(0,0,0,0.2); }
+.nav-item:hover .dropdown { display: block; }
+.dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--white);
+  min-width: 160px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-top: 2px solid var(--gold);
+  z-index: 200;
+}
+.dropdown a {
+  display: block;
+  padding: 9px 16px;
+  font-size: 13px;
+  color: var(--dark);
+  border-bottom: 1px solid #f0f0f0;
+  transition: all 0.15s;
+}
+.dropdown a:hover { background: var(--light); color: var(--red); padding-left: 20px; }
+.nav-telugu {
+  margin-left: auto;
+  background: rgba(0,0,0,0.2);
+  font-family: 'Tiro Telugu', serif;
+  letter-spacing: 0 !important;
+  font-size: 15px !important;
+}
+
+/* ── BREAKING NEWS ── */
+.breaking {
+  background: var(--gold);
+  padding: 7px 0;
+  overflow: hidden;
+}
+.breaking-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.breaking-label {
+  background: var(--red);
+  color: #fff;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  border-radius: 2px;
+  animation: flashLabel 1.5s infinite;
+}
+@keyframes flashLabel { 0%,100%{opacity:1} 50%{opacity:0.6} }
+.breaking-scroll {
+  overflow: hidden;
+  flex: 1;
+}
+.breaking-text {
+  white-space: nowrap;
+  animation: ticker 35s linear infinite;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+/* ── LAYOUT ── */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 20px;
+  padding: 20px 0;
+}
+.content-area {}
+.sidebar {}
+
+/* ── SECTION HEADER ── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 3px solid var(--red);
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 22px;
+  background: var(--red);
+  border-radius: 2px;
+}
+.view-all {
+  font-size: 12px;
+  color: var(--red);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 1px solid var(--red);
+  padding: 3px 10px;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+.view-all:hover { background: var(--red); color: #fff; }
+
+/* ── HERO / BIG STORY ── */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 4px;
+  margin-bottom: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.hero-main {
+  grid-row: 1 / 3;
+  position: relative;
+  overflow: hidden;
+}
+.hero-main img, .hero-side img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.hero-main:hover img, .hero-side:hover img { transform: scale(1.04); }
+.hero-main { height: 380px; }
+.hero-side { height: 188px; overflow: hidden; position: relative; }
+.hero-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.85));
+  padding: 24px 16px 14px;
+}
+.hero-cat {
+  display: inline-block;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 2px 8px;
+  margin-bottom: 6px;
+  border-radius: 2px;
+}
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  color: #fff;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.hero-main .hero-title { font-size: 22px; }
+.hero-side .hero-title { font-size: 15px; }
+.hero-meta { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 5px; }
+
+/* ── NEWS GRID ── */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.news-card {
+  background: var(--white);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.news-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
+.news-card-img {
+  height: 160px;
+  overflow: hidden;
+  background: #e0e0e0;
+  position: relative;
+}
+.news-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+.news-card:hover .news-card-img img { transform: scale(1.06); }
+.news-card-body { padding: 12px; }
+.news-cat {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--red);
+  margin-bottom: 5px;
+}
+.news-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--dark);
+  margin-bottom: 6px;
+}
+.news-title:hover { color: var(--red); }
+.news-excerpt { font-size: 12.5px; color: var(--mid); line-height: 1.5; }
+.news-meta { font-size: 11px; color: #aaa; margin-top: 8px; display: flex; justify-content: space-between; }
+
+/* ── LIST NEWS ── */
+.news-list { margin-bottom: 24px; }
+.list-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #ececec;
+  align-items: flex-start;
+}
+.list-item:last-child { border-bottom: none; }
+.list-thumb {
+  width: 90px;
+  height: 65px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #e0e0e0;
+}
+.list-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+.list-item:hover .list-thumb img { transform: scale(1.08); }
+.list-body { flex: 1; }
+.list-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+.list-title:hover { color: var(--red); }
+.list-meta { font-size: 11px; color: #aaa; }
+
+/* ── POLITICS SECTION ── */
+.politics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.politics-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  transition: box-shadow 0.2s;
+}
+.politics-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
+.politics-thumb { width: 80px; height: 70px; flex-shrink: 0; overflow: hidden; border-radius: 3px; background: #e0e0e0; }
+.politics-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.politics-body { flex: 1; }
+.politics-title { font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--dark); margin-bottom: 4px; }
+.politics-title:hover { color: var(--red); }
+.politics-meta { font-size: 11px; color: #aaa; }
+
+/* ── MOVIES SECTION ── */
+.movies-scroll {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.movie-card {
+  background: var(--white);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.movie-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+.movie-poster {
+  height: 200px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #444;
+  font-size: 13px;
+  position: relative;
+}
+.movie-poster img { width: 100%; height: 100%; object-fit: cover; }
+.movie-rating {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--gold);
+  color: #000;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 3px;
+}
+.movie-body { padding: 10px; }
+.movie-title { font-weight: 700; font-size: 13px; line-height: 1.3; color: var(--dark); margin-bottom: 3px; }
+.movie-info { font-size: 11px; color: var(--mid); }
+
+/* ── AD BANNER ── */
+.ad-banner {
+  background: linear-gradient(135deg, #1a1a2e, #2d1b69);
+  height: 90px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  border: 1px solid #2a2a5e;
+}
+
+/* ── SIDEBAR ── */
+.sidebar-widget {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.widget-header {
+  background: var(--red);
+  color: #fff;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.widget-body { padding: 12px 14px; }
+.trending-item {
+  display: flex;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dashed #eee;
+  align-items: flex-start;
+}
+.trending-item:last-child { border: none; }
+.trend-num {
+  font-size: 22px;
+  font-weight: 900;
+  color: #e8e8e8;
+  line-height: 1;
+  min-width: 28px;
+  font-family: 'Playfair Display', serif;
+}
+.trend-title { font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--dark); }
+.trend-title:hover { color: var(--red); }
+.poll-widget {}
+.poll-question { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 12px; line-height: 1.4; }
+.poll-option {
+  margin-bottom: 8px;
+}
+.poll-option-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 3px;
+  color: var(--gray);
+}
+.poll-bar-bg { background: #f0f0f0; border-radius: 2px; height: 6px; }
+.poll-bar { background: var(--red); height: 6px; border-radius: 2px; transition: width 1s ease; }
+.poll-vote-btn {
+  width: 100%;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  padding: 8px;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+.poll-vote-btn:hover { background: var(--red-dark); }
+
+/* Image placeholder backgrounds */
+.img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #aaa;
+  text-align: center;
+  padding: 8px;
+}
+
+/* Color coded placeholders */
+.ph-politics { background: linear-gradient(135deg, #D61F2622, #f43f4722); }
+.ph-movies { background: linear-gradient(135deg, #8e44ad22, #9b59b622); }
+.ph-sports { background: linear-gradient(135deg, #27ae6022, #2ecc7122); }
+.ph-business { background: linear-gradient(135deg, #FFCC0022, #f1c40f22); }
+.ph-tech { background: linear-gradient(135deg, #2980b922, #3498db22); }
+
+/* ── FOOTER ── */
+footer {
+  background: #111;
+  color: #aaa;
+  padding: 30px 0 16px;
+  margin-top: 24px;
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.footer-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--red);
+  margin-bottom: 8px;
+}
+.footer-logo span { color: var(--gold); }
+.footer-desc { font-size: 13px; line-height: 1.7; color: #666; margin-bottom: 12px; }
+.footer-social { display: flex; gap: 8px; }
+.footer-social a {
+  background: #222;
+  color: #aaa;
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+.footer-social a:hover { background: var(--red); color: #fff; }
+.footer-col-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #222;
+}
+.footer-links { list-style: none; }
+.footer-links li { margin-bottom: 6px; }
+.footer-links a { font-size: 13px; color: #666; transition: color 0.2s; }
+.footer-links a:hover { color: var(--red); }
+.footer-bottom {
+  border-top: 1px solid #222;
+  padding-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #555;
+}
+
+/* ── TAGS ── */
+.tags-section { margin-bottom: 24px; }
+.tags-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.tag-pill {
+  background: var(--white);
+  border: 1px solid var(--border);
+  color: var(--gray);
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.tag-pill:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .main-layout { grid-template-columns: 1fr; }
+  .hero-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+  .hero-main { grid-row: auto; height: 260px; }
+  .hero-side { height: 160px; }
+  .news-grid { grid-template-columns: repeat(2,1fr); }
+  .movies-scroll { grid-template-columns: repeat(2,1fr); }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .header-inner { flex-wrap: wrap; }
+  .header-ad { display: none; }
+  .logo-main { font-size: 28px; }
+  .news-grid { grid-template-columns: 1fr; }
+  .movies-scroll { grid-template-columns: 1fr 1fr; }
+  .politics-grid { grid-template-columns: 1fr; }
+  .nav-link { padding: 10px 10px; font-size: 12px; }
+  .footer-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="top-bar-inner">
+    <div class="top-bar-date" id="topDate"></div>
+    <div class="top-ticker">
+      <div class="top-ticker-inner">
+        🔴 TDP wins major victory in local body elections &nbsp;|&nbsp; 🎬 Allu Arjun's next film title revealed &nbsp;|&nbsp; 💰 Hyderabad property rates surge 18% this year &nbsp;|&nbsp; 🏏 India beat Australia by 6 wickets in 2nd ODI &nbsp;|&nbsp; 🌧️ IMD predicts heavy rains in Andhra, Telangana this week &nbsp;|&nbsp; 📱 Jio launches new plan at Rs 99 for 30 days
+      </div>
+    </div>
+    <div class="top-socials">
+      <a href="#">FB</a><a href="#">TW</a><a href="#">YT</a>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-main">AP<span>TOP NEWS</span></div>
+      <div class="logo-sub">THE HEADLINES OF INDIA'S SUNRISE STATE</div>
+    </div>
+    <div class="header-ad">Advertisement 728×90</div>
+    <div class="header-right">
+      <div class="header-search">
+        <input type="text" placeholder="Search news...">
+        <button>🔍</button>
+      </div>
+      <a href="#" class="epaper-btn">📰 ePaper</a>
+    </div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-item"><a href="#" class="nav-link active">Home</a></div>
+    <div class="nav-item">
+      <a href="#" class="nav-link">Latest ▾</a>
+      <div class="dropdown">
+        <a href="#">Breaking News</a>
+        <a href="#">Top Stories</a>
+        <a href="#">Just In</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a href="#" class="nav-link">Politics ▾</a>
+      <div class="dropdown">
+        <a href="#">Andhra Pradesh</a>
+        <a href="#">Telangana</a>
+        <a href="#">India</a>
+        <a href="#">International</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a href="#" class="nav-link">Movies ▾</a>
+      <div class="dropdown">
+        <a href="#">Tollywood News</a>
+        <a href="#">Gossip</a>
+        <a href="#">Reviews</a>
+        <a href="#">Box Office</a>
+        <a href="#">Bollywood</a>
+      </div>
+    </div>
+    <div class="nav-item"><a href="#" class="nav-link">Gallery</a></div>
+    <div class="nav-item"><a href="#" class="nav-link">Opinion</a></div>
+    <div class="nav-item">
+      <a href="#" class="nav-link">Business ▾</a>
+      <div class="dropdown">
+        <a href="#">Economy</a>
+        <a href="#">Markets</a>
+        <a href="#">Real Estate</a>
+      </div>
+    </div>
+    <div class="nav-item"><a href="#" class="nav-link">Sports</a></div>
+    <div class="nav-item"><a href="#" class="nav-link">Tech</a></div>
+    <div class="nav-item" style="margin-left:auto;"><a href="#" class="nav-link nav-telugu">తెలుగు</a></div>
+  </div>
+</nav>
+
+<!-- BREAKING NEWS -->
+<div class="breaking">
+  <div class="breaking-inner">
+    <span class="breaking-label">Breaking</span>
+    <div class="breaking-scroll">
+      <div class="breaking-text">
+        CM Chandrababu Naidu chairs high-level review meeting on state infrastructure projects &nbsp;|&nbsp; Revanth Reddy announces new welfare scheme for farmers &nbsp;|&nbsp; IMF upgrades India's GDP growth forecast to 7.2% &nbsp;|&nbsp; Heavy rains lash coastal Andhra, NDRF teams deployed
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+  <div class="main-layout">
+
+    <!-- LEFT CONTENT -->
+    <div class="content-area">
+
+      <!-- BIG STORY / HERO -->
+      <div style="margin-bottom:6px;">
+        <div class="section-header">
+          <div class="section-title">Big Story</div>
+          <a href="#" class="view-all">View All</a>
+        </div>
+      </div>
+
+      <div class="hero-grid">
+        <div class="hero-main">
+          <div class="ph-politics img-placeholder" style="height:100%;">
+            <span>🏛️ Politics Main Story<br>1200×380</span>
+          </div>
+          <div class="hero-overlay">
+            <span class="hero-cat">Politics</span>
+            <div class="hero-title">Chandrababu Naidu Announces Major Infrastructure Plan for Amaravati, Rs 50,000 Crore Investment Expected</div>
+            <div class="hero-meta">By Venkat Reddy &nbsp;·&nbsp; May 29, 2026 &nbsp;·&nbsp; 8 min read</div>
+          </div>
+        </div>
+        <div class="hero-side">
+          <div class="ph-movies img-placeholder" style="height:100%;">
+            <span>🎬 Movie Story</span>
+          </div>
+          <div class="hero-overlay">
+            <span class="hero-cat">Movies</span>
+            <div class="hero-title">Prabhas' New Film Creates Box Office Record on Opening Day</div>
+            <div class="hero-meta">2 hours ago</div>
+          </div>
+        </div>
+        <div class="hero-side">
+          <div class="ph-sports img-placeholder" style="height:100%;">
+            <span>🏏 Sports Story</span>
+          </div>
+          <div class="hero-overlay">
+            <span class="hero-cat">Sports</span>
+            <div class="hero-title">Hyderabad's Cheteshwar Pujara Retires From International Cricket</div>
+            <div class="hero-meta">4 hours ago</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AD -->
+      <div class="ad-banner">Advertisement · 728×90</div>
+
+      <!-- LATEST NEWS GRID -->
+      <div class="section-header">
+        <div class="section-title">Latest News</div>
+        <a href="#" class="view-all">View All</a>
+      </div>
+      <div class="news-grid">
+        <div class="news-card">
+          <div class="news-card-img">
+            <div class="ph-politics img-placeholder">🏛️ AP Politics</div>
+          </div>
+          <div class="news-card-body">
+            <div class="news-cat">Andhra Pradesh</div>
+            <a href="#"><div class="news-title">TDP Sweeps Local Body Polls in Five Districts, Opposition Demands Recount</div></a>
+            <div class="news-excerpt">The ruling TDP secured a landslide victory in the recently concluded local body elections across five key districts...</div>
+            <div class="news-meta"><span>2h ago</span><span>📖 5 min</span></div>
+          </div>
+        </div>
+        <div class="news-card">
+          <div class="news-card-img">
+            <div class="ph-movies img-placeholder">🎬 Tollywood</div>
+          </div>
+          <div class="news-card-body">
+            <div class="news-cat">Movies</div>
+            <a href="#"><div class="news-title">Allu Arjun Announces Two Back-to-Back Projects With Top Directors</div></a>
+            <div class="news-excerpt">Icon Star Allu Arjun is on a roll as he confirms two massive big-budget projects set to go on floors later this year...</div>
+            <div class="news-meta"><span>3h ago</span><span>📖 4 min</span></div>
+          </div>
+        </div>
+        <div class="news-card">
+          <div class="news-card-img">
+            <div class="ph-business img-placeholder">💰 Business</div>
+          </div>
+          <div class="news-card-body">
+            <div class="news-cat">Business</div>
+            <a href="#"><div class="news-title">Hyderabad Pharma Exports Cross $10 Billion Mark for First Time in History</div></a>
+            <div class="news-excerpt">Hyderabad's pharmaceutical industry has achieved a landmark milestone, with exports crossing the $10 billion mark...</div>
+            <div class="news-meta"><span>5h ago</span><span>📖 6 min</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POLITICS SECTION -->
+      <div class="section-header">
+        <div class="section-title">Politics</div>
+        <a href="#" class="view-all">View All</a>
+      </div>
+      <div class="politics-grid">
+        <div class="politics-card">
+          <div class="politics-thumb"><div class="ph-politics img-placeholder">🏛️</div></div>
+          <div class="politics-body">
+            <div class="news-cat">Andhra News</div>
+            <a href="#"><div class="politics-title">Nagababu Set to Enter Rajya Sabha as TDP Announces Final List</div></a>
+            <div class="politics-meta">1h ago · 3 min read</div>
+          </div>
+        </div>
+        <div class="politics-card">
+          <div class="politics-thumb"><div class="ph-politics img-placeholder">🗳️</div></div>
+          <div class="politics-body">
+            <div class="news-cat">Telangana</div>
+            <a href="#"><div class="politics-title">Revanth Reddy Government Completes 100 Days, Opposition Releases Report Card</div></a>
+            <div class="politics-meta">2h ago · 4 min read</div>
+          </div>
+        </div>
+        <div class="politics-card">
+          <div class="politics-thumb"><div class="ph-politics img-placeholder">🇮🇳</div></div>
+          <div class="politics-body">
+            <div class="news-cat">India</div>
+            <a href="#"><div class="politics-title">Parliament Session: BJP Faces Heat Over Rising Fuel Prices, Walkout by Opposition</div></a>
+            <div class="politics-meta">3h ago · 5 min read</div>
+          </div>
+        </div>
+        <div class="politics-card">
+          <div class="politics-thumb"><div class="ph-politics img-placeholder">🏙️</div></div>
+          <div class="politics-body">
+            <div class="news-cat">Andhra News</div>
+            <a href="#"><div class="politics-title">Amaravati Construction Resumes at Full Speed, CM Reviews Progress</div></a>
+            <div class="politics-meta">4h ago · 3 min read</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MOVIES SECTION -->
+      <div class="section-header">
+        <div class="section-title">Movies</div>
+        <a href="#" class="view-all">View All</a>
+      </div>
+      <div class="movies-scroll">
+        <div class="movie-card">
+          <div class="movie-poster">
+            <div class="ph-movies img-placeholder">🎬<br>Pushpa 3</div>
+            <div class="movie-rating">★ 4.2</div>
+          </div>
+          <div class="movie-body">
+            <div class="movie-title">Pushpa 3: The Rampage</div>
+            <div class="movie-info">Action · 2026 · Allu Arjun</div>
+          </div>
+        </div>
+        <div class="movie-card">
+          <div class="movie-poster">
+            <div class="ph-movies img-placeholder">🎬<br>Kalki 2.0</div>
+            <div class="movie-rating">★ 3.8</div>
+          </div>
+          <div class="movie-body">
+            <div class="movie-title">Kalki 2.0: Rebirth</div>
+            <div class="movie-info">Sci-Fi · 2026 · Prabhas</div>
+          </div>
+        </div>
+        <div class="movie-card">
+          <div class="movie-poster">
+            <div class="ph-movies img-placeholder">🎬<br>RRR 2</div>
+            <div class="movie-rating">★ 4.5</div>
+          </div>
+          <div class="movie-body">
+            <div class="movie-title">RRR 2</div>
+            <div class="movie-info">Action · 2026 · NTR, Ram Charan</div>
+          </div>
+        </div>
+        <div class="movie-card">
+          <div class="movie-poster">
+            <div class="ph-movies img-placeholder">🎬<br>Devara 2</div>
+            <div class="movie-rating">★ 4.0</div>
+          </div>
+          <div class="movie-body">
+            <div class="movie-title">Devara 2</div>
+            <div class="movie-info">Thriller · 2026 · Jr NTR</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MORE NEWS LIST -->
+      <div class="section-header">
+        <div class="section-title">More Stories</div>
+        <a href="#" class="view-all">View All</a>
+      </div>
+      <div class="news-list">
+        <div class="list-item">
+          <div class="list-thumb"><div class="ph-tech img-placeholder">💻</div></div>
+          <div class="list-body">
+            <div class="news-cat">Technology</div>
+            <a href="#"><div class="list-title">Hyderabad Startup Raises $200M in Series C Round, Becomes Newest Unicorn</div></a>
+            <div class="list-meta">6h ago · Business & Tech</div>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="list-thumb"><div class="ph-sports img-placeholder">🏏</div></div>
+          <div class="list-body">
+            <div class="news-cat">Sports</div>
+            <a href="#"><div class="list-title">India Wins 2nd ODI Against Australia; Rohit Sharma Scores 150-Run Masterclass</div></a>
+            <div class="list-meta">5h ago · Cricket</div>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="list-thumb"><div class="ph-business img-placeholder">🌾</div></div>
+          <div class="list-body">
+            <div class="news-cat">Agriculture</div>
+            <a href="#"><div class="list-title">AP Government Raises Paddy MSP by Rs 200 Per Quintal Ahead of Kharif Season</div></a>
+            <div class="list-meta">7h ago · Andhra Pradesh</div>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="list-thumb"><div class="ph-politics img-placeholder">⚖️</div></div>
+          <div class="list-body">
+            <div class="news-cat">Crime</div>
+            <a href="#"><div class="list-title">Hyderabad Police Busts ₹50 Crore Online Trading Scam, 12 Arrested</div></a>
+            <div class="list-meta">8h ago · Crime</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAGS -->
+      <div class="tags-section">
+        <div class="section-header">
+          <div class="section-title">Trending Tags</div>
+        </div>
+        <div class="tags-wrap">
+          <span class="tag-pill">#TDP</span>
+          <span class="tag-pill">#Amaravati</span>
+          <span class="tag-pill">#Tollywood</span>
+          <span class="tag-pill">#AlluArjun</span>
+          <span class="tag-pill">#Prabhas</span>
+          <span class="tag-pill">#Hyderabad</span>
+          <span class="tag-pill">#AndhraPradesh</span>
+          <span class="tag-pill">#Telangana</span>
+          <span class="tag-pill">#RRR2</span>
+          <span class="tag-pill">#ChandrababuNaidu</span>
+          <span class="tag-pill">#IPL</span>
+          <span class="tag-pill">#Cricket</span>
+          <span class="tag-pill">#India</span>
+          <span class="tag-pill">#Movies</span>
+        </div>
+      </div>
+
+    </div><!-- /content-area -->
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <!-- AD -->
+      <div style="background:#1a1a2e;height:250px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#444;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;border:1px solid #2a2a4e;">
+        Advertisement<br>300×250
+      </div>
+
+      <!-- TRENDING -->
+      <div class="sidebar-widget">
+        <div class="widget-header">🔥 Trending Now</div>
+        <div class="widget-body">
+          <div class="trending-item">
+            <div class="trend-num">01</div>
+            <a href="#"><div class="trend-title">Nagababu to Enter Rajya Sabha; TDP Finalises Names</div></a>
+          </div>
+          <div class="trending-item">
+            <div class="trend-num">02</div>
+            <a href="#"><div class="trend-title">Pushpa 3 Release Date Officially Announced by Mythri Movie Makers</div></a>
+          </div>
+          <div class="trending-item">
+            <div class="trend-num">03</div>
+            <a href="#"><div class="trend-title">Hyderabad Metro Phase 2 Construction Begins This Month</div></a>
+          </div>
+          <div class="trending-item">
+            <div class="trend-num">04</div>
+            <a href="#"><div class="trend-title">India vs Australia: Kohli's Century Seals Series Win</div></a>
+          </div>
+          <div class="trending-item">
+            <div class="trend-num">05</div>
+            <a href="#"><div class="trend-title">TSRTC Strike Called Off After Government Agrees to Demands</div></a>
+          </div>
+          <div class="trending-item">
+            <div class="trend-num">06</div>
+            <a href="#"><div class="trend-title">AP Govt Announces 3 New Medical Colleges in Tribal Districts</div></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- POLL -->
+      <div class="sidebar-widget">
+        <div class="widget-header">📊 Today's Poll</div>
+        <div class="widget-body">
+          <div class="poll-widget">
+            <div class="poll-question">Who is performing better as Chief Minister?</div>
+            <div class="poll-option">
+              <div class="poll-option-label"><span>Chandrababu Naidu (AP)</span><span>62%</span></div>
+              <div class="poll-bar-bg"><div class="poll-bar" style="width:62%"></div></div>
+            </div>
+            <div class="poll-option">
+              <div class="poll-option-label"><span>Revanth Reddy (TS)</span><span>38%</span></div>
+              <div class="poll-bar-bg"><div class="poll-bar" style="width:38%;background:#f39c12"></div></div>
+            </div>
+            <button class="poll-vote-btn" onclick="alert('Vote recorded! Thank you.')">Vote Now</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AD -->
+      <div style="background:#1a1a2e;height:250px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#444;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;border:1px solid #2a2a4e;">
+        Advertisement<br>300×250
+      </div>
+
+      <!-- GOSSIP -->
+      <div class="sidebar-widget">
+        <div class="widget-header">🌟 Gossip</div>
+        <div class="widget-body">
+          <div class="trending-item">
+            <div class="trend-num">—</div>
+            <a href="#"><div class="trend-title">Which top heroine is dating a famous cricketer? Industry's worst-kept secret</div></a>
+          </div>
+          <div class="trending-item">
+            <div class="trend-num">—</div>
+            <a href="#"><div class="trend-title">Big hero to quit Tollywood after next film? Sources say talks underway</div></a>
+          </div>
+          <div class="trending-item">
+            <div class="trend-num">—</div>
+            <a href="#"><div class="trend-title">Two top production houses feud over OTT rights; legal notices exchanged</div></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEATHER -->
+      <div class="sidebar-widget">
+        <div class="widget-header">🌦️ Weather</div>
+        <div class="widget-body" style="text-align:center;padding:16px;">
+          <div style="font-size:40px;">⛈️</div>
+          <div style="font-size:28px;font-weight:700;color:var(--dark);font-family:'Playfair Display',serif;">32°C</div>
+          <div style="font-size:13px;color:var(--mid);margin:4px 0;">Hyderabad, Telangana</div>
+          <div style="font-size:12px;color:var(--red);font-weight:600;">Heavy Rain Warning</div>
+          <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:12px;color:var(--mid);">
+            <span>H: 35°</span><span>L: 27°</span><span>Rain: 80%</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /sidebar -->
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">Aptop<span>News</span></div>
+        <div class="footer-desc">Aptop News is Andhra Pradesh and Telangana's most trusted news source, delivering round-the-clock coverage of politics, movies, business, sports and more.</div>
+        <div class="footer-social">
+          <a href="#">Facebook</a>
+          <a href="#">Twitter</a>
+          <a href="#">YouTube</a>
+          <a href="#">Instagram</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Categories</div>
+        <ul class="footer-links">
+          <li><a href="#">Politics</a></li>
+          <li><a href="#">Movies</a></li>
+          <li><a href="#">Business</a></li>
+          <li><a href="#">Sports</a></li>
+          <li><a href="#">Technology</a></li>
+          <li><a href="#">Health</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Regions</div>
+        <ul class="footer-links">
+          <li><a href="#">Andhra Pradesh</a></li>
+          <li><a href="#">Telangana</a></li>
+          <li><a href="#">Hyderabad</a></li>
+          <li><a href="#">Vijayawada</a></li>
+          <li><a href="#">Visakhapatnam</a></li>
+          <li><a href="#">Warangal</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">About</div>
+        <ul class="footer-links">
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Advertise</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Sitemap</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Aptop News. All Rights Reserved.</span>
+      <span>ఆప్టాప్ న్యూస్ వెబ్సైట్</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Date
+const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const now = new Date();
+document.getElementById('topDate').textContent =
+  `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+</script>
+
+</body>
+</html>

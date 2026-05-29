@@ -1,6 +1,36 @@
 {
   "articles": [
     {
+      "id": 1780053962037,
+      "category": "Jobs & Education",
+      "categoryTe": "ఉద్యోగాలు & విద్య",
+      "title": "cyclone in vizag: తాజా సమాచారం — వివరాలు, ముఖ్య అంశాలు",
+      "titleEn": "cyclone in vizag: Latest Update — Key Details & Analysis",
+      "desc": "cyclone in vizag సంబంధించి తాజా సమాచారం అందుతోంది. సంబంధిత అధికారులు స్పందించారు. ప్రజలు అప్రమత్తంగా ఉండాలని హెచ్చరించారు.",
+      "descEn": "cyclone in vizag సంబంధించి తాజా సమాచారం అందుతోంది. సంబంధిత అధికారులు స్పందించారు. ప్రజలు అప్రమత్తంగా ఉండాలని హెచ్చరించారు.",
+      "image": "/hero.png",
+      "author": "Srinivas Rao",
+      "authorEn": "Srinivas Rao",
+      "date": "ఇప్పుడే",
+      "views": 0,
+      "district": "Visakhapatnam",
+      "districtTe": "విశాఖపట్నం",
+      "status": "Published",
+      "priority": "Normal",
+      "pinTop": false,
+      "slug": "cyclone-in-vizag-latest-update-key-details-analysis",
+      "seoTitle": "cyclone in vizag: Latest Update — Key Details & Analysis",
+      "metaDescription": "cyclone in vizag సంబంధించి తాజా సమాచారం అందుతోంది. సంబంధిత అధికారులు స్పందించారు. ప్రజలు అప్రమత్తంగా ఉండాలని హెచ్చరించారు.",
+      "reactions": {
+        "like": 0,
+        "love": 0,
+        "wow": 0,
+        "sad": 0,
+        "clap": 0
+      },
+      "comments": []
+    },
+    {
       "id": 1779714585377,
       "category": "Politics",
       "categoryTe": "రాజకీయాలు",
@@ -226,11 +256,322 @@
   },
   "auditLogs": [
     {
+      "id": 1780054098439,
+      "user": "Srinivas Rao",
+      "role": "Super Admin",
+      "action": "Started Live Telecast: live",
+      "timestamp": "2026-05-29 11:28:18"
+    },
+    {
+      "id": 1780053962062,
+      "user": "Srinivas Rao",
+      "role": "Editor/Admin",
+      "action": "Published Story: cyclone in vizag: Latest Updat...",
+      "timestamp": "2026-05-29 11:26:02"
+    },
+    {
+      "id": 1780053728487,
+      "user": "Srinivas Rao",
+      "role": "Super Admin",
+      "action": "Toggled One-Click Emergency Newsroom Mode: true",
+      "timestamp": "2026-05-29 11:22:08"
+    },
+    {
       "id": 1779714585377,
       "user": "Srinivas Rao",
       "role": "Editor/Admin",
       "action": "Published Story: Aptop Exclusive: TTD and State...",
       "timestamp": "2026-05-25 13:09:45"
     }
-  ]
+  ],
+  "electionResults": {
+    "ap": {
+      "total": 175,
+      "declared": 175,
+      "parties": [
+        {
+          "name": "TDP+",
+          "lead": 135,
+          "color": "#FFD54A"
+        },
+        {
+          "name": "YSRCP",
+          "lead": 38,
+          "color": "#1877F2"
+        },
+        {
+          "name": "INC",
+          "lead": 2,
+          "color": "#25D366"
+        }
+      ],
+      "candidates": [
+        {
+          "name": "నారా చంద్రబాబు నాయుడు",
+          "constituency": "కుప్పం (Kuppam)",
+          "status": "Won (మెజారిటీ: 45,000)",
+          "party": "TDP"
+        },
+        {
+          "name": "వైఎస్ జగన్ మోహన్ రెడ్డి",
+          "constituency": "పులివెందుల (Pulivendula)",
+          "status": "Won (మెజారిటీ: 38,000)",
+          "party": "YSRCP"
+        }
+      ]
+    },
+    "ts": {
+      "total": 119,
+      "declared": 119,
+      "parties": [
+        {
+          "name": "INC",
+          "lead": 70,
+          "color": "#25D366"
+        },
+        {
+          "name": "BRS",
+          "lead": 42,
+          "color": "#E0115F"
+        },
+        {
+          "name": "BJP",
+          "lead": 7,
+          "color": "#FF9933"
+        }
+      ],
+      "candidates": [
+        {
+          "name": "ఎనుముల రేవంత్ రెడ్డి",
+          "constituency": "కొడంగల్ (Kodangal)",
+          "status": "Won (మెజారిటీ: 32,000)",
+          "party": "INC"
+        },
+        {
+          "name": "కల్వకుంట్ల చంద్రశేఖర్ రావు",
+          "constituency": "గజ్వేల్ (Gajwel)",
+          "status": "Won (మెజారిటీ: 28,000)",
+          "party": "BRS"
+        }
+      ]
+    }
+  },
+  "polls": {
+    "question": "ఈరోజు మీకు అత్యంత ఆసక్తికరమైన వార్త ఏది?",
+    "options": [
+      {
+        "id": 1,
+        "text": "ఆంధ్రప్రదేశ్ ఐటీ పెట్టుబడుల ఒప్పందాలు",
+        "votes": 420
+      },
+      {
+        "id": 2,
+        "text": "తిరుమల వేసవి రద్దీ క్యూ లైన్ల పరిస్థితి",
+        "votes": 290
+      },
+      {
+        "id": 3,
+        "text": "రాబోయే ముందస్తు ఎన్నికల లైవ్ చర్చలు",
+        "votes": 150
+      }
+    ]
+  },
+  "liveTelecasts": [
+    {
+      "id": "telecast-1780054098439",
+      "titleTe": "live",
+      "titleEn": "live",
+      "embedUrl": "https://www.youtube.com/live/8JpnpsxguAU",
+      "category": "Spiritual",
+      "active": true,
+      "viewers": 1623
+    },
+    {
+      "id": "telecast-1",
+      "titleTe": "ప్రత్యక్ష ప్రసారం: తిరుమల శ్రీవారి ఆలయం నుండి సుప్రభాత సేవ దర్శనాలు!",
+      "titleEn": "Live Telecast: Suprabhata Seva Darshan Live from Tirumala Hill Temple!",
+      "embedUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "active": false,
+      "category": "Spiritual",
+      "viewers": 1420
+    }
+  ],
+  "mediaLibrary": [
+    {
+      "id": "m1",
+      "type": "reels",
+      "url": "/hero.png",
+      "caption": "విశాఖ ఐటీ ప్రగతి బాట",
+      "district": "Visakhapatnam"
+    },
+    {
+      "id": "m2",
+      "type": "image",
+      "url": "/temple.png",
+      "caption": "శ్రీవారి సన్నిధిలో రద్దీ దృశ్యాలు",
+      "district": "Tirupati"
+    }
+  ],
+  "advertiserLeads": [],
+  "reporters": [
+    {
+      "id": "rep1",
+      "name": "రవి కుమార్",
+      "nameEn": "Ravi Kumar",
+      "photo": "/logo.png",
+      "district": "Visakhapatnam",
+      "bio": "విశాఖపట్నం బ్యూరో చీఫ్. గత 10 సంవత్సరాలుగా కోస్తాంధ్ర రాజకీయాలు మరియు నేర వార్తల విశ్లేషకులు.",
+      "stories": 120,
+      "twitter": "@ravivizag",
+      "whatsapp": "9848022338"
+    },
+    {
+      "id": "rep2",
+      "name": "కిరణ్ ప్రసాద్",
+      "nameEn": "Kiran Prasad",
+      "photo": "/logo.png",
+      "district": "Tirupati",
+      "bio": "రాయలసీమ ఆలయ సంస్కృతి, ఆధ్యాత్మికత మరియు తిరుమల వార్తల సమగ్ర రిపోర్టర్.",
+      "stories": 95,
+      "twitter": "@kirantirupati",
+      "whatsapp": "9848022339"
+    },
+    {
+      "id": "rep3",
+      "name": "స్వప్న రెడ్డి",
+      "nameEn": "Swapna Reddy",
+      "photo": "/logo.png",
+      "district": "Hyderabad",
+      "bio": "తెలంగాణ శాసనసభ, రాజధాని రాజకీయాలు మరియు ఐటీ కారిడార్ పరిణామాల ప్రత్యేక ప్రతినిధి.",
+      "stories": 145,
+      "twitter": "@swapnahyd",
+      "whatsapp": "9848022340"
+    }
+  ],
+  "emergencyMode": true,
+  "shorts": [
+    {
+      "id": "short-1780054016326",
+      "title": "వైజాగ్ సముద్ర తీరంలో భారీ అలలు!",
+      "captionTe": "తీర ప్రాంత ప్రజలు అప్రమత్తంగా ఉండాలని హెచ్చరించిన వాతావరణ శాఖ. లోతట్టు ప్రాంతాల ఖాళీకరణ.",
+      "image": "/vizag.png",
+      "district": "Tirupati",
+      "date": "ఇప్పుడే",
+      "views": 0
+    },
+    {
+      "id": "short-1",
+      "title": "విశాఖ తీరంలో భారీ గాలులు",
+      "captionTe": "తీరం దాటనున్న అల్పపీడనం.. అలర్ట్ జారీ!",
+      "image": "/hero.png",
+      "district": "Visakhapatnam",
+      "date": "ఇప్పుడే",
+      "views": 8200
+    },
+    {
+      "id": "short-2",
+      "title": "శ్రీవారి దర్శన సమయం అప్డేట్",
+      "captionTe": "తిరుమలలో పోటెత్తిన రద్దీ దృశ్యాలు!",
+      "image": "/temple.png",
+      "district": "Tirupati",
+      "date": "2 గంటల క్రితం",
+      "views": 12400
+    }
+  ],
+  "epaper": [
+    {
+      "id": "epaper-1",
+      "editionDate": "2026-05-25",
+      "title": "ఆప్టాప్ డైలీ మార్నింగ్ డైజెస్ట్ - మే 25",
+      "pdfUrl": "/epaper_may25.pdf",
+      "downloads": 1420,
+      "columns": [
+        "ఐటీ రంగంలో ప్రగతి",
+        "తిరుమలలో ప్రత్యేక ఏర్పాట్లు",
+        "రాజకీయ క్రీడ మొదలైంది!"
+      ]
+    },
+    {
+      "id": "epaper-2",
+      "editionDate": "2026-05-24",
+      "title": "ఆప్టాప్ డైలీ మార్నింగ్ డైజెస్ట్ - మే 24",
+      "pdfUrl": "/epaper_may24.pdf",
+      "downloads": 2840,
+      "columns": [
+        "మెట్రో ప్రాజెక్ట్ కి ఆమోదం",
+        "సెన్సెక్స్ రికార్డ్ గరిష్టం",
+        "స్థానిక క్రీడల అప్డేట్స్"
+      ]
+    }
+  ],
+  "bureauPerformance": {
+    "Visakhapatnam": {
+      "stories": 120,
+      "traffic": 45000,
+      "topReporter": "రవి కుమార్",
+      "trendingTag": "#VizagIT"
+    },
+    "Tirupati": {
+      "stories": 95,
+      "traffic": 32000,
+      "topReporter": "కిరణ్ ప్రసాద్",
+      "trendingTag": "#TirumalaDarshan"
+    },
+    "Vijayawada": {
+      "stories": 84,
+      "traffic": 24000,
+      "topReporter": "రవి వర్మ",
+      "trendingTag": "#AmaravatiUpdate"
+    },
+    "Hyderabad": {
+      "stories": 145,
+      "traffic": 68000,
+      "topReporter": "స్వప్న రెడ్డి",
+      "trendingTag": "#AIHubHyd"
+    }
+  },
+  "notificationAnalytics": {
+    "delivered": 24890,
+    "opened": 18450,
+    "clicked": 3108,
+    "categoryCtr": [
+      {
+        "name": "Politics",
+        "ctr": 14.5,
+        "count": 1800
+      },
+      {
+        "name": "Spiritual",
+        "ctr": 11.2,
+        "count": 980
+      },
+      {
+        "name": "Technology",
+        "ctr": 9.8,
+        "count": 420
+      }
+    ]
+  },
+  "searchRankings": {
+    "impressions": 485000,
+    "clicks": 64200,
+    "trendingKeywords": [
+      {
+        "term": "తిరుమల శ్రీవారి దర్శనం టికెట్లు 2026",
+        "volume": "45K searches",
+        "trend": "up"
+      },
+      {
+        "term": "ఏపీ నూతన ఐటీ పాలసీ పెట్టుబడులు",
+        "volume": "32K searches",
+        "trend": "up"
+      },
+      {
+        "term": "హైదరాబాద్ ఏఐ ఇన్నోవేషన్ పార్క్",
+        "volume": "24K searches",
+        "trend": "stable"
+      }
+    ]
+  },
+  "premiumUsers": []
 }
