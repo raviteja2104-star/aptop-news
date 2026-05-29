@@ -402,7 +402,7 @@ app.get('/api/articles', (req, res) => {
 });
 
 app.post('/api/articles', (req, res) => {
-  const { category, categoryTe, title, titleEn, desc, descEn, image, author, authorEn, district, districtTe, status, priority, pinTop, slug, seoTitle, metaDescription } = req.body;
+  const { category, categoryTe, title, titleEn, desc, descEn, image, author, authorEn, district, districtTe, status, priority, pinTop, slug, seoTitle, metaDescription, autoPostFb, autoPostInsta } = req.body;
   const cleanSlug = slug || titleEn.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   const newArticle = {
     id: Date.now(),
@@ -444,6 +444,17 @@ app.post('/api/articles', (req, res) => {
   };
   if (!localDb.auditLogs) localDb.auditLogs = [];
   localDb.auditLogs.unshift(logEntry);
+
+  if (autoPostFb || autoPostInsta) {
+    const socialLogEntry = {
+      id: Date.now() + 1,
+      user: 'System Automation',
+      role: 'API Integration',
+      action: `Auto-posted "${titleEn.slice(0, 20)}..." to ` + (autoPostFb ? 'Facebook ' : '') + (autoPostInsta ? 'Instagram' : ''),
+      timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19)
+    };
+    localDb.auditLogs.unshift(socialLogEntry);
+  }
 
   saveLocalDb();
 
@@ -797,6 +808,7 @@ app.get('/api/search-rankings', (req, res) => {
   res.json(localDb.searchRankings || {});
 });
 
+app.get('/api/premium-users', (req, res) => res.json(localDb.premiumUsers || []));
 app.post('/api/membership/subscribe', (req, res) => {
   const { name, email, plan } = req.body;
   const subscriber = {

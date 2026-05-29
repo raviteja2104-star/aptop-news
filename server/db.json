@@ -1,6 +1,36 @@
 {
   "articles": [
     {
+      "id": 1780068247447,
+      "category": "Politics",
+      "categoryTe": "రాజకీయాలు",
+      "title": "AP రాజకీయాలు (AP Politics): తాజా సమాచారం — వివరాలు, ముఖ్య అంశాలు",
+      "titleEn": "AP రాజకీయాలు (AP Politics): Latest Update — Key Details & Analysis",
+      "desc": "AP రాజకీయాలు (AP Politics) సంబంధించి తాజా సమాచారం అందుతోంది. సంబంధిత అధికారులు స్పందించారు. ప్రజలు అప్రమత్తంగా ఉండాలని హెచ్చరించారు.",
+      "descEn": "AP రాజకీయాలు (AP Politics) సంబంధించి తాజా సమాచారం అందుతోంది. సంబంధిత అధికారులు స్పందించారు. ప్రజలు అప్రమత్తంగా ఉండాలని హెచ్చరించారు.",
+      "image": "/hero.png",
+      "author": "Srinivas Rao",
+      "authorEn": "Srinivas Rao",
+      "date": "ఇప్పుడే",
+      "views": 0,
+      "district": "Visakhapatnam",
+      "districtTe": "విశాఖపట్నం",
+      "status": "Published",
+      "priority": "Normal",
+      "pinTop": false,
+      "slug": "ap-ap-politics-latest-update-key-details-analysis",
+      "seoTitle": "AP రాజకీయాలు (AP Politics): Latest Update — Key Details & Analysis",
+      "metaDescription": "AP రాజకీయాలు (AP Politics) సంబంధించి తాజా సమాచారం అందుతోంది. సంబంధిత అధికారులు స్పందించారు. ప్రజలు అప్రమత్తంగా ఉండాలని హెచ్చరించారు.",
+      "reactions": {
+        "like": 0,
+        "love": 0,
+        "wow": 0,
+        "sad": 0,
+        "clap": 0
+      },
+      "comments": []
+    },
+    {
       "id": 1780053962037,
       "category": "Jobs & Education",
       "categoryTe": "ఉద్యోగాలు & విద్య",
@@ -255,6 +285,20 @@
     "estimatedEarnings": 129.05
   },
   "auditLogs": [
+    {
+      "id": 1780068247482,
+      "user": "System Automation",
+      "role": "API Integration",
+      "action": "Auto-posted \"AP రాజకీయాలు (AP Pol...\" to Facebook Instagram",
+      "timestamp": "2026-05-29 15:24:07"
+    },
+    {
+      "id": 1780068247481,
+      "user": "Srinivas Rao",
+      "role": "Editor/Admin",
+      "action": "Published Story: AP రాజకీయాలు (AP Politics): La...",
+      "timestamp": "2026-05-29 15:24:07"
+    },
     {
       "id": 1780054098439,
       "user": "Srinivas Rao",

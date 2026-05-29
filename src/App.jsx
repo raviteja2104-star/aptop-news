@@ -118,6 +118,8 @@ export default function App() {
   const [artStatus, setArtStatus] = useState('Published');
   const [artPriority, setArtPriority] = useState('Normal');
   const [artPinTop, setArtPinTop] = useState(false);
+  const [autoPostFb, setAutoPostFb] = useState(false);
+  const [autoPostInsta, setAutoPostInsta] = useState(false);
   const [artSlug, setArtSlug] = useState('');
   const [seoTitle, setSeoTitle] = useState('');
   const [metaDesc, setMetaDesc] = useState('');
@@ -1037,7 +1039,9 @@ export default function App() {
       pinTop: artPinTop,
       slug: artSlug,
       seoTitle: seoTitle || artTitleEn,
-      metaDescription: metaDesc || artDescTe.slice(0, 150)
+      metaDescription: metaDesc || artDescTe.slice(0, 150),
+      autoPostFb,
+      autoPostInsta
     };
 
     try {
@@ -1056,7 +1060,13 @@ export default function App() {
         setUploadedUrl('');
         setArtImgUrl('/hero.png');
         
-        setCmsSuccessMsg('కథనం విజయవంతంగా డేటాబేస్కు ప్రచురించబడింది! (Article published and secure audit logged!)');
+        let successText = 'కథనం విజయవంతంగా డేటాబేస్కు ప్రచురించబడింది! (Article published and secure audit logged!)';
+        if (autoPostFb || autoPostInsta) {
+          successText += ' Automatically posted to ' + (autoPostFb ? 'Facebook ' : '') + (autoPostInsta ? 'Instagram' : '') + '!';
+        }
+        setCmsSuccessMsg(successText);
+        setAutoPostFb(false);
+        setAutoPostInsta(false);
         setTimeout(() => setCmsSuccessMsg(''), 4000);
       }
     } catch (err) {
@@ -2635,6 +2645,17 @@ export default function App() {
                           <label style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Article Content (Telugu):</label>
                           <textarea rows="3" className="form-control" value={artDescTe} onChange={(e) => setArtDescTe(e.target.value)} required></textarea>
                         </div>
+                        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', backgroundColor: '#F3F4F6', padding: '12px', borderRadius: '6px' }}>
+                          <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Auto-Post to Social Media:</span>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', cursor: 'pointer' }}>
+                            <input type="checkbox" checked={autoPostFb} onChange={(e) => setAutoPostFb(e.target.checked)} />
+                            Facebook Page
+                          </label>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', cursor: 'pointer' }}>
+                            <input type="checkbox" checked={autoPostInsta} onChange={(e) => setAutoPostInsta(e.target.checked)} />
+                            Instagram Feed
+                          </label>
+                        </div>
                         <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '8px' }}>Publish to Live Feed</button>
                       </form>
                     </div>
@@ -3374,7 +3395,7 @@ export default function App() {
                   <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '20px' }}>API Integrations</h2>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      {['Google Analytics', 'Firebase Push Notifications', 'YouTube Live API', 'Cloudinary Media'].map((api, idx) => (
+                      {['Google Analytics', 'Firebase Push Notifications', 'YouTube Live API', 'Cloudinary Media', 'Facebook Graph API', 'Instagram Auto-Post API'].map((api, idx) => (
                         <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
                           <div>
                             <h4 style={{ margin: '0 0 4px', fontSize: '1rem' }}>{api}</h4>
